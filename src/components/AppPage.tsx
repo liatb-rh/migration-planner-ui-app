@@ -61,7 +61,7 @@ export const AppPage: React.FC<React.PropsWithChildren<AppPage.Props>> = (
                 </FlexItem>
               ))}
             </Flex>
-            <Content component="small">{caption}</Content>
+            <Content component="p">{caption}</Content>
             {alerts && <AlertGroup>{alerts}</AlertGroup>}
           </Stack>
         </PageHeader>

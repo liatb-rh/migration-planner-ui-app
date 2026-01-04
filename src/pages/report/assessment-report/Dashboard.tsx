@@ -34,14 +34,20 @@ interface Props {
   isExportMode?: boolean;
   exportAllViews?: boolean;
   clusters?: { [key: string]: InventoryData };
+  isAggregateView?: boolean;
+  clusterFound?: boolean;
 }
 
 export const Dashboard: React.FC<Props> = ({
   infra,
+  cpuCores,
+  ramGB,
   vms,
   isExportMode,
   exportAllViews,
   clusters,
+  isAggregateView = true,
+  clusterFound = true,
 }) => {
   // Transform osInfo to include both count and supported fields, fallback to os with supported=true if osInfo is undefined
   const osData = vms.osInfo
@@ -79,6 +85,22 @@ export const Dashboard: React.FC<Props> = ({
           };
         },
       );
+
+  // If a cluster was selected but not found, show a lightweight empty view.
+  if (!clusterFound && !isAggregateView) {
+    return (
+      <PageSection hasBodyWrapper={false}>
+        <Grid hasGutter>
+          <GridItem span={12}>
+            <div style={{ padding: '24px' }}>
+              No data is available for the selected cluster.
+            </div>
+          </GridItem>
+        </Grid>
+      </PageSection>
+    );
+  }
+
   return (
     <PageSection hasBodyWrapper={false}>
       <Grid hasGutter>
@@ -106,8 +128,8 @@ export const Dashboard: React.FC<Props> = ({
                 exportAllViews={exportAllViews}
                 cpuTierDistribution={vms.distributionByCpuTier}
                 memoryTierDistribution={vms.distributionByMemoryTier}
-                memoryTotalGB={vms.ramGB?.total}
-                cpuTotalCores={vms.cpuCores?.total}
+                memoryTotalGB={ramGB?.total}
+                cpuTotalCores={cpuCores?.total}
               />
             </GalleryItem>
             <GalleryItem>
@@ -121,28 +143,48 @@ export const Dashboard: React.FC<Props> = ({
           </Gallery>
         </GridItem>
 
-        <GridItem span={12} data-export-block={isExportMode ? '4' : undefined}>
-          <Gallery hasGutter minWidths={{ default: '300px', md: '45%' }}>
-            <GalleryItem>
-              <ClustersOverview
-                vmsPerCluster={Object.values(clusters || {}).map(
-                  (c) => c.vms?.total ?? 0,
-                )}
-                clustersPerDatacenter={infra.clustersPerDatacenter}
-                isExportMode={isExportMode}
-                exportAllViews={exportAllViews}
-                clusters={clusters}
-              />
-            </GalleryItem>
-            <GalleryItem>
-              <HostsOverview
-                hosts={infra.hosts}
-                isExportMode={isExportMode}
-                exportAllViews={exportAllViews}
-              />
-            </GalleryItem>
-          </Gallery>
-        </GridItem>
+        {isAggregateView ? (
+          <GridItem
+            span={12}
+            data-export-block={isExportMode ? '4' : undefined}
+          >
+            <Gallery hasGutter minWidths={{ default: '300px', md: '45%' }}>
+              <GalleryItem>
+                <ClustersOverview
+                  vmsPerCluster={Object.values(clusters || {}).map(
+                    (c) => c.vms?.total ?? 0,
+                  )}
+                  clustersPerDatacenter={infra.clustersPerDatacenter}
+                  isExportMode={isExportMode}
+                  exportAllViews={exportAllViews}
+                  clusters={clusters}
+                />
+              </GalleryItem>
+              <GalleryItem>
+                <HostsOverview
+                  hosts={infra.hosts}
+                  isExportMode={isExportMode}
+                  exportAllViews={exportAllViews}
+                />
+              </GalleryItem>
+            </Gallery>
+          </GridItem>
+        ) : (
+          <GridItem
+            span={12}
+            data-export-block={isExportMode ? '4' : undefined}
+          >
+            <Gallery hasGutter minWidths={{ default: '300px', md: '45%' }}>
+              <GalleryItem>
+                <HostsOverview
+                  hosts={infra.hosts}
+                  isExportMode={isExportMode}
+                  exportAllViews={exportAllViews}
+                />
+              </GalleryItem>
+            </Gallery>
+          </GridItem>
+        )}
         <GridItem span={12} data-export-block={isExportMode ? '4' : undefined}>
           <Gallery hasGutter minWidths={{ default: '300px', md: '45%' }}>
             <GalleryItem>
@@ -175,3 +217,7 @@ export const Dashboard: React.FC<Props> = ({
     </PageSection>
   );
 };
+
+Dashboard.displayName = 'Dashboard';
+
+export default Dashboard;

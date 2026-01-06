@@ -211,6 +211,7 @@ const Inner: React.FC = () => {
           </StackItem>
           <StackItem>
             <Select
+              isScrollable
               isOpen={isClusterSelectOpen}
               selected={clusterView.selectionId}
               onSelect={handleClusterSelect}

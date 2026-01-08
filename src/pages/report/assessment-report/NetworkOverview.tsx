@@ -36,6 +36,9 @@ const colorPalette = [
 interface NetworkOverviewProps {
   infra: Infra;
   nicCount: VMResourceBreakdown;
+  distributionByNicCount?: {
+    [key: string]: number;
+  };
   isExportMode?: boolean;
   exportAllViews?: boolean;
 }
@@ -50,6 +53,7 @@ const VIEW_MODE_LABELS: Record<ViewMode, string> = {
 export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
   infra,
   nicCount,
+  distributionByNicCount,
   isExportMode = false,
   exportAllViews = false,
 }) => {
@@ -124,29 +128,83 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
     };
   }, [infra]);
 
-  // Build NIC count chart data from nicCount.histogram
+  // Build NIC count chart data (prefer infra.vms.distributionByNicCount, fallback to deprecated histogram)
   const { nicChartData, nicLegend, nicTitle, nicSubTitle } = useMemo(() => {
-    const histogram = nicCount?.histogram;
-    const dataArray: number[] = Array.isArray(histogram?.data)
-      ? (histogram?.data as number[])
-      : [];
-    const minValue =
-      typeof histogram?.minValue === 'number' ? histogram?.minValue : 0;
-    const step = typeof histogram?.step === 'number' ? histogram?.step : 1;
+    let slices: {
+      name: string;
+      count: number;
+      countDisplay: string;
+      legendCategory: string;
+    }[] = [];
+    let total = 0;
 
-    // Build one slice per NIC bucket that has VMs
-    const slices = dataArray
-      .map((count, idx) => {
-        const nicNum = minValue + idx * step;
+    if (
+      distributionByNicCount !== null &&
+      distributionByNicCount !== undefined
+    ) {
+      // Use new distribution object
+      const entries = Object.entries(
+        distributionByNicCount as Record<string, unknown>,
+      )
+        .map(([bucket, value]) => {
+          const num = Number(value);
+          return {
+            bucket,
+            count: Number.isFinite(num) ? num : 0,
+          };
+        })
+        .filter((e) => e.count > 0);
+
+      // Sort numeric buckets ascending and keep any "N+" buckets after numeric ones
+      entries.sort((a, b) => {
+        const aPlus = a.bucket.endsWith('+');
+        const bPlus = b.bucket.endsWith('+');
+        const aNum = parseInt(a.bucket, 10);
+        const bNum = parseInt(b.bucket, 10);
+        if (aPlus && !bPlus) return 1;
+        if (!aPlus && bPlus) return -1;
+        if (Number.isFinite(aNum) && Number.isFinite(bNum)) return aNum - bNum;
+        return a.bucket.localeCompare(b.bucket);
+      });
+
+      slices = entries.map((e) => {
+        const baseNum = parseInt(e.bucket, 10);
+        const label = e.bucket.endsWith('+')
+          ? `${baseNum}+ NIC`
+          : baseNum === 1
+            ? '1 NIC'
+            : `${baseNum} NIC`;
         return {
-          nicNum,
-          count: Number(count) || 0,
+          name: label,
+          count: e.count,
+          countDisplay: `${e.count} VMs`,
+          legendCategory: label,
         };
-      })
-      .filter((entry) => entry.count > 0)
-      // Show larger buckets first for clearer labeling
-      .sort((a, b) => a.nicNum - b.nicNum)
-      .map((entry) => {
+      });
+
+      total = entries.reduce((acc, e) => acc + e.count, 0);
+    } else {
+      // Fallback to deprecated histogram from nicCount
+      const histogram = nicCount?.histogram;
+      const dataArray: number[] = Array.isArray(histogram?.data)
+        ? (histogram?.data as number[])
+        : [];
+      const minValue =
+        typeof histogram?.minValue === 'number' ? histogram?.minValue : 0;
+      const step = typeof histogram?.step === 'number' ? histogram?.step : 1;
+
+      const buckets = dataArray
+        .map((count, idx) => {
+          const nicNum = minValue + idx * step;
+          return {
+            nicNum,
+            count: Number(count) || 0,
+          };
+        })
+        .filter((entry) => entry.count > 0)
+        .sort((a, b) => a.nicNum - b.nicNum);
+
+      slices = buckets.map((entry) => {
         const label = entry.nicNum === 1 ? '1 NIC' : `${entry.nicNum} NIC`;
         return {
           name: label,
@@ -156,13 +214,17 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
         };
       });
 
+      total =
+        typeof nicCount?.total === 'number'
+          ? nicCount.total
+          : buckets.reduce((acc, e) => acc + e.count, 0);
+    }
+
     const categories = slices.map((s) => s.legendCategory);
     const legendMap: Record<string, string> = {};
     categories.forEach((cat, idx) => {
       legendMap[cat] = colorPalette[idx % colorPalette.length];
     });
-
-    const total = typeof nicCount?.total === 'number' ? nicCount.total : 0;
 
     return {
       nicChartData: slices,
@@ -170,7 +232,7 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
       nicTitle: `${total}`,
       nicSubTitle: 'VMs',
     };
-  }, [nicCount]);
+  }, [distributionByNicCount, nicCount?.histogram, nicCount.total]);
 
   const onDropdownToggle = (): void => {
     setIsDropdownOpen(!isDropdownOpen);

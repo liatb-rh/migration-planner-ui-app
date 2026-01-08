@@ -191,6 +191,7 @@ export const Dashboard: React.FC<Props> = ({
               <NetworkOverview
                 infra={infra}
                 nicCount={vms.nicCount}
+                distributionByNicCount={vms.distributionByNicCount}
                 isExportMode={isExportMode}
                 exportAllViews={exportAllViews}
               />

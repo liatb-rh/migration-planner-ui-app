@@ -53,6 +53,8 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
   maxHeight = '200px',
   barHeight = 8,
 }: MigrationChartProps) => {
+  // Ensure tiny percentages still render a visible colored segment
+  const MIN_BAR_PX = 3;
   const dynamicLegend = useMemo(() => {
     return data.reduce(
       (acc, current) => {
@@ -188,11 +190,13 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                               sumOfAllCounts > 0
                                 ? (item.count / sumOfAllCounts) * 100
                                 : 0;
+                            const hasValue = barWidth > 0;
                             return (
                               <div
                                 style={{
                                   height: '100%',
                                   width: `${barWidth}%`,
+                                  minWidth: hasValue ? `${MIN_BAR_PX}px` : '0',
                                   backgroundColor: `${getColor(
                                     item.legendCategory,
                                   )}`,

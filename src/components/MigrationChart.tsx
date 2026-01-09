@@ -146,21 +146,13 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                             {item.name}
                           </Content>
                         </FlexItem>
-                        {item.infoText &&
-                        item.infoText !== '' &&
-                        item.infoText !== undefined ? (
+                        {item.infoText ? (
                           <FlexItem>
                             <Popover
                               className="upgrade-recommendation-popover"
                               position="bottom"
                               headerContent="Upgrade to get support"
-                              bodyContent={
-                                <div>
-                                  This operating system must be upgraded to a
-                                  supported version in order to be supported by
-                                  Red Hat.
-                                </div>
-                              }
+                              bodyContent={<div>{item.infoText}</div>}
                             >
                               <Button
                                 type="button"

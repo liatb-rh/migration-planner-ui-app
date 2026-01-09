@@ -1,3 +1,4 @@
+/* eslint-disable simple-import-sort/imports */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMount, useUnmount } from 'react-use';
@@ -21,10 +22,10 @@ import { useDiscoverySources } from '../../../migration-wizard/contexts/discover
 import { uploadInventoryFile } from '../../../utils/uploadInventory';
 
 import { UploadInventoryAction } from './actions/UploadInventoryAction';
-import { EmptyState } from './empty-state/EmptyState';
 import { AgentStatusView } from './AgentStatusView';
 import { Columns } from './Columns';
 import { DEFAULT_POLLING_DELAY, VALUE_NOT_AVAILABLE } from './Constants';
+import { EmptyState } from './empty-state/EmptyState';
 
 type SourceTableProps = {
   onUploadResult?: (message: string, isError?: boolean) => void;
@@ -453,7 +454,10 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
                         ) : (
                           <Dropdown
                             isOpen={openDropdowns[source.id] || false}
-                            popperProps={{ appendTo: () => document.body }}
+                            popperProps={{
+                              appendTo: () => document.body,
+                              position: 'end',
+                            }}
                             onOpenChange={(isOpen) =>
                               setOpenDropdowns((prev) => ({
                                 ...prev,

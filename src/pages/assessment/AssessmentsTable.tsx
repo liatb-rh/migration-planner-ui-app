@@ -318,7 +318,14 @@ export const AssessmentsTable: React.FC<Props> = ({
     );
   }
   return (
-    <div style={{ width: '100%', maxHeight: '450px', overflow: 'auto' }}>
+    <div
+      style={{
+        width: '100%',
+        maxHeight: '450px',
+        overflowY: 'auto',
+        overflowX: 'visible',
+      }}
+    >
       <Table
         aria-label="Assessments table"
         variant="compact"
@@ -431,7 +438,10 @@ export const AssessmentsTable: React.FC<Props> = ({
                   </Tooltip>
                   <Dropdown
                     isOpen={openDropdowns[row.id] || false}
-                    popperProps={{ appendTo: () => document.body }}
+                    popperProps={{
+                      appendTo: () => document.body,
+                      position: 'end',
+                    }}
                     onOpenChange={(isOpen) =>
                       setOpenDropdowns((prev) => ({
                         ...prev,

@@ -1,4 +1,33 @@
 import { Snapshot as SnapshotModel } from '@migration-planner-ui/api-client/models';
+
+/**
+ * Checks if an assessment has useful inventory data by examining
+ * the latest snapshot's inventory.clusters property.
+ *
+ * An assessment is considered to have useful data when:
+ * - It has at least one snapshot, AND
+ * - The latest snapshot has `inventory.clusters` defined (not null/undefined)
+ */
+export const hasUsefulData = (
+  snapshots: SnapshotModel[] | undefined,
+): boolean => {
+  if (!Array.isArray(snapshots) || snapshots.length === 0) {
+    return false;
+  }
+
+  // Sort snapshots by createdAt date (latest first) on a cloned array
+  const sortedSnapshots = [...snapshots].sort(
+    (a: SnapshotModel, b: SnapshotModel) => {
+      const aDate = new Date(a.createdAt || 0).getTime();
+      const bDate = new Date(b.createdAt || 0).getTime();
+      return bDate - aDate; // Latest first
+    },
+  );
+
+  const lastSnapshot = sortedSnapshots[0];
+  return lastSnapshot.inventory?.clusters != null;
+};
+
 interface SnapshotData {
   hosts: string | number;
   vms: string | number;

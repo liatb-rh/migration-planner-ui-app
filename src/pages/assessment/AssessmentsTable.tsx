@@ -15,13 +15,14 @@ import {
 import {
   ConnectedIcon,
   EllipsisVIcon,
+  ExclamationTriangleIcon,
   FileIcon,
   MonitoringIcon,
 } from '@patternfly/react-icons';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { openAssistedInstaller } from './utils/functions';
-import { parseLatestSnapshot } from './utils/snapshotParser';
+import { hasUsefulData, parseLatestSnapshot } from './utils/snapshotParser';
 
 type Props = {
   assessments: AssessmentModel[];
@@ -119,6 +120,9 @@ export const AssessmentsTable: React.FC<Props> = ({
             )
           : 0;
 
+      // Check if the assessment has useful inventory data
+      const hasData = hasUsefulData(snapshots);
+
       return {
         key: id || name,
         id,
@@ -132,6 +136,7 @@ export const AssessmentsTable: React.FC<Props> = ({
         networks: snapshotData.networks,
         datastores: snapshotData.datastores,
         snapshots: snapshots || [],
+        hasData,
       };
     });
 
@@ -443,17 +448,41 @@ export const AssessmentsTable: React.FC<Props> = ({
           {rows.map((row) => (
             <Tr key={row.key}>
               <Td dataLabel={Columns.Name}>
-                <Button
-                  variant="link"
-                  style={{ padding: 0 }}
-                  onClick={() =>
-                    navigate(
-                      `/openshift/migration-assessment/assessments/${row.id}`,
-                    )
-                  }
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
                 >
-                  {row.name}
-                </Button>
+                  <Button
+                    variant="link"
+                    style={{
+                      padding: 0,
+                      color: row.hasData ? undefined : '#6a6e73',
+                    }}
+                    onClick={() =>
+                      navigate(
+                        `/openshift/migration-assessment/assessments/${row.id}`,
+                      )
+                    }
+                  >
+                    {row.name}
+                  </Button>
+                  {!row.hasData && (
+                    <Tooltip
+                      content={
+                        row.sourceType.toLowerCase().includes('rvtools')
+                          ? 'No inventory data found. The uploaded file may be corrupted. Please verify and re-upload.'
+                          : 'No inventory data yet. Data collection may be in progress or the source connection failed.'
+                      }
+                    >
+                      <ExclamationTriangleIcon
+                        style={{ color: '#f0ab00', cursor: 'help' }}
+                      />
+                    </Tooltip>
+                  )}
+                </div>
               </Td>
               <Td dataLabel={Columns.SourceType}>
                 <div
@@ -495,12 +524,25 @@ export const AssessmentsTable: React.FC<Props> = ({
                     height: '100%',
                   }}
                 >
-                  <Tooltip content="Show assessment report">
+                  <Tooltip
+                    content={
+                      row.hasData
+                        ? 'Show assessment report'
+                        : row.sourceType.toLowerCase().includes('rvtools')
+                          ? 'No inventory data found. The uploaded file may be corrupted. Please verify and re-upload.'
+                          : 'No inventory data yet. Data collection may be in progress or the source connection failed.'
+                    }
+                  >
                     <Button
                       variant="plain"
                       aria-label="Open assessment"
-                      icon={<MonitoringIcon style={{ color: '#0066cc' }} />}
+                      icon={
+                        <MonitoringIcon
+                          style={{ color: row.hasData ? '#0066cc' : '#6a6e73' }}
+                        />
+                      }
                       style={{ padding: 0 }}
+                      isDisabled={!row.hasData}
                       onClick={() =>
                         navigate(
                           `/openshift/migration-assessment/assessments/${row.id}/report`,
@@ -538,6 +580,7 @@ export const AssessmentsTable: React.FC<Props> = ({
                             `/openshift/migration-assessment/assessments/${row.id}/report`,
                           )
                         }
+                        isDisabled={!row.hasData}
                       >
                         Show assessment report
                       </DropdownItem>
@@ -547,7 +590,10 @@ export const AssessmentsTable: React.FC<Props> = ({
                       >
                         Edit assessment
                       </DropdownItem>
-                      <DropdownItem onClick={openAssistedInstaller}>
+                      <DropdownItem
+                        onClick={openAssistedInstaller}
+                        isDisabled={!row.hasData}
+                      >
                         Create a target cluster
                       </DropdownItem>
                       <DropdownItem onClick={() => handleDelete(row.id)}>

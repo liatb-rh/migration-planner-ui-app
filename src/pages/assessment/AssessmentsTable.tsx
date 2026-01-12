@@ -107,12 +107,25 @@ export const AssessmentsTable: React.FC<Props> = ({
           ? `${ownerFirstName} ${ownerLastName}`
           : ownerFirstName || ownerLastName;
 
+      // Compute latest snapshot timestamp (ms) for reliable sort/filter
+      const lastUpdatedMs: number =
+        Array.isArray(snapshots) && snapshots.length
+          ? Math.max(
+              ...snapshots.map((s) =>
+                s?.createdAt
+                  ? new Date(s.createdAt as unknown as string).getTime()
+                  : 0,
+              ),
+            )
+          : 0;
+
       return {
         key: id || name,
         id,
         name,
         sourceType,
         lastUpdated: snapshotData.lastUpdated,
+        lastUpdatedMs,
         owner: ownerFullName,
         hosts: snapshotData.hosts,
         vms: snapshotData.vms,
@@ -145,6 +158,65 @@ export const AssessmentsTable: React.FC<Props> = ({
             (i.owner || '').toLowerCase().includes(filterValue.toLowerCase()),
           );
           break;
+        case 'Last updated': {
+          const query = filterValue.trim().toLowerCase();
+          const nowMs = Date.now();
+          const oneDayMs = 24 * 60 * 60 * 1000;
+          const matchByRule = (itemMs: number, itemLabel: string): boolean => {
+            if (!itemMs) {
+              return false;
+            }
+            const diffDays = Math.floor((nowMs - itemMs) / oneDayMs);
+
+            // Common quick filters
+            if (query === 'today') return diffDays === 0;
+            if (query === 'yesterday') return diffDays === 1;
+            if (
+              query === 'last 7 days' ||
+              query === 'past 7 days' ||
+              query === 'week'
+            )
+              return diffDays >= 0 && diffDays < 7;
+            if (
+              query === 'last 30 days' ||
+              query === 'past 30 days' ||
+              query === 'month' ||
+              query === 'last month'
+            )
+              return diffDays >= 0 && diffDays < 30;
+
+            // Numeric relative: e.g., "3 days", "10d"
+            const rel = query.match(/(\d+)\s*(d|day|days)\b/);
+            if (rel) {
+              const days = Number(rel[1]);
+              if (!Number.isNaN(days)) {
+                return diffDays >= 0 && diffDays < days;
+              }
+            }
+
+            // Date input: try to parse and match same calendar date
+            const parsed = new Date(filterValue);
+            if (!Number.isNaN(parsed.getTime())) {
+              const targetY = parsed.getFullYear();
+              const targetM = parsed.getMonth();
+              const targetD = parsed.getDate();
+              const d = new Date(itemMs);
+              return (
+                d.getFullYear() === targetY &&
+                d.getMonth() === targetM &&
+                d.getDate() === targetD
+              );
+            }
+
+            // Fallback: substring on rendered label (e.g., "Today", "1 day ago")
+            return itemLabel.toLowerCase().includes(query);
+          };
+
+          filtered = filtered.filter((i) =>
+            matchByRule(i.lastUpdatedMs as number, i.lastUpdated as string),
+          );
+          break;
+        }
       }
     }
 
@@ -181,11 +253,11 @@ export const AssessmentsTable: React.FC<Props> = ({
         );
         break;
       case 2: // Last updated column
-        copy.sort((a, b) =>
-          sortBy.direction === 'asc'
-            ? a.lastUpdated.localeCompare(b.lastUpdated)
-            : b.lastUpdated.localeCompare(a.lastUpdated),
-        );
+        copy.sort((a, b) => {
+          const aMs = typeof a.lastUpdatedMs === 'number' ? a.lastUpdatedMs : 0;
+          const bMs = typeof b.lastUpdatedMs === 'number' ? b.lastUpdatedMs : 0;
+          return sortBy.direction === 'asc' ? aMs - bMs : bMs - aMs;
+        });
         break;
       case 3: // Owner column
         copy.sort((a, b) =>

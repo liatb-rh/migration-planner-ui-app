@@ -150,6 +150,7 @@ const Inner: React.FC = () => {
     ? discoverySourcesContext.getSourceById(assessment.sourceId)
     : undefined;
   const agent = source?.agent;
+  const clusterCount = clusters ? Object.keys(clusters).length : 0;
 
   const handleClusterSelect = (
     _event: React.MouseEvent<Element, MouseEvent> | undefined,
@@ -232,6 +233,27 @@ const Inner: React.FC = () => {
             {lastUpdatedText !== '-'
               ? `Last updated: ${lastUpdatedText}`
               : '[Last updated time stamp]'}
+          </StackItem>
+          <StackItem>
+            {clusterCount > 0 ? (
+              typeof vms?.total === 'number' ? (
+                <>
+                  Detected <strong>{vms?.total} VMS</strong> in{' '}
+                  <strong>
+                    {clusterCount} {clusterCount === 1 ? 'cluster' : 'clusters'}
+                  </strong>
+                </>
+              ) : (
+                <>
+                  Detected{' '}
+                  <strong>
+                    {clusterCount} {clusterCount === 1 ? 'cluster' : 'clusters'}
+                  </strong>
+                </>
+              )
+            ) : (
+              'No clusters detected'
+            )}
           </StackItem>
           <StackItem>
             <Select

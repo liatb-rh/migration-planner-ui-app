@@ -456,15 +456,16 @@ export const AssessmentsTable: React.FC<Props> = ({
                   }}
                 >
                   <Button
-                    variant="link"
-                    style={{
-                      padding: 0,
-                      color: row.hasData ? undefined : '#6a6e73',
-                    }}
-                    onClick={() =>
-                      navigate(
-                        `/openshift/migration-assessment/assessments/${row.id}`,
-                      )
+                    variant={row.hasData ? 'link' : 'plain'}
+                    style={{ padding: 0 }}
+                    isDisabled={!row.hasData}
+                    onClick={
+                      row.hasData
+                        ? (): void =>
+                            navigate(
+                              `/openshift/migration-assessment/assessments/${row.id}`,
+                            )
+                        : undefined
                     }
                   >
                     {row.name}

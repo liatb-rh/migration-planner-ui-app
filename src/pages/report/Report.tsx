@@ -64,6 +64,12 @@ const Inner: React.FC = () => {
     ) {
       await discoverySourcesContext.listAssessments();
     }
+    if (
+      !discoverySourcesContext.sources ||
+      discoverySourcesContext.sources.length === 0
+    ) {
+      await discoverySourcesContext.listSources();
+    }
   });
 
   const assessment = discoverySourcesContext.assessments.find(

@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 
 import { AssessmentApi } from '@migration-planner-ui/api-client/apis';
+import { ResponseError } from '@migration-planner-ui/api-client/runtime';
 import { useInjection } from '@migration-planner-ui/ioc';
 import {
   Modal,
@@ -86,9 +87,14 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
 
       setSizerOutput(result);
     } catch (err) {
-      setError(
-        err instanceof Error ? err : new Error('Failed to calculate sizing'),
-      );
+      if (err instanceof ResponseError) {
+        const message = await err.response.text();
+        setError(new Error(err.message, { cause: message }));
+      } else {
+        setError(
+          err instanceof Error ? err : new Error('Failed to calculate sizing'),
+        );
+      }
     } finally {
       setIsLoading(false);
     }
@@ -103,10 +109,10 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
       isOpen={isOpen}
       aria-label="Cluster sizing wizard modal"
       onEscapePress={handleClose}
-      variant="large"
+      variant="medium"
     >
       <Wizard
-        height={600}
+        height={700}
         onClose={handleClose}
         header={
           <WizardHeader

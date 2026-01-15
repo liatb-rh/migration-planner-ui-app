@@ -127,14 +127,24 @@ export const SizingResult: React.FC<SizingResultProps> = ({
   }
 
   if (error) {
+    const title = 'Failed to calculate sizing recommendation';
+    let message = error.message;
+    if (error.cause && typeof error.cause === 'string') {
+      try {
+        const parsedCause = JSON.parse(error.cause) as { message: string };
+        const m = parsedCause.message;
+        message = m.at(0).toUpperCase() + m.slice(1);
+      } catch {
+        // Fall back to original message without crashing
+      }
+    }
+
     return (
       <Stack hasGutter>
         <StackItem>
-          <Content>
-            <Content component="p">
-              Failed to calculate sizing recommendation: {error.message}
-            </Content>
-          </Content>
+          <Alert isInline variant="danger" title={title}>
+            {message}
+          </Alert>
         </StackItem>
       </Stack>
     );
@@ -161,7 +171,7 @@ export const SizingResult: React.FC<SizingResultProps> = ({
   const memoryLimits = sizerOutput.resourceConsumption.limits?.memory ?? 0;
 
   return (
-    <Panel isScrollable>
+    <Panel>
       {/* Sticky Header with title and copy button */}
       <PanelHeader>
         <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>

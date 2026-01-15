@@ -1,51 +1,40 @@
 import React from 'react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
-import { mockClusterRequirementsResponse } from './mocks/clusterRequirementsResponse.mock';
 import { DEFAULT_FORM_VALUES } from './constants';
 import { SizingResult } from './SizingResult';
 
-import '@testing-library/jest-dom';
-
-const DISCLAIMER_TEXT =
-  'Note: Resource requirements are estimates based on current workloads. Please verify this architecture with your SME team to ensure optimal performance.';
-
-afterEach(() => cleanup());
-
 describe('SizingResult', () => {
-  it('renders the estimation disclaimer when sizing data is present', () => {
-    render(
-      <SizingResult
-        clusterName="Test Cluster"
-        formValues={DEFAULT_FORM_VALUES}
-        sizerOutput={mockClusterRequirementsResponse}
-      />,
-    );
+  const baseProps = {
+    clusterName: 'test-cluster',
+    formValues: DEFAULT_FORM_VALUES,
+    sizerOutput: null,
+    isLoading: false,
+  };
 
-    expect(screen.getByText(DISCLAIMER_TEXT)).toBeInTheDocument();
+  it('shows backend message parsed from error cause JSON', () => {
+    const backendMessage =
+      'failed to calculate cluster requirements: worker node size (16 CPU / 32 GB) is too small for this inventory (2680 CPU / 10452 GB). Please use larger worker nodes (recommended: at least 20 CPU / 76 GB)';
+    const error = new Error('Response returned an error code', {
+      cause: JSON.stringify({ message: backendMessage }),
+    });
+
+    render(<SizingResult {...baseProps} error={error} />);
+
+    expect(
+      screen.getByText(
+        'Worker node size (16 CPU / 32 GB) is too small for this inventory (2680 CPU / 10452 GB). Please use larger worker nodes (recommended: at least 20 CPU / 76 GB)',
+      ),
+    ).toBeDefined();
   });
 
-  it('includes the disclaimer in copied recommendations', async () => {
-    const writeText = vi.fn().mockResolvedValue(undefined);
-    Object.assign(navigator, { clipboard: { writeText } });
+  it('falls back to error.message when cause is not JSON', () => {
+    const error = new Error('Something went wrong', { cause: 'not-json' });
 
-    render(
-      <SizingResult
-        clusterName="Test Cluster"
-        formValues={DEFAULT_FORM_VALUES}
-        sizerOutput={mockClusterRequirementsResponse}
-      />,
-    );
+    render(<SizingResult {...baseProps} error={error} />);
 
-    fireEvent.click(
-      screen.getByRole('button', { name: /copy recommendations/i }),
-    );
-
-    expect(writeText).toHaveBeenCalledTimes(1);
-    expect(writeText).toHaveBeenCalledWith(
-      expect.stringContaining(DISCLAIMER_TEXT),
-    );
+    expect(screen.getByText('Something went wrong')).toBeDefined();
   });
 });

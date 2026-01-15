@@ -8,12 +8,12 @@ import { t_global_icon_color_status_danger_default as globalDangerColor100 } fro
 import { ReportTable } from '../ReportTable';
 
 interface ErrorTableProps {
-  errors: MigrationIssue[];
+  errors?: MigrationIssue[];
   isExportMode?: boolean;
 }
 
 export const ErrorTable: React.FC<ErrorTableProps> = ({
-  errors,
+  errors = [],
   isExportMode = false,
 }) => {
   const tableHeight = isExportMode ? 'none !important' : '325px';

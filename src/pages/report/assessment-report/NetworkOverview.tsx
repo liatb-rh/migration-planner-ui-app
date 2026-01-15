@@ -232,7 +232,7 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
       nicTitle: `${total}`,
       nicSubTitle: 'VMs',
     };
-  }, [distributionByNicCount, nicCount?.histogram, nicCount.total]);
+  }, [distributionByNicCount, nicCount?.histogram, nicCount?.total]);
 
   const onDropdownToggle = (): void => {
     setIsDropdownOpen(!isDropdownOpen);

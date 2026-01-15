@@ -16,16 +16,19 @@ export namespace ReportTable {
 
 export function ReportTable<DataItem>(
   props: ReportTable.Props<DataItem[]>,
-  withoutBorder = false,
 ): React.ReactNode {
-  const { columns, data, fields, style, caption } = props;
+  const { columns, data, fields, style, caption, withoutBorder } = props;
+  const cols = Array.isArray(columns) ? columns : [];
+  const rows = Array.isArray(data) ? (data as DataItem[]) : [];
+  const flds = Array.isArray(fields) ? (fields as Array<keyof DataItem>) : [];
+  const noBorder = Boolean(withoutBorder);
 
   return (
     <Table
       variant="compact"
       borders={true}
       style={{
-        border: withoutBorder ? 'none' : '1px solid lightgray',
+        border: noBorder ? 'none' : '1px solid lightgray',
         borderRight: 'none',
         ...style,
       }}
@@ -44,15 +47,15 @@ export function ReportTable<DataItem>(
         </caption>
       )}
       <Thead>
-        <Tr style={{ border: withoutBorder ? 'none' : '1px solid lightgray' }}>
-          {columns.map((name, index) => (
+        <Tr style={{ border: noBorder ? 'none' : '1px solid lightgray' }}>
+          {cols.map((name, index) => (
             <Th
               key={index}
-              hasRightBorder={!withoutBorder}
+              hasRightBorder={!noBorder}
               style={{
                 whiteSpace: 'normal',
                 wordBreak: 'break-word',
-                border: withoutBorder ? 'none' : '1px solid lightgray',
+                border: noBorder ? 'none' : '1px solid lightgray',
               }}
             >
               {name}
@@ -61,24 +64,24 @@ export function ReportTable<DataItem>(
         </Tr>
       </Thead>
       <Tbody>
-        {data.map((item, idx) => (
+        {rows.map((item, idx) => (
           <Tr
             key={idx}
             style={{
               width: 100,
-              border: withoutBorder ? 'none' : '1px solid lightgray',
+              border: noBorder ? 'none' : '1px solid lightgray',
             }}
           >
-            {fields.map((f, fieldIdx) => (
-              <Td key={fieldIdx} hasRightBorder={!withoutBorder}>
+            {flds.map((f, fieldIdx) => (
+              <Td key={fieldIdx} hasRightBorder={!noBorder}>
                 {' '}
-                {item[f] === '' || item[f] === undefined
+                {item?.[f] === '' || item?.[f] === undefined
                   ? '-'
-                  : typeof item[f] === 'boolean'
-                    ? item[f]
+                  : typeof item?.[f] === 'boolean'
+                    ? (item?.[f] as boolean)
                       ? 'True'
                       : 'False'
-                    : (item[f] as React.ReactNode)}
+                    : (item?.[f] as React.ReactNode)}
               </Td>
             ))}
           </Tr>

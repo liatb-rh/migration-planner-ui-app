@@ -68,7 +68,7 @@ export const Dashboard: React.FC<Props> = ({
           };
         },
       )
-    : Object.entries(vms.os).reduce(
+    : Object.entries(vms.os ?? {}).reduce(
         (acc, [osName, count]) => {
           acc[osName] = {
             count: count,

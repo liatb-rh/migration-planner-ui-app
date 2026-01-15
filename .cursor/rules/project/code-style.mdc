@@ -1,0 +1,16 @@
+---
+description: "Frontend code style and framework conventions."
+globs:
+  - "src/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Code Style
+
+- Use ES modules (import/export), not CommonJS
+- Use TypeScript with proper types - avoid `any` where possible
+- Follow React hooks patterns and best practices
+- Component library: PatternFly React (`@patternfly/react-core`, `@patternfly/react-table`)
+- Use `@emotion/css` for styling when needed, avoid generating plain css/scss files
+- Routing: `react-router-dom` with BrowserRouter
+- Destructure imports when possible: `import { Button } from '@patternfly/react-core'`

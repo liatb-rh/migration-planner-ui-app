@@ -1,11 +1,11 @@
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 
 # vscode config
-# .vscode/*
-.cursor/*
-!.cursor/plans/
-!.cursor/plans/**
-
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
 
 # ide config
 .idea/

@@ -1,0 +1,12 @@
+---
+description: "Planning rules"
+globs:
+  - ".cursor/plans/**"
+alwaysApply: false
+---
+
+# Plans
+
+- Use relative paths for any file links in plans (e.g., `src/pages/...`, not absolute paths).
+- Prefer stable anchors: reference directories or files, not line numbers.
+- Keep links consistent: match repository casing and path separators.

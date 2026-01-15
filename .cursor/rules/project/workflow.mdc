@@ -1,0 +1,14 @@
+---
+description: "Workflow expectations for validation and common references."
+alwaysApply: true
+---
+
+# Workflow
+
+- Always run `make validate-all` before committing
+- After implementing a plan, always validate formatting, linting, type-checking, and tests
+- Run `npm test` to ensure tests pass before pushing
+- When facing lint errors, first attempt to fix them with `make lint-fix`
+- Reference `src/components/` for canonical component patterns
+- API client: `@migration-planner-ui/api-client` and `@migration-planner-ui/ioc`
+- For standalone mode, use `webpack.standalone.js` config

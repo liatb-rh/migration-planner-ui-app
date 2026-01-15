@@ -98,7 +98,7 @@ const Inner: React.FC = () => {
             to: '/openshift/migration-assessment/assessments',
             children: 'assessments',
           },
-          { key: 3, to: '#', children: 'Assessment not found', isActive: true },
+          { key: 3, children: 'Assessment not found', isActive: true },
         ]}
         title="Assessment details"
       >
@@ -194,7 +194,6 @@ const Inner: React.FC = () => {
         },
         {
           key: 3,
-          to: '#',
           children: `${assessment.name || `Assessment ${id}`} - vCenter report`,
           isActive: true,
         },

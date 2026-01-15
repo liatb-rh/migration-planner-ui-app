@@ -737,7 +737,6 @@ const ExampleReport: React.FC = () => {
         },
         {
           key: 3,
-          to: '#',
           children: 'Example - vCenter report',
           isActive: true,
         },

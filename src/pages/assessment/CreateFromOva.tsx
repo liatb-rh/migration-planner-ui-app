@@ -203,7 +203,7 @@ const CreateFromOva: React.FC = () => {
           to: '/openshift/migration-assessment/',
           children: 'assessments',
         },
-        { key: 3, to: '#', isActive: true, children: 'create new assessment' },
+        { key: 3, isActive: true, children: 'create new assessment' },
       ]}
       title="Create new migration assessment"
     >

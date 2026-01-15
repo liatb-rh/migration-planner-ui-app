@@ -223,7 +223,6 @@ const MigrationAssessmentPage: React.FC = () => (
     breadcrumbs={[
       {
         key: 1,
-        to: '#',
         children: 'Migration assessment',
         isActive: true,
       },

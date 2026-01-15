@@ -99,7 +99,7 @@ const AssessmentDetails: React.FC = () => {
             to: '/openshift/migration-assessment/assessments',
             children: 'assessments',
           },
-          { key: 3, to: '#', children: 'Assessment not found', isActive: true },
+          { key: 3, children: 'Assessment not found', isActive: true },
         ]}
         title="Assessment details"
       >
@@ -149,7 +149,6 @@ const AssessmentDetails: React.FC = () => {
         },
         {
           key: 3,
-          to: '#',
           children: assessment.name || `Assessment ${id}`,
           isActive: true,
         },

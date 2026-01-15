@@ -12,7 +12,7 @@ const MigrationWizardPage: React.FC = () => {
           to: '/openshift/migration-assessment',
           children: 'Migration assessment',
         },
-        { key: 2, to: '#', children: 'Guide', isActive: true },
+        { key: 2, children: 'Guide', isActive: true },
       ]}
       title="Welcome, let's start your migration journey from VMware to OpenShift."
     >

@@ -30,16 +30,28 @@ export const uploadInventoryFile = async (
       if (fileExtension === 'json') {
         const content = await file.text();
         try {
-          await discoverySourcesContext.updateInventory(
+          const res = (await discoverySourcesContext.updateInventory(
             sourceId,
-            JSON.parse(content),
-          );
+            content,
+          )) as unknown as { id?: string } | undefined;
+
+          if (!res || !res.id) {
+            const message =
+              discoverySourcesContext.errorUpdatingInventory?.message ||
+              'The uploaded file is using an old schema version and cannot be parsed.Generate a new OVA file, import to your vSphere environment and then try to upload it again.';
+            onUploadResult?.(message, true);
+            return;
+          }
+
           onUploadResult?.('Discovery file uploaded successfully', false);
+          onUploadSuccess?.();
         } catch (error: unknown) {
           const message =
             (error as { message?: string })?.message ||
-            'Failed to update inventory';
+            discoverySourcesContext.errorUpdatingInventory?.message ||
+            'Failed to upload the inventory file';
           onUploadResult?.(message, true);
+          return;
         }
       } else {
         onUploadResult?.(
@@ -55,7 +67,6 @@ export const uploadInventoryFile = async (
     } finally {
       input.remove();
       await discoverySourcesContext.listSources();
-      onUploadSuccess?.();
     }
   };
 

@@ -31,6 +31,60 @@ import { Context } from './Context';
 // Use a shared constant to avoid recreating empty array references on each render
 const EMPTY_ARRAY: unknown[] = [];
 
+type ApiErrorWithResponse = { response: Response };
+
+const hasResponse = (error: unknown): error is ApiErrorWithResponse => {
+  return typeof error === 'object' && error !== null && 'response' in error;
+};
+
+const coerceToError = (error: unknown, fallbackMessage: string): Error => {
+  if (error instanceof Error) {
+    return error;
+  }
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as { message?: unknown }).message === 'string'
+  ) {
+    return new Error((error as { message: string }).message);
+  }
+  return new Error(fallbackMessage);
+};
+
+const ensureValidUpdatedSource = (updatedSource: unknown): Source => {
+  if (
+    !updatedSource ||
+    typeof updatedSource !== 'object' ||
+    !('id' in updatedSource)
+  ) {
+    if (typeof updatedSource === 'string') {
+      throw new Error(updatedSource);
+    }
+    throw new Error('Unexpected API response while updating inventory.');
+  }
+  return updatedSource as Source;
+};
+
+const extractResponseErrorMessage = async (
+  response: Response,
+): Promise<string> => {
+  try {
+    const errorText = await response.text();
+    try {
+      const errorData = JSON.parse(errorText);
+      return (
+        (errorData && (errorData.message || (errorData as any).error)) ||
+        errorText
+      );
+    } catch {
+      return errorText || 'Failed to parse API error response.';
+    }
+  } catch {
+    return 'Error response could not be read.';
+  }
+};
+
 export const Provider: React.FC<PropsWithChildren> = (props) => {
   const { children } = props;
   const [sourceSelected, setSourceSelected] = useState<Source | null>(null);
@@ -443,11 +497,27 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
 
   const [updateInventoryState, updateInventory] = useAsyncFn(
     async (sourceId: string, jsonValue: string) => {
-      const updatedSource = sourceApi.updateInventory({
-        id: sourceId,
-        updateInventory: UpdateInventoryFromJSON(jsonValue),
-      });
-      return updatedSource;
+      try {
+        const payload =
+          typeof jsonValue === 'string' ? JSON.parse(jsonValue) : jsonValue;
+        const updatedSource = await sourceApi.updateInventory({
+          id: sourceId,
+          updateInventory: UpdateInventoryFromJSON(payload),
+        });
+        // Some backends may return a string on error without proper HTTP status
+        return ensureValidUpdatedSource(updatedSource);
+      } catch (error: unknown) {
+        console.log('updateInventoryState catch', error);
+        if (hasResponse(error)) {
+          const message = await extractResponseErrorMessage(error.response);
+          console.log('updateInventoryState message', message);
+          throw new Error(message);
+        }
+        throw coerceToError(
+          error,
+          'Unexpected API response while updating inventory.',
+        );
+      }
     },
   );
 

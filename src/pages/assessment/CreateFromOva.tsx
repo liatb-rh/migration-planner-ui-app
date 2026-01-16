@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
+  ActionGroup,
   Alert,
   AlertActionLink,
   Button,
@@ -41,6 +42,8 @@ const CreateFromOva: React.FC = () => {
     React.useState<boolean>(false);
   const [isCreatingSource, setIsCreatingSource] =
     React.useState<boolean>(false);
+  const [uploadMessage, setUploadMessage] = React.useState<string | null>(null);
+  const [isUploadError, setIsUploadError] = React.useState<boolean>(false);
 
   const createdSourceId = discoverySourcesContext.sourceCreatedId || '';
   const createdSource = createdSourceId
@@ -104,6 +107,12 @@ const CreateFromOva: React.FC = () => {
       // ignore storage failures
     }
   }, [name, useExisting, selectedEnvironmentId]);
+
+  // Clear any upload status messages when switching environments
+  React.useEffect(() => {
+    setUploadMessage(null);
+    setIsUploadError(false);
+  }, [selectedEnvironmentId]);
 
   React.useEffect(() => {
     if (discoverySourcesContext.assessmentFromAgentState) {
@@ -257,7 +266,7 @@ const CreateFromOva: React.FC = () => {
             </ol>
           </Content>
 
-          <div style={{ marginTop: '16px' }}>
+          <div className="pf-v6-u-mt-md">
             <Checkbox
               id="use-existing-env"
               label="Select existing environment"
@@ -292,23 +301,45 @@ const CreateFromOva: React.FC = () => {
             </FormGroup>
           )}
           {isCreatingSource && (
-            <div style={{ marginTop: '16px' }}>
+            <div className="pf-v6-u-mt-md">
               <Spinner />
             </div>
           )}
           {useExisting && selectedEnvironmentId && !isCreatingSource && (
-            <div style={{ marginTop: '16px' }}>
+            <div className="pf-v6-u-mt-md">
               <SourcesTable
                 onlySourceId={selectedEnvironmentId}
                 uploadOnly={true}
+                onUploadResult={(message, isError) => {
+                  setUploadMessage(message ?? null);
+                  setIsUploadError(Boolean(isError));
+                }}
                 onUploadSuccess={async () => {
                   await discoverySourcesContext.listSources();
                 }}
               />
             </div>
           )}
+          {uploadMessage && (
+            <div className="pf-v6-u-mt-md">
+              <Alert
+                isInline
+                variant={isUploadError ? 'danger' : 'success'}
+                title={isUploadError ? 'Upload error' : 'Upload success'}
+              >
+                {uploadMessage}
+              </Alert>
+            </div>
+          )}
+          {!uploadMessage && discoverySourcesContext.errorUpdatingInventory && (
+            <div className="pf-v6-u-mt-md">
+              <Alert isInline variant="danger" title="Upload error">
+                {discoverySourcesContext.errorUpdatingInventory.message}
+              </Alert>
+            </div>
+          )}
           {!isCreatingSource && (
-            <div style={{ marginTop: '8px' }}>
+            <div className="pf-v6-u-mt-sm">
               <Button
                 variant="secondary"
                 onClick={() => setIsSetupModalOpen(true)}
@@ -319,7 +350,7 @@ const CreateFromOva: React.FC = () => {
             </div>
           )}
           {createdSource?.agent?.status === 'waiting-for-credentials' && (
-            <div style={{ marginTop: '16px' }}>
+            <div className="pf-v6-u-mt-md">
               <Alert
                 isInline
                 variant="custom"
@@ -347,7 +378,7 @@ const CreateFromOva: React.FC = () => {
             </div>
           )}
 
-          <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
+          <ActionGroup className="pf-v6-u-mt-lg">
             <Button
               variant="primary"
               isDisabled={
@@ -361,7 +392,7 @@ const CreateFromOva: React.FC = () => {
             <Button variant="link" onClick={handleCancel}>
               Cancel
             </Button>
-          </div>
+          </ActionGroup>
         </Form>
 
         {isSetupModalOpen && (

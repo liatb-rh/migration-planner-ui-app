@@ -36,7 +36,7 @@ declare namespace DiscoverySources {
     selectSource: (source: Source) => void;
     selectSourceById: (sourceId: string) => void;
     getSourceById: (sourceId: string) => Source;
-    updateInventory: (sourceId: string, jsonValue: string) => void;
+    updateInventory: (sourceId: string, jsonValue: string) => Promise<Source>;
     isUpdatingInventory: boolean;
     errorUpdatingInventory?: Error;
     downloadSourceUrl?: string;

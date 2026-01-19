@@ -39,6 +39,7 @@ interface EnhancedDownloadButtonProps {
   documentTitle?: string;
   onError?: (error: ExportError) => void;
   isDisabled?: boolean;
+  isAggregateView?: boolean;
 }
 
 export const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
@@ -49,6 +50,7 @@ export const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
   documentTitle,
   onError,
   isDisabled = false,
+  isAggregateView = true,
 }): JSX.Element => {
   const reportExportService = useInjection<ReportExportService>(
     Symbols.ReportExportService,
@@ -124,6 +126,7 @@ export const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
       label: 'HTML',
       description: 'Export the report as interactive charts',
       action: handleHTMLExport,
+      disabled: !isAggregateView,
     },
   ];
 

@@ -15,7 +15,7 @@ describe('SizingResult', () => {
   };
 
   it('shows backend message parsed from error cause JSON', () => {
-    // Backend message without the "Failed to calculate cluster requirements: " prefix
+    // Backend now returns just the message without the "failed to calculate cluster requirements: " prefix
     const backendMessage =
       'worker node size (16 CPU / 32 GB) is too small for this inventory (2680 CPU / 10452 GB). Please use larger worker nodes (recommended: at least 20 CPU / 76 GB)';
     const error = new Error('Response returned an error code', {

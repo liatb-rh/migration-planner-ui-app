@@ -353,18 +353,18 @@ const Inner: React.FC = () => {
                   }
                   sourceData={discoverySourcesContext.sourceSelected as Source}
                   snapshot={last}
-                  documentTitle={`${assessment.name || `Assessment ${id}`} - vCenter report${
-                    clusterView.isAggregateView
-                      ? ''
-                      : ` - ${clusterView.selectionLabel}`
-                  }`}
+                  documentTitle={`${assessment.name || `Assessment ${id}`} - vCenter report${clusterView.isAggregateView
+                    ? ''
+                    : ` - ${clusterView.selectionLabel}`
+                    }`}
+                  isAggregateView={clusterView.isAggregateView}
                 />
               ) : (
                 <Tooltip
                   content={
                     <p>
-                      There are no ESXi hosts or VMs to display. Export is not
-                      available for empty reports.
+                      Export is unavailable because this cluster has no ESXi
+                      hosts or VMs.
                     </p>
                   }
                 >
@@ -384,16 +384,13 @@ const Inner: React.FC = () => {
                         clusterFound={clusterView.clusterFound}
                       />
                     }
-                    sourceData={
-                      discoverySourcesContext.sourceSelected as Source
-                    }
+                    sourceData={discoverySourcesContext.sourceSelected as Source}
                     snapshot={last}
-                    documentTitle={`${assessment.name || `Assessment ${id}`} - vCenter report${
-                      clusterView.isAggregateView
-                        ? ''
-                        : ` - ${clusterView.selectionLabel}`
-                    }`}
-                    isDisabled={true}
+                    documentTitle={`${assessment.name || `Assessment ${id}`} - vCenter report${clusterView.isAggregateView
+                      ? ''
+                      : ` - ${clusterView.selectionLabel}`
+                      }`}
+                    isDisabled
                   />
                 </Tooltip>
               )}

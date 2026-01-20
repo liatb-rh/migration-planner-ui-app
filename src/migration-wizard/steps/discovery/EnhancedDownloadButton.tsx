@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import type { Source } from '@migration-planner-ui/api-client/models';
 import { useInjection } from '@migration-planner-ui/ioc';
 import {
+  Button,
   Dropdown,
   DropdownItem,
   DropdownList,
@@ -126,7 +127,6 @@ export const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
       label: 'HTML',
       description: 'Export the report as interactive charts',
       action: handleHTMLExport,
-      disabled: !isAggregateView,
     },
   ];
 
@@ -138,6 +138,30 @@ export const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
     setIsDropdownOpen(false);
     setError(null);
   };
+
+  if (!isAggregateView) {
+    return (
+      <Button
+        variant="secondary"
+        onClick={handleDownloadPDF}
+        isDisabled={isLoading || isDisabled}
+        aria-label="Export to PDF"
+      >
+        {isLoading ? (
+          <>
+            <Spinner size="sm" aria-hidden="true" />
+            {loadingState === 'generating-pdf'
+              ? 'Generating PDF...'
+              : 'Generating HTML...'}
+          </>
+        ) : (
+          <>
+            <DownloadIcon aria-hidden="true" /> Export to PDF
+          </>
+        )}
+      </Button>
+    );
+  }
 
   return (
     <Dropdown

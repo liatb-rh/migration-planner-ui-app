@@ -353,10 +353,11 @@ const Inner: React.FC = () => {
                   }
                   sourceData={discoverySourcesContext.sourceSelected as Source}
                   snapshot={last}
-                  documentTitle={`${assessment.name || `Assessment ${id}`} - vCenter report${clusterView.isAggregateView
-                    ? ''
-                    : ` - ${clusterView.selectionLabel}`
-                    }`}
+                  documentTitle={`${assessment.name || `Assessment ${id}`} - vCenter report${
+                    clusterView.isAggregateView
+                      ? ''
+                      : ` - ${clusterView.selectionLabel}`
+                  }`}
                   isAggregateView={clusterView.isAggregateView}
                 />
               ) : (
@@ -384,12 +385,15 @@ const Inner: React.FC = () => {
                         clusterFound={clusterView.clusterFound}
                       />
                     }
-                    sourceData={discoverySourcesContext.sourceSelected as Source}
+                    sourceData={
+                      discoverySourcesContext.sourceSelected as Source
+                    }
                     snapshot={last}
-                    documentTitle={`${assessment.name || `Assessment ${id}`} - vCenter report${clusterView.isAggregateView
-                      ? ''
-                      : ` - ${clusterView.selectionLabel}`
-                      }`}
+                    documentTitle={`${assessment.name || `Assessment ${id}`} - vCenter report${
+                      clusterView.isAggregateView
+                        ? ''
+                        : ` - ${clusterView.selectionLabel}`
+                    }`}
                     isDisabled
                   />
                 </Tooltip>

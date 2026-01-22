@@ -154,12 +154,10 @@ const Inner: React.FC = () => {
 
   const clusterSelectDisabled = clusterView.clusterOptions.length <= 1;
 
-  // Check if the selected cluster has hosts and VMs
-  const hasClusterResources = (viewInfra?: Infra, viewVms?: VMs): boolean => {
-    const hasHosts =
-      (viewInfra?.totalHosts ?? 0) > 0 || (viewInfra?.hosts?.length ?? 0) > 0;
+  // Check if the selected cluster has VMs
+  const hasClusterResources = (_viewInfra?: Infra, viewVms?: VMs): boolean => {
     const hasVms = (viewVms?.total ?? 0) > 0;
-    return hasHosts && hasVms;
+    return hasVms;
   };
 
   const canShowClusterRecommendations =
@@ -364,8 +362,7 @@ const Inner: React.FC = () => {
                 <Tooltip
                   content={
                     <p>
-                      Export is unavailable because this cluster has no ESXi
-                      hosts or VMs.
+                      Export is unavailable because this cluster has no VMs.
                     </p>
                   }
                 >
@@ -413,8 +410,8 @@ const Inner: React.FC = () => {
                   <Tooltip
                     content={
                       <p>
-                        This cluster has no ESXi hosts or VMs. Cluster
-                        recommendations are not available for empty clusters.
+                        This cluster has no VMs. Cluster recommendations are not
+                        available for empty clusters.
                       </p>
                     }
                   >

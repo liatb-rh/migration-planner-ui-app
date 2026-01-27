@@ -1,20 +1,17 @@
-/* eslint-disable simple-import-sort/imports */
-import React, { useCallback, useState } from 'react';
-
 import {
   Alert,
   Button,
+  EmptyState as PFEmptyState,
   EmptyStateActions,
   EmptyStateBody,
   EmptyStateFooter,
-  EmptyState as PFEmptyState,
   StackItem,
-} from '@patternfly/react-core';
-import { ExclamationCircleIcon, SearchIcon } from '@patternfly/react-icons';
+} from "@patternfly/react-core";
+import { ExclamationCircleIcon, SearchIcon } from "@patternfly/react-icons";
+import React, { useCallback, useState } from "react";
 
-import { useDiscoverySources } from '../../../../migration-wizard/contexts/discovery-sources/Context';
-
-import { DiscoverySourceSetupModal } from './DiscoverySourceSetupModal';
+import { useDiscoverySources } from "../../../../migration-wizard/contexts/discovery-sources/Context";
+import { DiscoverySourceSetupModal } from "./DiscoverySourceSetupModal";
 
 export const EmptyState: React.FC = () => {
   const discoverySourcesContext = useDiscoverySources();
@@ -27,7 +24,7 @@ export const EmptyState: React.FC = () => {
   const toggleDiscoverySourceSetupModal = useCallback((): void => {
     setShouldShowDiscoverySetupModal((lastState) => {
       if (lastState === true) {
-        discoverySourcesContext.listSources();
+        void discoverySourcesContext.listSources();
       }
       return !lastState;
     });
@@ -35,7 +32,7 @@ export const EmptyState: React.FC = () => {
 
   const handleTryAgain = useCallback(() => {
     if (!discoverySourcesContext.isLoadingSources) {
-      discoverySourcesContext.listSources();
+      void discoverySourcesContext.listSources();
     }
   }, [discoverySourcesContext]);
 
@@ -111,4 +108,4 @@ export const EmptyState: React.FC = () => {
   );
 };
 
-EmptyState.displayName = 'SourcesTableEmptyState';
+EmptyState.displayName = "SourcesTableEmptyState";

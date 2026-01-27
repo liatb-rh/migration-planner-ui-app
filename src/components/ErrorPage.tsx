@@ -1,7 +1,4 @@
-import React from 'react';
-import { useLocation, useParams } from 'react-router-dom';
-
-import { keyframes } from '@emotion/css';
+import { keyframes } from "@emotion/css";
 import {
   Backdrop,
   Bullseye,
@@ -13,11 +10,13 @@ import {
   EmptyStateActions,
   EmptyStateBody,
   EmptyStateFooter,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
 import {
   ExclamationCircleIcon,
   ExclamationTriangleIcon,
-} from '@patternfly/react-icons';
+} from "@patternfly/react-icons";
+import React from "react";
+import { useLocation, useParams } from "react-router-dom";
 
 const _bounce = keyframes``; // placeholder to keep emotion import references if needed later
 
@@ -26,16 +25,17 @@ type Props = {
   message?: string;
   additionalDetails?: string;
   /** A list of actions, the first entry is considered primary and the rest are secondary. */
-  actions?: Array<Omit<ButtonProps, 'variant'>>;
+  actions?: Array<Omit<ButtonProps, "variant">>;
 };
 
 const ErrorPage: React.FC<Props> = (props) => {
   const params = useParams();
   const location = useLocation();
 
+  const locationState = location.state as { message?: string } | null;
   const {
-    code = params.code ?? '500',
-    message = location.state?.message ?? "That's on us...",
+    code = params.code ?? "500",
+    message = locationState?.message ?? "That's on us...",
     additionalDetails,
     actions = [],
   } = props;
@@ -46,7 +46,7 @@ const ErrorPage: React.FC<Props> = (props) => {
       <Backdrop style={{ zIndex: 0 }} />
       <Bullseye>
         <Card
-          style={{ width: '36rem', height: '38rem', justifyContent: 'center' }}
+          style={{ width: "36rem", height: "38rem", justifyContent: "center" }}
         >
           <EmptyState
             headingLevel="h1"
@@ -85,6 +85,6 @@ const ErrorPage: React.FC<Props> = (props) => {
   );
 };
 
-ErrorPage.displayName = 'ErrorPage';
+ErrorPage.displayName = "ErrorPage";
 
 export default ErrorPage;

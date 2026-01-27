@@ -20,10 +20,10 @@ objects:
           - /apps/assisted-migration-app
       image: ${IMAGE}:${IMAGE_TAG}
       module:
-        manifestLocation: '/apps/assisted-migration-app/fed-mods.json'
+        manifestLocation: "/apps/assisted-migration-app/fed-mods.json"
         modules:
-          - id: 'migration-assessment'
-            module: './RootApp'
+          - id: "migration-assessment"
+            module: "./RootApp"
             routes:
               - pathname: /openshift/migration-assessment
 

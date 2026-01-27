@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {
   Card,
   CardBody,
@@ -9,10 +7,11 @@ import {
   Flex,
   FlexItem,
   Icon,
-} from '@patternfly/react-core';
-import { InfoCircleIcon } from '@patternfly/react-icons';
+} from "@patternfly/react-core";
+import { InfoCircleIcon } from "@patternfly/react-icons";
+import React from "react";
 
-import MigrationChart from '../../../components/MigrationChart';
+import MigrationChart from "../../../components/MigrationChart";
 
 interface OSDistributionProps {
   osData: {
@@ -30,11 +29,11 @@ export const OSDistribution: React.FC<OSDistributionProps> = ({
   isExportMode = false,
 }) => {
   const hasUpgradeRecommendation = Object.values(osData).some(
-    (o) => o.upgradeRecommendation && o.upgradeRecommendation.trim() !== '',
+    (o) => o.upgradeRecommendation && o.upgradeRecommendation.trim() !== "",
   );
   return (
     <Card
-      className={isExportMode ? 'dashboard-card-print' : 'dashboard-card'}
+      className={isExportMode ? "dashboard-card-print" : "dashboard-card"}
       id="os-distribution"
     >
       <CardTitle>
@@ -43,9 +42,9 @@ export const OSDistribution: React.FC<OSDistributionProps> = ({
       <CardBody>
         {hasUpgradeRecommendation ? (
           <Flex
-            alignItems={{ default: 'alignItemsCenter' }}
-            spaceItems={{ default: 'spaceItemsSm' }}
-            style={{ marginBottom: '8px' }}
+            alignItems={{ default: "alignItemsCenter" }}
+            spaceItems={{ default: "spaceItemsSm" }}
+            style={{ marginBottom: "8px" }}
           >
             <FlexItem>
               <Icon>
@@ -83,7 +82,7 @@ export const OSBarChart: React.FC<OSBarChartProps> = ({
   osData,
   isExportMode,
 }) => {
-  const dataEntries = Object.entries(osData).filter(([os]) => os.trim() !== '');
+  const dataEntries = Object.entries(osData).filter(([os]) => os.trim() !== "");
 
   const sorted = dataEntries.sort(([, a], [, b]) => b.count - a.count);
 
@@ -91,18 +90,18 @@ export const OSBarChart: React.FC<OSBarChartProps> = ({
     name: os,
     count: osInfo.count,
     legendCategory: osInfo.supported
-      ? 'Supported by Red Hat'
-      : 'Not supported by Red Hat',
+      ? "Supported by Red Hat"
+      : "Not supported by Red Hat",
     infoText: osInfo.upgradeRecommendation,
   }));
 
   // Define custom colors: green for supported, red for not supported
   const customLegend = {
-    'Supported by Red Hat': '#28a745', // Green
-    'Not supported by Red Hat': '#d9534f', // Red
+    "Supported by Red Hat": "#28a745", // Green
+    "Not supported by Red Hat": "#d9534f", // Red
   };
 
-  const tableHeight = isExportMode ? 'auto !important' : '350px';
+  const tableHeight = isExportMode ? "auto !important" : "350px";
   return (
     <MigrationChart
       data={chartData}

@@ -19,7 +19,7 @@ export const formatNumber = (num: number): string => {
  * Escape HTML to prevent XSS attacks
  */
 export const escapeHtml = (str: string): string => {
-  const div = document.createElement('div');
+  const div = document.createElement("div");
   div.textContent = str;
   return div.innerHTML;
 };

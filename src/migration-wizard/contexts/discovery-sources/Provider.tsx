@@ -1,32 +1,31 @@
+import {
+  type AssessmentApiInterface,
+  type ImageApiInterface,
+  JobApi,
+  type SourceApiInterface,
+} from "@migration-planner-ui/api-client/apis";
+import {
+  Assessment,
+  Inventory,
+  Source,
+  UpdateInventoryFromJSON,
+} from "@migration-planner-ui/api-client/models";
+import { Configuration } from "@migration-planner-ui/api-client/runtime";
+import { useInjection } from "@migration-planner-ui/ioc";
 import React, {
   type PropsWithChildren,
   useCallback,
   useEffect,
   useRef,
   useState,
-} from 'react';
-import { useAsyncFn, useInterval } from 'react-use';
+} from "react";
+import { useAsyncFn, useInterval } from "react-use";
 
-import {
-  type AssessmentApiInterface,
-  type ImageApiInterface,
-  JobApi,
-  type SourceApiInterface,
-} from '@migration-planner-ui/api-client/apis';
-import {
-  Assessment,
-  Source,
-  UpdateInventoryFromJSON,
-} from '@migration-planner-ui/api-client/models';
-import { Configuration } from '@migration-planner-ui/api-client/runtime';
-import { useInjection } from '@migration-planner-ui/ioc';
-
-import { useAsyncFnResetError } from '../../../hooks/useAsyncFnResetError';
-import { Symbols } from '../../../main/Symbols';
-
-import { useRVToolsJob } from '../../../pages/assessment/hooks/useRVToolsJob';
-import { DiscoverySources } from './@types/DiscoverySources';
-import { Context } from './Context';
+import { useAsyncFnResetError } from "../../../hooks/useAsyncFnResetError";
+import { Symbols } from "../../../main/Symbols";
+import { useRVToolsJob } from "../../../pages/assessment/hooks/useRVToolsJob";
+import { DiscoverySources } from "./@types/DiscoverySources";
+import { Context } from "./Context";
 
 // Use a shared constant to avoid recreating empty array references on each render
 const EMPTY_ARRAY: unknown[] = [];
@@ -34,7 +33,7 @@ const EMPTY_ARRAY: unknown[] = [];
 type ApiErrorWithResponse = { response: Response };
 
 const hasResponse = (error: unknown): error is ApiErrorWithResponse => {
-  return typeof error === 'object' && error !== null && 'response' in error;
+  return typeof error === "object" && error !== null && "response" in error;
 };
 
 const coerceToError = (error: unknown, fallbackMessage: string): Error => {
@@ -42,10 +41,10 @@ const coerceToError = (error: unknown, fallbackMessage: string): Error => {
     return error;
   }
   if (
-    typeof error === 'object' &&
+    typeof error === "object" &&
     error !== null &&
-    'message' in error &&
-    typeof (error as { message?: unknown }).message === 'string'
+    "message" in error &&
+    typeof (error as { message?: unknown }).message === "string"
   ) {
     return new Error((error as { message: string }).message);
   }
@@ -55,15 +54,25 @@ const coerceToError = (error: unknown, fallbackMessage: string): Error => {
 const ensureValidUpdatedSource = (updatedSource: unknown): Source => {
   if (
     !updatedSource ||
-    typeof updatedSource !== 'object' ||
-    !('id' in updatedSource)
+    typeof updatedSource !== "object" ||
+    !("id" in updatedSource)
   ) {
-    if (typeof updatedSource === 'string') {
+    if (typeof updatedSource === "string") {
       throw new Error(updatedSource);
     }
-    throw new Error('Unexpected API response while updating inventory.');
+    throw new Error("Unexpected API response while updating inventory.");
   }
   return updatedSource as Source;
+};
+
+const ensureInventoryPayload = (value: unknown): Inventory => {
+  if (!value || typeof value !== "object") {
+    throw new Error("Inventory JSON must be an object.");
+  }
+  if (!("vcenterId" in value) || !("clusters" in value)) {
+    throw new Error("Inventory JSON must include vcenterId and clusters.");
+  }
+  return value as Inventory;
 };
 
 const extractResponseErrorMessage = async (
@@ -72,24 +81,34 @@ const extractResponseErrorMessage = async (
   try {
     const errorText = await response.text();
     try {
-      const errorData = JSON.parse(errorText);
-      return (
-        (errorData && (errorData.message || (errorData as any).error)) ||
-        errorText
-      );
+      const errorData = JSON.parse(errorText) as unknown;
+      if (errorData && typeof errorData === "object") {
+        const typedError = errorData as { message?: unknown; error?: unknown };
+        if (typeof typedError.message === "string") {
+          return typedError.message;
+        }
+        if (typeof typedError.error === "string") {
+          return typedError.error;
+        }
+      }
+      return errorText;
     } catch {
-      return errorText || 'Failed to parse API error response.';
+      return errorText || "Failed to parse API error response.";
     }
   } catch {
-    return 'Error response could not be read.';
+    return "Error response could not be read.";
   }
+};
+
+const isSource = (value: unknown): value is Source => {
+  return typeof value === "object" && value !== null && "id" in value;
 };
 
 export const Provider: React.FC<PropsWithChildren> = (props) => {
   const { children } = props;
   const [sourceSelected, setSourceSelected] = useState<Source | null>(null);
 
-  const [downloadSourceUrl, setDownloadSourceUrl] = useState('');
+  const [downloadSourceUrl, setDownloadSourceUrl] = useState("");
   const [sourceDownloadUrls, setSourceDownloadUrls] = useState<
     Record<string, string>
   >({});
@@ -113,13 +132,20 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
   // Create jobApi instance (same pattern as assessmentService)
   const jobApi = React.useMemo(() => {
     const baseUrl =
-      process.env.PLANNER_API_BASE_URL || '/api/migration-assessment';
-    const fetchApi = (assessmentApi as any).configuration?.fetchApi || fetch;
+      process.env.PLANNER_API_BASE_URL || "/api/migration-assessment";
+    const fetchApi =
+      (
+        assessmentApi as unknown as {
+          configuration?: { fetchApi?: typeof fetch };
+        }
+      ).configuration?.fetchApi || fetch;
     const config = new Configuration({ basePath: baseUrl, fetchApi });
     return new JobApi(config);
   }, [assessmentApi]);
 
-  const [listSourcesState, listSources] = useAsyncFn(async () => {
+  const [listSourcesState, listSources] = useAsyncFn(async (): Promise<
+    Source[]
+  > => {
     const sources = await sourceApi.listSources();
     return sources;
   }, []);
@@ -128,7 +154,7 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
     if (Array.isArray(response)) {
       return response as Assessment[];
     }
-    if (typeof response === 'object' && response !== null) {
+    if (typeof response === "object" && response !== null) {
       const withItems = response as { items?: unknown };
       if (Array.isArray(withItems.items)) {
         return withItems.items as Assessment[];
@@ -142,7 +168,7 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
   }
 
   const [listAssessmentsState, listAssessments] = useAsyncFnResetError(
-    async () => {
+    async (): Promise<Assessment[]> => {
       const response = await assessmentApi.listAssessments();
       return normalizeAssessmentsResponse(response);
     },
@@ -160,7 +186,7 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
   // Callback for successful job completion - calls the ref callback if set
   const handleJobSuccess = useCallback(
     (assessmentId: string) => {
-      listAssessments();
+      void listAssessments();
       if (onJobSuccessRef.current) {
         onJobSuccessRef.current(assessmentId);
       }
@@ -200,16 +226,14 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
       const assessmentName = name || `Assessment-${new Date().toISOString()}`;
 
       // Create different request based on sourceType
-      if (sourceType === 'inventory' && jsonValue) {
+      if (sourceType === "inventory" && jsonValue) {
         try {
+          const parsedInventory = ensureInventoryPayload(JSON.parse(jsonValue));
           const assessment = await assessmentApi.createAssessment({
             assessmentForm: {
               name: assessmentName,
               sourceType: sourceType,
-              inventory:
-                typeof jsonValue === 'string'
-                  ? JSON.parse(jsonValue)
-                  : jsonValue,
+              inventory: parsedInventory,
             },
           });
           await listAssessments();
@@ -221,14 +245,14 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
           }
           throw coerceToError(
             error,
-            'Unexpected API response while creating assessment.',
+            "Unexpected API response while creating assessment.",
           );
         }
-      } else if (sourceType === 'rvtools') {
+      } else if (sourceType === "rvtools") {
         throw new Error(
-          'RVTools assessments must be created using createRVToolsJob for async processing',
+          "RVTools assessments must be created using createRVToolsJob for async processing",
         );
-      } else if (sourceType === 'agent' && sourceId) {
+      } else if (sourceType === "agent" && sourceId) {
         try {
           const assessment = await assessmentApi.createAssessment({
             assessmentForm: {
@@ -246,7 +270,7 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
           }
           throw coerceToError(
             error,
-            'Unexpected API response while creating assessment.',
+            "Unexpected API response while creating assessment.",
           );
         }
       } else {
@@ -292,7 +316,7 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
       httpProxy: string,
       httpsProxy: string,
       noProxy: string,
-      networkConfigType?: 'dhcp' | 'static',
+      networkConfigType?: "dhcp" | "static",
       ipAddress?: string,
       subnetMask?: string,
       defaultGateway?: string,
@@ -346,7 +370,7 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
 
         // Only include network configuration if static IP is selected and all required fields are provided
         if (
-          networkConfigType === 'static' &&
+          networkConfigType === "static" &&
           ipAddress?.trim() &&
           subnetMask?.trim() &&
           defaultGateway?.trim() &&
@@ -364,29 +388,14 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
 
         return await sourceApi.createSource({ sourceCreate });
       } catch (error: unknown) {
-        console.error('Error creating source:', error);
+        console.error("Error creating source:", error);
 
-        if (
-          typeof error === 'object' &&
-          error !== null &&
-          'response' in error
-        ) {
-          const response = (error as { response: Response }).response;
-
-          try {
-            const errorText = await response.text(); // Read as text first
-            try {
-              const errorData = JSON.parse(errorText); // Attempt to parse JSON
-              return errorData?.message || 'API error occurred.';
-            } catch {
-              return errorText || 'Failed to parse API error response.';
-            }
-          } catch {
-            return 'Error response could not be read.';
-          }
+        if (hasResponse(error)) {
+          const message = await extractResponseErrorMessage(error.response);
+          throw new Error(message);
         }
 
-        return 'Unexpected error occurred while creating the source.';
+        throw new Error("Unexpected error occurred while creating the source.");
       }
     },
   );
@@ -398,7 +407,7 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
       httpProxy: string,
       httpsProxy: string,
       noProxy: string,
-      networkConfigType?: 'dhcp' | 'static',
+      networkConfigType?: "dhcp" | "static",
       ipAddress?: string,
       subnetMask?: string,
       defaultGateway?: string,
@@ -417,7 +426,7 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
         dns,
       );
 
-      if (!newSource?.id) {
+      if (!isSource(newSource)) {
         throw new Error(
           `Failed to create source. Response: ${JSON.stringify(
             newSource,
@@ -481,10 +490,10 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
 
   useInterval(() => {
     if (!listAssessmentsState.loading) {
-      listAssessments();
+      void listAssessments();
     }
     if (!listSourcesState.loading) {
-      listSources();
+      void listSources();
     }
   }, pollingDelay);
 
@@ -500,7 +509,7 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
         );
         setSourceSelected(source || null);
       } else {
-        listSources().then((_sources) => {
+        void listSources().then((_sources) => {
           const source = _sources.find((source) => source.id === sourceId);
           setSourceSelected(source || null);
         });
@@ -522,8 +531,10 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
   const [updateInventoryState, updateInventory] = useAsyncFn(
     async (sourceId: string, jsonValue: string) => {
       try {
-        const payload =
-          typeof jsonValue === 'string' ? JSON.parse(jsonValue) : jsonValue;
+        const payload = JSON.parse(jsonValue) as unknown;
+        if (!payload || typeof payload !== "object") {
+          throw new Error("Inventory JSON must be an object.");
+        }
         const updatedSource = await sourceApi.updateInventory({
           id: sourceId,
           updateInventory: UpdateInventoryFromJSON(payload),
@@ -531,15 +542,15 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
         // Some backends may return a string on error without proper HTTP status
         return ensureValidUpdatedSource(updatedSource);
       } catch (error: unknown) {
-        console.log('updateInventoryState catch', error);
+        console.log("updateInventoryState catch", error);
         if (hasResponse(error)) {
           const message = await extractResponseErrorMessage(error.response);
-          console.log('updateInventoryState message', message);
+          console.log("updateInventoryState message", message);
           throw new Error(message);
         }
         throw coerceToError(
           error,
-          'Unexpected API response while updating inventory.',
+          "Unexpected API response while updating inventory.",
         );
       }
     },
@@ -560,7 +571,7 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
       httpProxy: string,
       httpsProxy: string,
       noProxy: string,
-      networkConfigType?: 'dhcp' | 'static',
+      networkConfigType?: "dhcp" | "static",
       ipAddress?: string,
       subnetMask?: string,
       defaultGateway?: string,
@@ -613,7 +624,7 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
 
         // Only include network configuration if static IP is selected and all required fields are provided
         if (
-          networkConfigType === 'static' &&
+          networkConfigType === "static" &&
           ipAddress?.trim() &&
           subnetMask?.trim() &&
           defaultGateway?.trim() &&
@@ -641,34 +652,14 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
 
         setDownloadSourceUrl(imageUrl.url);
       } catch (error: unknown) {
-        console.error('Error updating source:', error);
+        console.error("Error updating source:", error);
 
-        if (
-          typeof error === 'object' &&
-          error !== null &&
-          'response' in error
-        ) {
-          const response = (error as { response: Response }).response;
-
-          let message: string;
-          try {
-            const errorText = await response.text(); // Read as text first
-            try {
-              const errorData = JSON.parse(errorText); // Attempt to parse JSON
-              message =
-                (errorData &&
-                  (errorData.message || (errorData as any).error)) ||
-                errorText;
-            } catch {
-              message = errorText || 'Failed to parse API error response.';
-            }
-          } catch {
-            message = 'Error response could not be read.';
-          }
+        if (hasResponse(error)) {
+          const message = await extractResponseErrorMessage(error.response);
           throw new Error(message);
         }
 
-        throw new Error('Unexpected error occurred while updating the source.');
+        throw new Error("Unexpected error occurred while updating the source.");
       }
     },
   );
@@ -694,7 +685,7 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
     isDeletingSource: deleteSourceState.loading,
     errorDeletingSource: deleteSourceState.loading
       ? undefined
-      : (deleteSourceState.error as Error | undefined),
+      : deleteSourceState.error,
     isCreatingSource: createSourceState.loading,
     errorCreatingSource:
       createSourceState.loading || dismissCreateError
@@ -751,9 +742,7 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
     updateAssessment: updateAssessment,
     isUpdatingAssessment: updateAssessmentState.loading,
     errorUpdatingAssessment: updateAssessmentState.error,
-    shareAssessment: async () => {
-      throw new Error('Not implemented');
-    },
+    shareAssessment: () => Promise.reject(new Error("Not implemented")),
     isSharingAssessment: false,
     errorSharingAssessment: undefined,
     assessmentFromAgentState,
@@ -780,4 +769,4 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
   return <Context.Provider value={ctx}>{children}</Context.Provider>;
 };
 
-Provider.displayName = 'DiscoverySourcesProvider';
+Provider.displayName = "DiscoverySourcesProvider";

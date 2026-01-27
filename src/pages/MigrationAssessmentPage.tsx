@@ -1,8 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useMount, useUnmount } from 'react-use';
-
-import { Assessment } from '@migration-planner-ui/api-client/models';
+import { Assessment } from "@migration-planner-ui/api-client/models";
 import {
   Bullseye,
   Button,
@@ -17,25 +13,27 @@ import {
   Stack,
   StackItem,
   Tooltip,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
 import {
   ClusterIcon,
   MigrationIcon,
   QuestionCircleIcon,
-} from '@patternfly/react-icons';
-import { t_global_icon_color_300 as globalActiveColor300 } from '@patternfly/react-tokens/dist/js/t_global_icon_color_300';
+} from "@patternfly/react-icons";
+import { t_global_icon_color_300 as globalActiveColor300 } from "@patternfly/react-tokens/dist/js/t_global_icon_color_300";
+import React, { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useMount, useUnmount } from "react-use";
 
-import { AppPage } from '../components/AppPage';
-import { CustomEnterpriseIcon } from '../components/CustomEnterpriseIcon';
-import { useDiscoverySources } from '../migration-wizard/contexts/discovery-sources/Context';
-import { DEFAULT_POLLING_DELAY } from '../migration-wizard/steps/connect/sources-table/Constants';
-
-import AssessmentPage from './assessment/Assessment';
+import { AppPage } from "../components/AppPage";
+import { CustomEnterpriseIcon } from "../components/CustomEnterpriseIcon";
+import { useDiscoverySources } from "../migration-wizard/contexts/discovery-sources/Context";
+import { DEFAULT_POLLING_DELAY } from "../migration-wizard/steps/connect/sources-table/Constants";
+import AssessmentPage from "./assessment/Assessment";
 
 const cards: React.ReactElement[] = [
   <Card isFullHeight isPlain key="card-1">
     <CardHeader>
-      <Content style={{ textAlign: 'center' }}>
+      <Content style={{ textAlign: "center" }}>
         <Icon size="xl" style={{ color: globalActiveColor300.var }}>
           <CustomEnterpriseIcon />
         </Icon>
@@ -43,17 +41,17 @@ const cards: React.ReactElement[] = [
       </Content>
     </CardHeader>
     <CardBody>
-      <Content style={{ textAlign: 'center' }}>
+      <Content style={{ textAlign: "center" }}>
         <Content component="p">
           Run the discovery process and create a full evaluation report
           including recommendations for your migration journey.
         </Content>
         <div
           style={{
-            display: 'inline-flex',
-            gap: '8px',
-            alignItems: 'center',
-            justifyContent: 'center',
+            display: "inline-flex",
+            gap: "8px",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           <Button
@@ -84,7 +82,7 @@ const cards: React.ReactElement[] = [
 
   <Card isFullHeight isPlain key="card-2">
     <CardHeader>
-      <Content style={{ textAlign: 'center' }}>
+      <Content style={{ textAlign: "center" }}>
         <Icon size="xl" style={{ color: globalActiveColor300.var }}>
           <ClusterIcon />
         </Icon>
@@ -92,7 +90,7 @@ const cards: React.ReactElement[] = [
       </Content>
     </CardHeader>
     <CardBody>
-      <Content style={{ textAlign: 'center' }}>
+      <Content style={{ textAlign: "center" }}>
         <Content component="p">
           Select your target OpenShift Cluster to fit your migration goals.
         </Content>
@@ -102,7 +100,7 @@ const cards: React.ReactElement[] = [
 
   <Card isFullHeight isPlain key="card-3">
     <CardHeader>
-      <Content style={{ textAlign: 'center' }}>
+      <Content style={{ textAlign: "center" }}>
         <Icon size="xl" style={{ color: globalActiveColor300.var }}>
           <MigrationIcon />
         </Icon>
@@ -110,7 +108,7 @@ const cards: React.ReactElement[] = [
       </Content>
     </CardHeader>
     <CardBody>
-      <Content style={{ textAlign: 'center' }}>
+      <Content style={{ textAlign: "center" }}>
         <Content component="p">
           Select your VMs, create a network and storage mapping and schedule
           your migration timeline
@@ -122,17 +120,17 @@ const cards: React.ReactElement[] = [
 
 const _WelcomePage: React.FC = () => (
   <Bullseye>
-    <Stack hasGutter style={{ justifyContent: 'space-evenly' }}>
+    <Stack hasGutter style={{ justifyContent: "space-evenly" }}>
       <StackItem>
         <Flex>
           {cards.map((card) => (
-            <FlexItem flex={{ default: 'flex_1' }} key={card.key}>
+            <FlexItem flex={{ default: "flex_1" }} key={card.key}>
               {card}
             </FlexItem>
           ))}
         </Flex>
       </StackItem>
-      <StackItem style={{ alignSelf: 'center' }}>
+      <StackItem style={{ alignSelf: "center" }}>
         <Link to="wizard">
           <Button>Start your migration journey</Button>
         </Link>
@@ -157,22 +155,21 @@ export const MigrationAssessmentPageContent: React.FC<{
       // Use the returned data directly instead of relying on context state timing
       setAssessments(fetchedAssessments || []);
     } catch (error) {
-      console.error('Failed to fetch assessments:', error);
+      console.error("Failed to fetch assessments:", error);
     } finally {
       setIsLoading(false);
       if (!hasInitialLoad) setHasInitialLoad(true);
     }
   }, [discoverySourcesContext, hasInitialLoad]);
 
-  useMount(async () => {
+  useMount(() => {
     discoverySourcesContext.startPolling(DEFAULT_POLLING_DELAY);
     void (async (): Promise<void> => {
       try {
         await updateAssessments();
         await discoverySourcesContext.listSources(); // Load sources to check for up-to-date status
       } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error('Initial load failed:', err);
+        console.error("Initial load failed:", err);
       }
     })();
   });
@@ -184,8 +181,7 @@ export const MigrationAssessmentPageContent: React.FC<{
   // Listen to context changes and update local state when needed (for polling updates)
   useEffect(() => {
     if (!hasInitialLoad) return;
-    const ctxAssessments = (discoverySourcesContext.assessments ||
-      []) as Assessment[];
+    const ctxAssessments = discoverySourcesContext.assessments || [];
 
     setAssessments((prev) => {
       if (prev === ctxAssessments) return prev;
@@ -223,7 +219,7 @@ const MigrationAssessmentPage: React.FC = () => (
     breadcrumbs={[
       {
         key: 1,
-        children: 'Migration assessment',
+        children: "Migration assessment",
         isActive: true,
       },
     ]}
@@ -233,6 +229,6 @@ const MigrationAssessmentPage: React.FC = () => (
   </AppPage>
 );
 
-MigrationAssessmentPage.displayName = 'MigrationAssessmentPage';
+MigrationAssessmentPage.displayName = "MigrationAssessmentPage";
 
 export default MigrationAssessmentPage;

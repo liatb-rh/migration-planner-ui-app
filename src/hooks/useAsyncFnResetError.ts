@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { useMountedState } from 'react-use';
+import React, { useRef, useState } from "react";
+import { useMountedState } from "react-use";
 
 // Local hook similar to react-use's useAsyncFn but clears error at start
 type AsyncState<TReturn> = {
@@ -11,7 +11,7 @@ type AsyncState<TReturn> = {
 export const useAsyncFnResetError = <TArgs extends unknown[], TReturn>(
   fn: (...args: TArgs) => Promise<TReturn>,
   deps: React.DependencyList = [],
-): [AsyncState<TReturn>, (...args: TArgs) => Promise<TReturn | undefined>] => {
+): [AsyncState<TReturn>, (...args: TArgs) => Promise<TReturn>] => {
   const lastCallId = useRef(0);
   const isMounted = useMountedState();
   const [state, setState] = useState<AsyncState<TReturn>>({ loading: false });

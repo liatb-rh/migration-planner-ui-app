@@ -15,6 +15,7 @@ todos:
 ## Context
 
 - Export selection and HTML availability are controlled in `EnhancedDownloadButton`, which currently always renders a dropdown with HTML disabled when `isAggregateView` is false.
+
 ```117:183:src/migration-wizard/steps/discovery/EnhancedDownloadButton.tsx
   const exportOptions: ExportOption[] = [
     {
@@ -67,6 +68,7 @@ todos:
 ```
 
 - The report page already passes `isAggregateView` based on the current cluster selection.
+
 ```333:361:src/pages/report/Report.tsx
         <EnhancedDownloadButton
           onError={setExportError}
@@ -87,7 +89,6 @@ todos:
           isAggregateView={clusterView.isAggregateView}
         />
 ```
-
 
 ## Plan
 

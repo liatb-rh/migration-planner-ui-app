@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {
   ActionList,
   ActionListGroup,
@@ -7,7 +5,8 @@ import {
   Button,
   useWizardContext,
   WizardFooterWrapper,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
+import React from "react";
 
 export interface SizingResultWizardStepFooterProps {
   onClose: () => void;
@@ -30,7 +29,12 @@ export const SizingResultWizardStepFooter: React.FC<
         </ActionListGroup>
         <ActionListGroup>
           <ActionListItem>
-            <Button variant="link" onClick={goToPrevStep}>
+            <Button
+              variant="link"
+              onClick={() => {
+                void goToPrevStep();
+              }}
+            >
               Back
             </Button>
           </ActionListItem>
@@ -40,4 +44,4 @@ export const SizingResultWizardStepFooter: React.FC<
   );
 };
 
-SizingResultWizardStepFooter.displayName = 'SizingResultWizardStepFooter';
+SizingResultWizardStepFooter.displayName = "SizingResultWizardStepFooter";

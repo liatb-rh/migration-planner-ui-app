@@ -1,15 +1,14 @@
-import React, { useMemo } from 'react';
-
-import { Host } from '@migration-planner-ui/api-client/models';
+import { Host } from "@migration-planner-ui/api-client/models";
 import {
   Card,
   CardBody,
   CardTitle,
   Flex,
   FlexItem,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
+import React, { useMemo } from "react";
 
-import MigrationDonutChart from '../../../components/MigrationDonutChart';
+import MigrationDonutChart from "../../../components/MigrationDonutChart";
 
 type HostLike = {
   model?: unknown;
@@ -23,16 +22,16 @@ interface HostsOverviewProps {
 
 // Keep the same extended palette style used by other overview widgets
 const colorPalette = [
-  '#0066cc',
-  '#5e40be',
-  '#b6a6e9',
-  '#73c5c5',
-  '#b98412',
-  '#28a745',
-  '#f0ad4e',
-  '#d9534f',
-  '#009596',
-  '#6a6e73',
+  "#0066cc",
+  "#5e40be",
+  "#b6a6e9",
+  "#73c5c5",
+  "#b98412",
+  "#28a745",
+  "#f0ad4e",
+  "#d9534f",
+  "#009596",
+  "#6a6e73",
 ];
 
 export const HostsOverview: React.FC<HostsOverviewProps> = ({
@@ -48,12 +47,12 @@ export const HostsOverview: React.FC<HostsOverviewProps> = ({
     const countsMap = asArray.reduce(
       (acc, h) => {
         const raw =
-          typeof h?.model === 'string'
+          typeof h?.model === "string"
             ? h.model
-            : typeof h?.model === 'number'
+            : typeof h?.model === "number"
               ? String(h.model)
-              : '';
-        const name = raw && raw.trim() !== '' ? raw.trim() : 'Unknown model';
+              : "";
+        const name = raw && raw.trim() !== "" ? raw.trim() : "Unknown model";
         acc[name] = (acc[name] || 0) + 1;
         return acc;
       },
@@ -78,10 +77,10 @@ export const HostsOverview: React.FC<HostsOverviewProps> = ({
     }));
     if (restSum > 0) {
       slices.push({
-        name: 'Other models',
+        name: "Other models",
         count: restSum,
         countDisplay: `${restSum} hosts`,
-        legendCategory: 'Other models',
+        legendCategory: "Other models",
       });
     }
 
@@ -96,15 +95,15 @@ export const HostsOverview: React.FC<HostsOverviewProps> = ({
 
   return (
     <Card
-      className={isExportMode ? 'dashboard-card-print' : 'dashboard-card'}
+      className={isExportMode ? "dashboard-card-print" : "dashboard-card"}
       id="hosts-overview"
-      style={{ overflow: 'hidden' }}
+      style={{ overflow: "hidden" }}
     >
       <CardTitle>
         <Flex
-          justifyContent={{ default: 'justifyContentSpaceBetween' }}
-          alignItems={{ default: 'alignItemsCenter' }}
-          style={{ width: '100%' }}
+          justifyContent={{ default: "justifyContentSpaceBetween" }}
+          alignItems={{ default: "alignItemsCenter" }}
+          style={{ width: "100%" }}
         >
           <FlexItem>
             <div>
@@ -112,7 +111,7 @@ export const HostsOverview: React.FC<HostsOverviewProps> = ({
                 <i className="fas fa-server" /> Host distribution by model
               </div>
               {!isExportMode && (
-                <div style={{ color: '#6a6e73', fontSize: '0.85rem' }}>
+                <div style={{ color: "#6a6e73", fontSize: "0.85rem" }}>
                   Top 5 models
                 </div>
               )}
@@ -144,6 +143,6 @@ export const HostsOverview: React.FC<HostsOverviewProps> = ({
   );
 };
 
-HostsOverview.displayName = 'HostsOverview';
+HostsOverview.displayName = "HostsOverview";
 
 export default HostsOverview;

@@ -1,37 +1,20 @@
 {
   "compilerOptions": {
-    "jsx": "react",
-    "sourceMap": true,
-    "moduleResolution": "bundler",
-    "target": "es5",
-    "allowSyntheticDefaultImports": true,
-    "noErrorTruncation": true,
-    "strict": false,
-    "rootDir": ".",
-    "skipLibCheck": true,
-    "lib": [
-      "dom",
-      "esnext"
-    ],
+    "outDir": "./dist/",
     "module": "esnext",
+    "target": "esnext",
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "noImplicitAny": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "removeComments": false,
+    "types": ["@testing-library/jest-dom", "node", "vitest/globals"]
   },
-  "include": [
-    "./src/**/*.ts",
-    "./src/**/*.tsx"
-  ],
-  "exclude": [
-    "./src/entry.ts",
-    "./src/standalone-entry.tsx",
-    "./src/standalone-mocks/**",
-    "./src/**/*.test.ts",
-    "./src/**/*.test.tsx",
-    "./src/**/*.spec.ts",
-    "./src/**/*.spec.tsx",
-    "./*.js",
-    "./*.d.ts",
-    "./.yalc/**"
-  ]
+  "include": ["./src/**/*.ts", "./src/**/*.tsx"]
 }

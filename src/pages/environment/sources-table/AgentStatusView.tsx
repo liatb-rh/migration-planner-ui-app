@@ -1,7 +1,4 @@
-import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
-
-import type { Agent } from '@migration-planner-ui/api-client/models';
+import type { Agent } from "@migration-planner-ui/api-client/models";
 import {
   Button,
   Content,
@@ -10,23 +7,25 @@ import {
   Spinner,
   Split,
   SplitItem,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
 import {
   CheckCircleIcon,
   DisconnectedIcon,
   ExclamationCircleIcon,
   InfoCircleIcon,
-} from '@patternfly/react-icons';
-import { t_global_color_status_success_default as globalSuccessColor100 } from '@patternfly/react-tokens/dist/js/t_global_color_status_success_default';
-import { t_global_icon_color_status_danger_default as globalDangerColor200 } from '@patternfly/react-tokens/dist/js/t_global_icon_color_status_danger_default';
-import { t_global_icon_color_status_info_default as globalInfoColor100 } from '@patternfly/react-tokens/dist/js/t_global_icon_color_status_info_default';
+} from "@patternfly/react-icons";
+import { t_global_color_status_success_default as globalSuccessColor100 } from "@patternfly/react-tokens/dist/js/t_global_color_status_success_default";
+import { t_global_icon_color_status_danger_default as globalDangerColor200 } from "@patternfly/react-tokens/dist/js/t_global_icon_color_status_danger_default";
+import { t_global_icon_color_status_info_default as globalInfoColor100 } from "@patternfly/react-tokens/dist/js/t_global_icon_color_status_info_default";
+import React, { useMemo } from "react";
+import { Link } from "react-router-dom";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AgentStatusView {
   export type Props = {
-    status: Agent['status'];
-    statusInfo?: Agent['statusInfo'];
-    credentialUrl?: Agent['credentialUrl'];
+    status: Agent["status"];
+    statusInfo?: Agent["statusInfo"];
+    credentialUrl?: Agent["credentialUrl"];
     uploadedManually?: boolean;
     updatedAt?: string | Date;
     disableInteractions?: boolean;
@@ -34,7 +33,7 @@ export namespace AgentStatusView {
 }
 
 const StatusInfoWaitingForCredentials: React.FC<{
-  credentialUrl?: Agent['credentialUrl'];
+  credentialUrl?: Agent["credentialUrl"];
 }> = ({ credentialUrl }) => {
   return (
     <>
@@ -64,14 +63,14 @@ export const AgentStatusView: React.FC<AgentStatusView.Props> = (props) => {
   } = props;
   const statusView = useMemo(() => {
     // eslint-disable-next-line prefer-const
-    let fake: Agent['status'] | null = null;
+    let fake: Agent["status"] | null = null;
     // fake = "not-connected";
     // fake = "waiting-for-credentials";
     // fake = "gathering-initial-inventory";
     // fake = "up-to-date";
     // fake = "error";
     switch (fake ?? status) {
-      case 'not-connected':
+      case "not-connected":
         return {
           icon: uploadedManually ? (
             <Icon size="md" isInline>
@@ -82,50 +81,50 @@ export const AgentStatusView: React.FC<AgentStatusView.Props> = (props) => {
               <DisconnectedIcon />
             </Icon>
           ),
-          text: uploadedManually ? 'Uploaded manually' : 'Not connected',
+          text: uploadedManually ? "Uploaded manually" : "Not connected",
         };
-      case 'waiting-for-credentials':
+      case "waiting-for-credentials":
         return {
           icon: (
             <Icon size="md" isInline>
               <InfoCircleIcon color={globalInfoColor100.value} />
             </Icon>
           ),
-          text: 'Waiting for credentials',
+          text: "Waiting for credentials",
         };
-      case 'gathering-initial-inventory':
+      case "gathering-initial-inventory":
         return {
           icon: (
             <Icon size="md" isInline>
               <Spinner />
             </Icon>
           ),
-          text: 'Gathering inventory',
+          text: "Gathering inventory",
         };
-      case 'error':
+      case "error":
         return {
           icon: (
             <Icon size="md" isInline>
               <ExclamationCircleIcon color={globalDangerColor200.value} />
             </Icon>
           ),
-          text: 'Error',
+          text: "Error",
         };
-      case 'up-to-date':
+      case "up-to-date":
         return {
           icon: (
             <Icon size="md" isInline>
               <CheckCircleIcon color={globalSuccessColor100.value} />
             </Icon>
           ),
-          text: 'Ready',
+          text: "Ready",
         };
     }
   }, [status, uploadedManually]);
 
   if (disableInteractions) {
     return (
-      <Split hasGutter style={{ gap: '0.66rem' }}>
+      <Split hasGutter style={{ gap: "0.66rem" }}>
         <SplitItem>{statusView && statusView.icon}</SplitItem>
         <SplitItem>{statusView && statusView.text}</SplitItem>
       </Split>
@@ -133,29 +132,29 @@ export const AgentStatusView: React.FC<AgentStatusView.Props> = (props) => {
   }
 
   const hasStatusInfo = !!(statusInfo && String(statusInfo).trim());
-  const isWaitingForCredentials = status === 'waiting-for-credentials';
+  const isWaitingForCredentials = status === "waiting-for-credentials";
 
   return (
-    <Split hasGutter style={{ gap: '0.66rem' }}>
+    <Split hasGutter style={{ gap: "0.66rem" }}>
       <SplitItem>{statusView && statusView.icon}</SplitItem>
       <SplitItem>
         {isWaitingForCredentials ||
         uploadedManually ||
         (hasStatusInfo &&
-          status !== 'not-connected' &&
-          status !== 'up-to-date') ? (
+          status !== "not-connected" &&
+          status !== "up-to-date") ? (
           <Popover
             aria-label={statusView && statusView.text}
             headerContent={statusView && statusView.text}
             headerComponent="h1"
             bodyContent={
-              statusView && statusView.text === 'Waiting for credentials' ? (
+              statusView && statusView.text === "Waiting for credentials" ? (
                 <StatusInfoWaitingForCredentials
                   credentialUrl={credentialUrl}
                 />
               ) : uploadedManually && !statusInfo ? (
                 <Content>
-                  <Content component="p">{`Last updated via inventory file on ${updatedAt ? new Date(updatedAt).toLocaleString() : '-'}`}</Content>
+                  <Content component="p">{`Last updated via inventory file on ${updatedAt ? new Date(updatedAt).toLocaleString() : "-"}`}</Content>
                 </Content>
               ) : (
                 <Content>
@@ -164,7 +163,7 @@ export const AgentStatusView: React.FC<AgentStatusView.Props> = (props) => {
               )
             }
           >
-            <Button variant="link" isInline style={{ textDecoration: 'none' }}>
+            <Button variant="link" isInline style={{ textDecoration: "none" }}>
               {statusView && statusView.text}
             </Button>
           </Popover>
@@ -176,4 +175,4 @@ export const AgentStatusView: React.FC<AgentStatusView.Props> = (props) => {
   );
 };
 
-AgentStatusView.displayName = 'AgentStatusView';
+AgentStatusView.displayName = "AgentStatusView";

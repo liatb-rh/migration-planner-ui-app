@@ -1,5 +1,3 @@
-import React, { useMemo, useState } from 'react';
-
 import {
   Card,
   CardBody,
@@ -11,9 +9,10 @@ import {
   FlexItem,
   MenuToggle,
   MenuToggleElement,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
+import React, { useMemo, useState } from "react";
 
-import MigrationDonutChart from '../../../components/MigrationDonutChart';
+import MigrationDonutChart from "../../../components/MigrationDonutChart";
 
 interface CpuAndMemoryOverviewProps {
   cpuTierDistribution?: Record<string, number>;
@@ -24,25 +23,25 @@ interface CpuAndMemoryOverviewProps {
   exportAllViews?: boolean;
 }
 
-type ViewMode = 'memoryTiers' | 'vcpuTiers';
+type ViewMode = "memoryTiers" | "vcpuTiers";
 
 const VIEW_MODE_LABELS: Record<ViewMode, string> = {
-  memoryTiers: 'VM distribution by memory size tier',
-  vcpuTiers: 'VM distribution by vCPU count tier',
+  memoryTiers: "VM distribution by memory size tier",
+  vcpuTiers: "VM distribution by vCPU count tier",
 };
 
 // Extended palette to avoid repeating colors when we have many slices
 const colorPalette = [
-  '#0066cc',
-  '#5e40be',
-  '#b6a6e9',
-  '#73c5c5',
-  '#b98412',
-  '#28a745',
-  '#f0ad4e',
-  '#d9534f',
-  '#009596',
-  '#6a6e73',
+  "#0066cc",
+  "#5e40be",
+  "#b6a6e9",
+  "#73c5c5",
+  "#b98412",
+  "#28a745",
+  "#f0ad4e",
+  "#d9534f",
+  "#009596",
+  "#6a6e73",
 ];
 
 type DonutSlice = {
@@ -67,7 +66,7 @@ function parseDistributionToSlices(
   type Parsed = { label: string; min: number; order: number; count: number };
   const parsed: Parsed[] = Object.entries(distribution).map(
     ([label, count]) => {
-      const normalized = label.trim().replace(/\s*–\s*/g, '-');
+      const normalized = label.trim().replace(/\s*–\s*/g, "-");
       const range = normalized.match(/^(\d+)\s*-\s*(\d+)$/);
       const plus = normalized.match(/^(\d+)\s*\+$/);
       const min = range ? Number(range[1]) : plus ? Number(plus[1]) : 0;
@@ -94,7 +93,7 @@ export const CpuAndMemoryOverview: React.FC<CpuAndMemoryOverviewProps> = ({
   isExportMode = false,
   exportAllViews = false,
 }) => {
-  const [viewMode, setViewMode] = useState<ViewMode>('memoryTiers');
+  const [viewMode, setViewMode] = useState<ViewMode>("memoryTiers");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const memorySlices = useMemo(() => {
@@ -112,7 +111,7 @@ export const CpuAndMemoryOverview: React.FC<CpuAndMemoryOverviewProps> = ({
     }));
   }, [cpuTierDistribution]);
 
-  const activeSlices = viewMode === 'memoryTiers' ? memorySlices : vcpuSlices;
+  const activeSlices = viewMode === "memoryTiers" ? memorySlices : vcpuSlices;
   const legend = useMemo(
     () => buildLegend(activeSlices.map((s) => s.legendCategory)),
     [activeSlices],
@@ -123,7 +122,7 @@ export const CpuAndMemoryOverview: React.FC<CpuAndMemoryOverviewProps> = ({
       slices.reduce((acc, s) => acc + (Number(s.count) || 0), 0);
     return {
       totalVMs:
-        viewMode === 'memoryTiers'
+        viewMode === "memoryTiers"
           ? sumCounts(memorySlices)
           : sumCounts(vcpuSlices),
     };
@@ -146,7 +145,7 @@ export const CpuAndMemoryOverview: React.FC<CpuAndMemoryOverviewProps> = ({
     _event: React.MouseEvent<Element, MouseEvent> | undefined,
     value: string | number | undefined,
   ): void => {
-    if (value === 'memoryTiers' || value === 'vcpuTiers') {
+    if (value === "memoryTiers" || value === "vcpuTiers") {
       setViewMode(value);
     }
     setIsDropdownOpen(false);
@@ -154,15 +153,15 @@ export const CpuAndMemoryOverview: React.FC<CpuAndMemoryOverviewProps> = ({
 
   return (
     <Card
-      className={isExportMode ? 'dashboard-card-print' : 'dashboard-card'}
+      className={isExportMode ? "dashboard-card-print" : "dashboard-card"}
       id="cpu-memory-overview"
-      style={{ overflow: 'hidden' }}
+      style={{ overflow: "hidden" }}
     >
       <CardTitle>
         <Flex
-          justifyContent={{ default: 'justifyContentSpaceBetween' }}
-          alignItems={{ default: 'alignItemsCenter' }}
-          style={{ width: '100%' }}
+          justifyContent={{ default: "justifyContentSpaceBetween" }}
+          alignItems={{ default: "alignItemsCenter" }}
+          style={{ width: "100%" }}
         >
           <FlexItem>
             <div>
@@ -170,10 +169,10 @@ export const CpuAndMemoryOverview: React.FC<CpuAndMemoryOverviewProps> = ({
                 <i className="fas fa-microchip" /> CPU &amp; memory
               </div>
               {!isExportMode && (
-                <div style={{ color: '#6a6e73', fontSize: '0.85rem' }}>
-                  {viewMode === 'memoryTiers'
-                    ? 'Memory size tiers'
-                    : 'vCPU count tiers'}
+                <div style={{ color: "#6a6e73", fontSize: "0.85rem" }}>
+                  {viewMode === "memoryTiers"
+                    ? "Memory size tiers"
+                    : "vCPU count tiers"}
                 </div>
               )}
             </div>
@@ -189,7 +188,7 @@ export const CpuAndMemoryOverview: React.FC<CpuAndMemoryOverviewProps> = ({
                     ref={toggleRef}
                     onClick={onDropdownToggle}
                     isExpanded={isDropdownOpen}
-                    style={{ minWidth: '290px' }}
+                    style={{ minWidth: "290px" }}
                   >
                     {VIEW_MODE_LABELS[viewMode]}
                   </MenuToggle>
@@ -211,9 +210,9 @@ export const CpuAndMemoryOverview: React.FC<CpuAndMemoryOverviewProps> = ({
       <CardBody>
         {isExportMode && exportAllViews ? (
           <>
-            <div style={{ marginBottom: '24px' }}>
+            <div style={{ marginBottom: "24px" }}>
               <div style={{ fontWeight: 600, marginBottom: 8 }}>
-                {VIEW_MODE_LABELS['memoryTiers']}
+                {VIEW_MODE_LABELS["memoryTiers"]}
               </div>
               <MigrationDonutChart
                 data={memorySlices}
@@ -227,7 +226,7 @@ export const CpuAndMemoryOverview: React.FC<CpuAndMemoryOverviewProps> = ({
                   0,
                 )} VMs`}
                 subTitle={
-                  typeof memoryTotalGB === 'number'
+                  typeof memoryTotalGB === "number"
                     ? `${memoryTotalGB} GB`
                     : undefined
                 }
@@ -242,7 +241,7 @@ export const CpuAndMemoryOverview: React.FC<CpuAndMemoryOverviewProps> = ({
             </div>
             <div>
               <div style={{ fontWeight: 600, marginBottom: 8 }}>
-                {VIEW_MODE_LABELS['vcpuTiers']}
+                {VIEW_MODE_LABELS["vcpuTiers"]}
               </div>
               <MigrationDonutChart
                 data={vcpuSlices}
@@ -256,7 +255,7 @@ export const CpuAndMemoryOverview: React.FC<CpuAndMemoryOverviewProps> = ({
                   0,
                 )} VMs`}
                 subTitle={
-                  typeof cpuTotalCores === 'number'
+                  typeof cpuTotalCores === "number"
                     ? `${cpuTotalCores.toLocaleString()} Cores`
                     : undefined
                 }
@@ -280,11 +279,11 @@ export const CpuAndMemoryOverview: React.FC<CpuAndMemoryOverviewProps> = ({
             legend={legend}
             title={`${totals.totalVMs} VMs`}
             subTitle={
-              viewMode === 'memoryTiers'
-                ? typeof memoryTotalGB === 'number'
+              viewMode === "memoryTiers"
+                ? typeof memoryTotalGB === "number"
                   ? `${memoryTotalGB} GB`
                   : undefined
-                : typeof cpuTotalCores === 'number'
+                : typeof cpuTotalCores === "number"
                   ? `${cpuTotalCores.toLocaleString()} Cores`
                   : undefined
             }
@@ -302,6 +301,6 @@ export const CpuAndMemoryOverview: React.FC<CpuAndMemoryOverviewProps> = ({
   );
 };
 
-CpuAndMemoryOverview.displayName = 'CpuAndMemoryOverview';
+CpuAndMemoryOverview.displayName = "CpuAndMemoryOverview";
 
 export default CpuAndMemoryOverview;

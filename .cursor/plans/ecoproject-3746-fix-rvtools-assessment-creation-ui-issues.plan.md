@@ -91,8 +91,8 @@ const handleFileChange = (
 
 const handleFileClear = (): void => {
   setSelectedFile(null);
-  setFilename('');
-  setFileValidationError('');
+  setFilename("");
+  setFileValidationError("");
   setFileErrorDismissed(true);
 };
 ```
@@ -103,7 +103,8 @@ Add a helper variable after the `isJobProcessing` definition (around line 93):
 
 ```typescript
 // Helper to check if file operations should be disabled (RVTools mode during job creation/processing)
-const isFileOperationsDisabled = mode === 'rvtools' && (isLoading || isJobProcessing);
+const isFileOperationsDisabled =
+  mode === "rvtools" && (isLoading || isJobProcessing);
 ```
 
 Update handlers (lines 174-215):
@@ -117,7 +118,7 @@ const handleFileChange = (
   if (isFileOperationsDisabled) {
     return;
   }
-  
+
   setFileErrorDismissed(true);
   // ... existing validation and file setting logic
 };
@@ -127,10 +128,10 @@ const handleFileClear = (): void => {
   if (isFileOperationsDisabled) {
     return;
   }
-  
+
   setSelectedFile(null);
-  setFilename('');
-  setFileValidationError('');
+  setFilename("");
+  setFileValidationError("");
   setFileErrorDismissed(true);
 };
 ```
@@ -173,7 +174,6 @@ const handleFileClear = (): void => {
 
 1. **Cancel button**: Verify it's enabled immediately after clicking "Create Migration Assessment" and remains enabled throughout the upload/processing
 2. **Select/Clear buttons**: Verify they're disabled when:
-
    - Job creation starts (`isLoading === true`)
    - Job is processing (`isJobProcessing === true`)
    - They're re-enabled if job fails or is cancelled

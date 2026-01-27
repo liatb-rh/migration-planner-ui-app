@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react';
-
 import {
   Button,
+  type DropEvent,
   FileUpload,
   Form,
   FormGroup,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   TextInput,
-} from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
+} from "@patternfly/react-core";
+import React, { useEffect, useState } from "react";
 
 interface UpdateAssessmentProps {
   isOpen: boolean;
@@ -27,6 +30,7 @@ export const UpdateAssessment: React.FC<UpdateAssessmentProps> = ({
 
   // Reset form when name prop changes or modal opens
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAssessmentName(name);
     setSelectedFile(null);
   }, [name, isOpen]);
@@ -37,10 +41,7 @@ export const UpdateAssessment: React.FC<UpdateAssessmentProps> = ({
     }
   };
 
-  const handleFileChange = (
-    _event: React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLElement>,
-    file: File,
-  ): void => {
+  const handleFileChange = (_event: DropEvent, file: File): void => {
     setSelectedFile(file);
   };
 
@@ -51,12 +52,39 @@ export const UpdateAssessment: React.FC<UpdateAssessmentProps> = ({
   const isUpdateEnabled = assessmentName.trim();
 
   return (
-    <Modal
-      variant={ModalVariant.medium}
-      title="Update Assessment"
-      isOpen={isOpen}
-      onClose={onClose}
-      actions={[
+    <Modal variant="medium" isOpen={isOpen} onClose={onClose}>
+      <ModalHeader title="Update Assessment" />
+      <ModalBody>
+        <Form>
+          <FormGroup label="Name" isRequired fieldId="assessment-name">
+            <TextInput
+              isRequired
+              type="text"
+              id="assessment-name"
+              name="assessment-name"
+              value={assessmentName}
+              onChange={(_event, value) => setAssessmentName(value)}
+            />
+          </FormGroup>
+
+          <FormGroup label="Upload" fieldId="assessment-file">
+            <FileUpload
+              id="assessment-file"
+              type="text"
+              value=""
+              filename={selectedFile?.name || ""}
+              filenamePlaceholder="Drag and drop a file or select one"
+              onFileInputChange={handleFileChange}
+              onClearClick={handleFileClear}
+              isLoading={false}
+              allowEditingUploadedText={false}
+              browseButtonText="Select file"
+              hideDefaultPreview
+            />
+          </FormGroup>
+        </Form>
+      </ModalBody>
+      <ModalFooter>
         <Button
           key="update"
           variant="primary"
@@ -64,44 +92,15 @@ export const UpdateAssessment: React.FC<UpdateAssessmentProps> = ({
           isDisabled={!isUpdateEnabled}
         >
           Update
-        </Button>,
+        </Button>
         <Button key="cancel" variant="link" onClick={onClose}>
           Cancel
-        </Button>,
-      ]}
-    >
-      <Form>
-        <FormGroup label="Name" isRequired fieldId="assessment-name">
-          <TextInput
-            isRequired
-            type="text"
-            id="assessment-name"
-            name="assessment-name"
-            value={assessmentName}
-            onChange={(_event, value) => setAssessmentName(value)}
-          />
-        </FormGroup>
-
-        <FormGroup label="Upload" fieldId="assessment-file">
-          <FileUpload
-            id="assessment-file"
-            type="text"
-            value=""
-            filename={selectedFile?.name || ''}
-            filenamePlaceholder="Drag and drop a file or select one"
-            onFileInputChange={handleFileChange}
-            onClearClick={handleFileClear}
-            isLoading={false}
-            allowEditingUploadedText={false}
-            browseButtonText="Select file"
-            hideDefaultPreview
-          />
-        </FormGroup>
-      </Form>
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };
 
-UpdateAssessment.displayName = 'UpdateAssessment';
+UpdateAssessment.displayName = "UpdateAssessment";
 
 export default UpdateAssessment;

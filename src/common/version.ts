@@ -1,5 +1,5 @@
-import { InfoApi } from '@migration-planner-ui/api-client/apis';
-import { Configuration } from '@migration-planner-ui/api-client/runtime';
+import { InfoApi } from "@migration-planner-ui/api-client/apis";
+import { Configuration } from "@migration-planner-ui/api-client/runtime";
 
 // API info interface based on the migration-planner API response
 interface ApiInfo {
@@ -30,17 +30,17 @@ export interface VersionInfo {
  * The function returns the build-time generated UI version.
  * It can be overriden via the MIGRATION_PLANNER_UI_VERSION environment variable.
  */
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+
 export const getMigrationPlannerUiVersion = () => {
-  return process.env.MIGRATION_PLANNER_UI_VERSION || 'unknown';
+  return process.env.MIGRATION_PLANNER_UI_VERSION || "unknown";
 };
 
 /**
  * Get git commit from build-time environment variable
  */
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+
 export const getGitCommit = () => {
-  return process.env.MIGRATION_PLANNER_UI_GIT_COMMIT || 'unknown';
+  return process.env.MIGRATION_PLANNER_UI_GIT_COMMIT || "unknown";
 };
 
 /**
@@ -53,7 +53,7 @@ const fetchApiInfo = async (customFetch?: typeof fetch): Promise<ApiInfo> => {
 
   try {
     const config = new Configuration({
-      basePath: process.env.PLANNER_API_BASE_URL || '/api/migration-assessment',
+      basePath: process.env.PLANNER_API_BASE_URL || "/api/migration-assessment",
       fetchApi: customFetch,
     });
 
@@ -61,16 +61,16 @@ const fetchApiInfo = async (customFetch?: typeof fetch): Promise<ApiInfo> => {
     const info = await infoApi.getInfo();
 
     apiInfoCache = {
-      versionName: info.versionName || 'unknown',
-      gitCommit: info.gitCommit || 'unknown',
+      versionName: info.versionName || "unknown",
+      gitCommit: info.gitCommit || "unknown",
     };
 
     return apiInfoCache;
   } catch (error) {
-    console.warn('Could not fetch API info:', error);
+    console.warn("Could not fetch API info:", error);
     return {
-      versionName: 'unknown',
-      gitCommit: 'unknown',
+      versionName: "unknown",
+      gitCommit: "unknown",
     };
   }
 };
@@ -78,17 +78,17 @@ const fetchApiInfo = async (customFetch?: typeof fetch): Promise<ApiInfo> => {
 /**
  * Get migration-planner API version name
  */
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+
 export const getMigrationPlannerApiVersion = () => {
-  return apiInfoCache?.versionName || 'unknown';
+  return apiInfoCache?.versionName || "unknown";
 };
 
 /**
  * Get migration-planner API git commit
  */
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+
 export const getMigrationPlannerApiGitCommit = () => {
-  return apiInfoCache?.gitCommit || 'unknown';
+  return apiInfoCache?.gitCommit || "unknown";
 };
 
 /**
@@ -97,12 +97,12 @@ export const getMigrationPlannerApiGitCommit = () => {
 export const getVersionInfo = (): VersionInfo => {
   return {
     ui: {
-      name: 'migration-planner-ui-app',
+      name: "migration-planner-ui-app",
       versionName: getMigrationPlannerUiVersion(),
       gitCommit: getGitCommit(),
     },
     api: {
-      name: 'migration-planner',
+      name: "migration-planner",
       versionName: getMigrationPlannerApiVersion(),
       gitCommit: getMigrationPlannerApiGitCommit(),
     },
@@ -116,12 +116,12 @@ export const addVersionInfoToDOM = (): void => {
   const versionInfo = getVersionInfo();
 
   // Check if the div already exists to avoid duplicates
-  let versionDiv = document.getElementById('migration-planner-version-info');
+  let versionDiv = document.getElementById("migration-planner-version-info");
 
   if (!versionDiv) {
     // Create hidden div with version info
-    versionDiv = document.createElement('div');
-    versionDiv.id = 'migration-planner-version-info';
+    versionDiv = document.createElement("div");
+    versionDiv.id = "migration-planner-version-info";
     versionDiv.hidden = true;
 
     // Append to body
@@ -129,12 +129,12 @@ export const addVersionInfoToDOM = (): void => {
   }
 
   // Update version attributes (in case API info was fetched after initial render)
-  versionDiv.setAttribute('data-ui-name', versionInfo.ui.name);
-  versionDiv.setAttribute('data-ui-version', versionInfo.ui.versionName);
-  versionDiv.setAttribute('data-ui-git-commit', versionInfo.ui.gitCommit);
-  versionDiv.setAttribute('data-api-name', versionInfo.api.name);
-  versionDiv.setAttribute('data-api-version', versionInfo.api.versionName);
-  versionDiv.setAttribute('data-api-git-commit', versionInfo.api.gitCommit);
+  versionDiv.setAttribute("data-ui-name", versionInfo.ui.name);
+  versionDiv.setAttribute("data-ui-version", versionInfo.ui.versionName);
+  versionDiv.setAttribute("data-ui-git-commit", versionInfo.ui.gitCommit);
+  versionDiv.setAttribute("data-api-name", versionInfo.api.name);
+  versionDiv.setAttribute("data-api-version", versionInfo.api.versionName);
+  versionDiv.setAttribute("data-api-git-commit", versionInfo.api.gitCommit);
 };
 
 /**

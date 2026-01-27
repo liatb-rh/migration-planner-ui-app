@@ -1,9 +1,4 @@
-/* eslint-disable simple-import-sort/imports */
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useMount, useUnmount } from 'react-use';
-
-import { Source } from '@migration-planner-ui/api-client/models';
+import { Source } from "@migration-planner-ui/api-client/models";
 import {
   Button,
   Dropdown,
@@ -13,22 +8,24 @@ import {
   MenuToggleElement,
   Spinner,
   Tooltip,
-} from '@patternfly/react-core';
-import { ArrowLeftIcon, EllipsisVIcon } from '@patternfly/react-icons';
-import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+} from "@patternfly/react-core";
+import { ArrowLeftIcon, EllipsisVIcon } from "@patternfly/react-icons";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useMount, useUnmount } from "react-use";
 
-import { ConfirmationModal } from '../../../components/ConfirmationModal';
-import { useDiscoverySources } from '../../../migration-wizard/contexts/discovery-sources/Context';
-import { uploadInventoryFile } from '../../../utils/uploadInventory';
-
-import { UploadInventoryAction } from './actions/UploadInventoryAction';
-import { AgentStatusView } from './AgentStatusView';
-import { Columns } from './Columns';
-import { DEFAULT_POLLING_DELAY, VALUE_NOT_AVAILABLE } from './Constants';
-import { EmptyState } from './empty-state/EmptyState';
+import { ConfirmationModal } from "../../../components/ConfirmationModal";
+import { useDiscoverySources } from "../../../migration-wizard/contexts/discovery-sources/Context";
+import { uploadInventoryFile } from "../../../utils/uploadInventory";
+import { UploadInventoryAction } from "./actions/UploadInventoryAction";
+import { AgentStatusView } from "./AgentStatusView";
+import { Columns } from "./Columns";
+import { DEFAULT_POLLING_DELAY, VALUE_NOT_AVAILABLE } from "./Constants";
+import { EmptyState } from "./empty-state/EmptyState";
 
 type SourceTableProps = {
-  onUploadResult?: (message: string, isError?: boolean) => void;
+  onUploadResult?: (message?: string, isError?: boolean) => void;
   onUploadSuccess?: () => void;
   search?: string;
   selectedStatuses?: string[];
@@ -40,16 +37,16 @@ type SourceTableProps = {
 export const SourcesTable: React.FC<SourceTableProps> = ({
   onUploadResult,
   onUploadSuccess,
-  search: _search = '',
+  search: _search = "",
   selectedStatuses = [],
   onlySourceId,
   uploadOnly = false,
   onEditEnvironment,
 }) => {
   const formatRelativeTime = (updatedAt?: string | number | Date): string => {
-    if (!updatedAt) return '-';
+    if (!updatedAt) return "-";
     const date = new Date(updatedAt);
-    if (isNaN(date.getTime())) return '-';
+    if (isNaN(date.getTime())) return "-";
 
     const now = new Date();
     const diffMs = date.getTime() - now.getTime();
@@ -62,33 +59,33 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
     const month = 30 * day;
     const year = 365 * day;
 
-    let unit: Intl.RelativeTimeFormatUnit = 'second';
+    let unit: Intl.RelativeTimeFormatUnit = "second";
     let value = 0;
 
     if (absMs < minute) {
-      unit = 'second';
+      unit = "second";
       value = Math.round(diffMs / 1000);
     } else if (absMs < hour) {
-      unit = 'minute';
+      unit = "minute";
       value = Math.round(diffMs / minute);
     } else if (absMs < day) {
-      unit = 'hour';
+      unit = "hour";
       value = Math.round(diffMs / hour);
     } else if (absMs < week) {
-      unit = 'day';
+      unit = "day";
       value = Math.round(diffMs / day);
     } else if (absMs < month) {
-      unit = 'week';
+      unit = "week";
       value = Math.round(diffMs / week);
     } else if (absMs < year) {
-      unit = 'month';
+      unit = "month";
       value = Math.round(diffMs / month);
     } else {
-      unit = 'year';
+      unit = "year";
       value = Math.round(diffMs / year);
     }
 
-    return new Intl.RelativeTimeFormat('en', { numeric: 'auto' }).format(
+    return new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(
       value,
       unit,
     );
@@ -111,7 +108,6 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
       : [];
 
     return sourcesToUse;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [discoverySourcesContext.sources]);
 
   const [firstSource, ..._otherSources] = memoizedSources ?? [];
@@ -127,17 +123,17 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
     }
 
     // Name-only search
-    if (_search && _search.trim() !== '') {
+    if (_search && _search.trim() !== "") {
       const query = _search.toLowerCase();
       filtered = filtered.filter((source) =>
-        (source.name || '').toLowerCase().includes(query),
+        (source.name || "").toLowerCase().includes(query),
       );
     }
 
     // Multi-select statuses with label mapping
     if (selectedStatuses && selectedStatuses.length > 0) {
       filtered = filtered.filter((source) => {
-        const status = source.agent ? source.agent.status : 'not-connected';
+        const status = source.agent ? source.agent.status : "not-connected";
         const uploadedManually = Boolean(
           source?.onPremises && source?.inventory !== undefined,
         );
@@ -145,18 +141,18 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
         // Map keys to conditions
         const matches = selectedStatuses.some((key) => {
           switch (key) {
-            case 'not-connected-uploaded':
-              return status === 'not-connected' && uploadedManually;
-            case 'not-connected':
-              return status === 'not-connected' && !uploadedManually;
-            case 'waiting-for-credentials':
-              return status === 'waiting-for-credentials';
-            case 'gathering-initial-inventory':
-              return status === 'gathering-initial-inventory';
-            case 'error':
-              return status === 'error';
-            case 'up-to-date':
-              return status === 'up-to-date';
+            case "not-connected-uploaded":
+              return status === "not-connected" && uploadedManually;
+            case "not-connected":
+              return status === "not-connected" && !uploadedManually;
+            case "waiting-for-credentials":
+              return status === "waiting-for-credentials";
+            case "gathering-initial-inventory":
+              return status === "gathering-initial-inventory";
+            case "error":
+              return status === "error";
+            case "up-to-date":
+              return status === "up-to-date";
             default:
               return false;
           }
@@ -169,13 +165,14 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
     return filtered;
   }, [memoizedSources, _search, selectedStatuses, onlySourceId]);
 
-  useMount(async () => {
+  useMount(() => {
     discoverySourcesContext.startPolling(DEFAULT_POLLING_DELAY);
     if (!discoverySourcesContext.isPolling) {
-      await Promise.all([
+      const requests = [
         discoverySourcesContext.listSources(),
         discoverySourcesContext.listAssessments?.(),
-      ]);
+      ].filter(Boolean) as Array<Promise<unknown>>;
+      void Promise.all(requests);
     }
   });
 
@@ -187,10 +184,11 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
   useEffect(() => {
     const refreshNow = async (): Promise<void> => {
       try {
-        await Promise.all([
+        const requests = [
           discoverySourcesContext.listSources(),
           discoverySourcesContext.listAssessments?.(),
-        ]);
+        ].filter(Boolean) as Array<Promise<unknown>>;
+        await Promise.all(requests);
       } catch {
         // ignore
       }
@@ -201,17 +199,17 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
     };
 
     const onVisibilityChange = (): void => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === "visible") {
         void refreshNow();
       }
     };
 
-    window.addEventListener('focus', onFocus);
-    document.addEventListener('visibilitychange', onVisibilityChange);
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
-      window.removeEventListener('focus', onFocus);
-      document.removeEventListener('visibilitychange', onVisibilityChange);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -239,7 +237,6 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
       }
     }, 3000); // Timeout in milisecons (3 seconds here)
 
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     return () => {
       // Clean the timeout in case unmount the component
       if (timeoutRef.current) {
@@ -267,8 +264,8 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
     return map;
   }, [discoverySourcesContext.assessments]);
 
-  const handleUploadFile = async (sourceId: string): Promise<void> => {
-    await uploadInventoryFile(
+  const handleUploadFile = (sourceId: string): void => {
+    uploadInventoryFile(
       sourceId,
       discoverySourcesContext,
       onUploadResult,
@@ -279,10 +276,10 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
   const handleDelete = async (source: Source): Promise<void> => {
     await discoverySourcesContext.deleteSource(source.id);
     setDeleteTarget(null);
-    await Promise.all([
-      discoverySourcesContext.listSources(),
-      firstSource && discoverySourcesContext.selectSource(firstSource),
-    ]);
+    await discoverySourcesContext.listSources();
+    if (firstSource) {
+      discoverySourcesContext.selectSource(firstSource);
+    }
   };
 
   const handleShowReport = (sourceId: string): void => {
@@ -297,7 +294,7 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
   const handleCreateAssessment = (sourceId: string): void => {
     discoverySourcesContext.setAssessmentFromAgent?.(true);
     discoverySourcesContext.selectSourceById?.(sourceId);
-    navigate('/openshift/migration-assessment/assessments/create', {
+    navigate("/openshift/migration-assessment/assessments/create", {
       state: { reset: true },
     });
   };
@@ -319,13 +316,13 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
     return (
       <div>
         {discoverySourcesContext.assessmentFromAgentState && (
-          <div style={{ marginBottom: '16px' }}>
+          <div style={{ marginBottom: "16px" }}>
             <Button
               variant="link"
               icon={<ArrowLeftIcon />}
               onClick={() => {
                 discoverySourcesContext.setAssessmentFromAgent?.(false);
-                navigate('/openshift/migration-assessment/assessments');
+                navigate("/openshift/migration-assessment/assessments");
               }}
             >
               Back to Assessments
@@ -333,40 +330,40 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
           </div>
         )}
         <div
-          style={{ maxHeight: '400px', overflowY: 'auto', overflowX: 'auto' }}
+          style={{ maxHeight: "400px", overflowY: "auto", overflowX: "auto" }}
         >
           <Table aria-label="Sources table" variant="compact" borders={false}>
             {filteredSources && filteredSources.length > 0 && (
               <Thead>
                 <Tr>
-                  <Th style={{ whiteSpace: 'normal' }}>{Columns.Name}</Th>
-                  <Th style={{ whiteSpace: 'normal' }}>{Columns.Status}</Th>
-                  <Th style={{ whiteSpace: 'normal' }}>{Columns.Hosts}</Th>
-                  <Th style={{ whiteSpace: 'normal' }}>{Columns.VMs}</Th>
+                  <Th style={{ whiteSpace: "normal" }}>{Columns.Name}</Th>
+                  <Th style={{ whiteSpace: "normal" }}>{Columns.Status}</Th>
+                  <Th style={{ whiteSpace: "normal" }}>{Columns.Hosts}</Th>
+                  <Th style={{ whiteSpace: "normal" }}>{Columns.VMs}</Th>
                   <Th
                     style={{
-                      whiteSpace: 'normal',
-                      minWidth: '120px',
-                      maxWidth: '200px',
+                      whiteSpace: "normal",
+                      minWidth: "120px",
+                      maxWidth: "200px",
                     }}
                   >
                     {Columns.Networks}
                   </Th>
                   <Th
                     style={{
-                      whiteSpace: 'normal',
-                      minWidth: '120px',
-                      maxWidth: '200px',
+                      whiteSpace: "normal",
+                      minWidth: "120px",
+                      maxWidth: "200px",
                     }}
                   >
                     {Columns.Datastores}
                   </Th>
-                  <Th style={{ whiteSpace: 'normal' }}>{Columns.LastSeen}</Th>
+                  <Th style={{ whiteSpace: "normal" }}>{Columns.LastSeen}</Th>
                   <Th
                     style={{
-                      whiteSpace: 'normal',
-                      minWidth: '120px',
-                      maxWidth: '200px',
+                      whiteSpace: "normal",
+                      minWidth: "120px",
+                      maxWidth: "200px",
                     }}
                     screenReaderText="Actions"
                   >
@@ -389,16 +386,16 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
                       <Td dataLabel={Columns.Name}>{source.name}</Td>
                       <Td dataLabel={Columns.Status}>
                         <AgentStatusView
-                          status={agent ? agent.status : 'not-connected'}
+                          status={agent ? agent.status : "not-connected"}
                           statusInfo={
                             source?.onPremises &&
                             source?.inventory !== undefined
                               ? undefined
                               : agent
                                 ? agent.statusInfo
-                                : 'Not connected'
+                                : "Not connected"
                           }
-                          credentialUrl={agent ? agent.credentialUrl : ''}
+                          credentialUrl={agent ? agent.credentialUrl : ""}
                           uploadedManually={
                             source?.onPremises &&
                             source?.inventory !== undefined
@@ -432,13 +429,13 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
                             <span>{formatRelativeTime(source.updatedAt)}</span>
                           </Tooltip>
                         ) : (
-                          '-'
+                          "-"
                         )}
                       </Td>
                       <Td dataLabel={Columns.Actions}>
                         {uploadOnly ? (
                           <>
-                            {isUploadAllowed && source.name !== 'Example' && (
+                            {isUploadAllowed && source.name !== "Example" && (
                               <UploadInventoryAction
                                 sourceId={source.id}
                                 discoverySourcesContext={
@@ -456,7 +453,7 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
                             isOpen={openDropdowns[source.id] || false}
                             popperProps={{
                               appendTo: () => document.body,
-                              position: 'end',
+                              position: "end",
                             }}
                             onOpenChange={(isOpen) =>
                               setOpenDropdowns((prev) => ({
@@ -499,7 +496,7 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
                               </DropdownItem>
                               <DropdownItem
                                 isDisabled={
-                                  !isUploadAllowed || source.name === 'Example'
+                                  !isUploadAllowed || source.name === "Example"
                                 }
                                 onClick={() => handleUploadFile(source.id)}
                               >
@@ -519,7 +516,7 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
                               <DropdownItem
                                 isDisabled={
                                   discoverySourcesContext.isDeletingSource ||
-                                  source.name === 'Example'
+                                  source.name === "Example"
                                 }
                                 onClick={() => setDeleteTarget(source)}
                               >
@@ -550,11 +547,15 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
             isOpen={Boolean(deleteTarget)}
             isDisabled={discoverySourcesContext.isDeletingSource}
             onCancel={() => setDeleteTarget(null)}
-            onConfirm={() => deleteTarget && handleDelete(deleteTarget)}
+            onConfirm={() => {
+              if (deleteTarget) {
+                void handleDelete(deleteTarget);
+              }
+            }}
             onClose={() => setDeleteTarget(null)}
           >
-            Are you sure you want to delete{' '}
-            <b>{deleteTarget.name || 'this environment'}</b>?
+            Are you sure you want to delete{" "}
+            <b>{deleteTarget.name || "this environment"}</b>?
             <br />
             To use it again, create a new discovery image and redeploy it.
           </ConfirmationModal>

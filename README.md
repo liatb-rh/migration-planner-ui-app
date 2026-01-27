@@ -5,11 +5,13 @@ A React/TypeScript frontend application for the Migration Planner project, helpi
 ## Quick Start
 
 ### Development (Standalone Mode)
+
 ```bash
 make run-standalone
 ```
 
 ### Production Build
+
 ```bash
 make build
 ```

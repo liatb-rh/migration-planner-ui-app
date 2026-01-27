@@ -10,7 +10,7 @@
 import {
   type ClusterRequirementsRequest,
   ClusterRequirementsRequestOverCommitRatioEnum,
-} from '@migration-planner-ui/api-client/models';
+} from "@migration-planner-ui/api-client/models";
 
 // Re-export API types from api-client
 export type {
@@ -21,12 +21,12 @@ export type {
   SizingOverCommitRatio,
   SizingResourceConsumption,
   SizingResourceLimits,
-} from '@migration-planner-ui/api-client/models';
+} from "@migration-planner-ui/api-client/models";
 
 /**
  * Worker node size preset options
  */
-export type WorkerNodePreset = 'small' | 'medium' | 'large' | 'custom';
+export type WorkerNodePreset = "small" | "medium" | "large" | "custom";
 
 /**
  * Over-commit ratio options (CPU sharing factor) - numeric value
@@ -59,14 +59,14 @@ export interface SizingFormValues {
 /**
  * Wizard step identifiers
  */
-export type WizardStep = 'input' | 'result';
+export type WizardStep = "input" | "result";
 
 /**
  * Mapping from numeric over-commit ratio to API enum value
  */
 const OVERCOMMIT_RATIO_MAP: Record<
   OvercommitRatio,
-  ClusterRequirementsRequest['overCommitRatio']
+  ClusterRequirementsRequest["overCommitRatio"]
 > = {
   1: ClusterRequirementsRequestOverCommitRatioEnum.OneToOne,
   2: ClusterRequirementsRequestOverCommitRatioEnum.OneToTwo,
@@ -79,7 +79,7 @@ const OVERCOMMIT_RATIO_MAP: Record<
  */
 export const overcommitRatioToApiEnum = (
   ratio: OvercommitRatio,
-): ClusterRequirementsRequest['overCommitRatio'] => {
+): ClusterRequirementsRequest["overCommitRatio"] => {
   return OVERCOMMIT_RATIO_MAP[ratio];
 };
 

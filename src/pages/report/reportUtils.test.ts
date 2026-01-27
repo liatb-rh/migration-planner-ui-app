@@ -1,6 +1,5 @@
-import { describe, expect, it } from 'vitest';
-
-import type { Host, Infra, VMs } from '@migration-planner-ui/api-client/models';
+import type { Host, Infra, VMs } from "@migration-planner-ui/api-client/models";
+import { describe, expect, it } from "vitest";
 
 // Extract the logic from Report.tsx for testing
 const hasClusterResources = (viewInfra?: Infra, viewVms?: VMs): boolean => {
@@ -10,11 +9,11 @@ const hasClusterResources = (viewInfra?: Infra, viewVms?: VMs): boolean => {
   return hasHosts && hasVms;
 };
 
-describe('hasClusterResources', () => {
-  it('returns true when cluster has both hosts and VMs', () => {
+describe("hasClusterResources", () => {
+  it("returns true when cluster has both hosts and VMs", () => {
     const infra: Infra = {
       clustersPerDatacenter: [],
-      hosts: [{ model: 'ESXi-1' }] as Host[],
+      hosts: [{ model: "ESXi-1" }] as Host[],
       totalHosts: 2,
       hostPowerStates: {},
       networks: [],
@@ -67,7 +66,7 @@ describe('hasClusterResources', () => {
     expect(hasClusterResources(infra, vms)).toBe(true);
   });
 
-  it('returns false when cluster has no hosts', () => {
+  it("returns false when cluster has no hosts", () => {
     const infra: Infra = {
       clustersPerDatacenter: [],
       hosts: [],
@@ -123,10 +122,10 @@ describe('hasClusterResources', () => {
     expect(hasClusterResources(infra, vms)).toBe(false);
   });
 
-  it('returns false when cluster has no VMs', () => {
+  it("returns false when cluster has no VMs", () => {
     const infra: Infra = {
       clustersPerDatacenter: [],
-      hosts: [{ model: 'ESXi-1' }] as Host[],
+      hosts: [{ model: "ESXi-1" }] as Host[],
       totalHosts: 2,
       hostPowerStates: {},
       networks: [],
@@ -179,7 +178,7 @@ describe('hasClusterResources', () => {
     expect(hasClusterResources(infra, vms)).toBe(false);
   });
 
-  it('returns false when cluster has neither hosts nor VMs', () => {
+  it("returns false when cluster has neither hosts nor VMs", () => {
     const infra: Infra = {
       clustersPerDatacenter: [],
       hosts: [],
@@ -235,10 +234,10 @@ describe('hasClusterResources', () => {
     expect(hasClusterResources(infra, vms)).toBe(false);
   });
 
-  it('returns true when cluster has hosts via hosts array even if totalHosts is 0', () => {
+  it("returns true when cluster has hosts via hosts array even if totalHosts is 0", () => {
     const infra: Infra = {
       clustersPerDatacenter: [],
-      hosts: [{ model: 'ESXi-1' }] as Host[],
+      hosts: [{ model: "ESXi-1" }] as Host[],
       totalHosts: 0, // totalHosts is 0 but hosts array has items
       hostPowerStates: {},
       networks: [],
@@ -291,7 +290,7 @@ describe('hasClusterResources', () => {
     expect(hasClusterResources(infra, vms)).toBe(true);
   });
 
-  it('returns true when cluster has hosts via totalHosts even if hosts array is empty', () => {
+  it("returns true when cluster has hosts via totalHosts even if hosts array is empty", () => {
     const infra: Infra = {
       clustersPerDatacenter: [],
       hosts: [], // hosts array is empty
@@ -347,7 +346,7 @@ describe('hasClusterResources', () => {
     expect(hasClusterResources(infra, vms)).toBe(true);
   });
 
-  it('returns false when infra is undefined', () => {
+  it("returns false when infra is undefined", () => {
     const vms: VMs = {
       os: { Linux: 5 },
       total: 5,
@@ -394,10 +393,10 @@ describe('hasClusterResources', () => {
     expect(hasClusterResources(undefined, vms)).toBe(false);
   });
 
-  it('returns false when vms is undefined', () => {
+  it("returns false when vms is undefined", () => {
     const infra: Infra = {
       clustersPerDatacenter: [],
-      hosts: [{ model: 'ESXi-1' }] as Host[],
+      hosts: [{ model: "ESXi-1" }] as Host[],
       totalHosts: 2,
       hostPowerStates: {},
       networks: [],
@@ -407,7 +406,7 @@ describe('hasClusterResources', () => {
     expect(hasClusterResources(infra, undefined)).toBe(false);
   });
 
-  it('returns false when both infra and vms are undefined', () => {
+  it("returns false when both infra and vms are undefined", () => {
     expect(hasClusterResources(undefined, undefined)).toBe(false);
   });
 });

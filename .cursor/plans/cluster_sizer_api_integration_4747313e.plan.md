@@ -15,7 +15,7 @@ todos:
     content: Remove unused onCalculate prop from ClusterSizingWizard usage in Report.tsx
     status: completed
   - id: remove-ha-text
-    content: "Remove \"High Availability: Yes\" text from SizingResult component"
+    content: 'Remove "High Availability: Yes" text from SizingResult component'
     status: completed
   - id: update-default-overcommit
     content: Change default overcommit ratio from 1:6 to 1:4 in constants.ts
@@ -58,7 +58,7 @@ export type {
   ClusterSizing,
   InventoryTotals,
   SizingResourceConsumption,
-} from '@migration-planner-ui/api-client/models';
+} from "@migration-planner-ui/api-client/models";
 
 // Keep UI-specific types (SizingFormValues, WorkerNodePreset, etc.)
 ```
@@ -71,6 +71,7 @@ export type {
 - Remove `fetchMockClusterRequirements` import
 - Remove `onCalculate` prop (no longer needed)
 - Use `assessmentApi.calculateAssessmentClusterRequirements()` directly
+
 ```typescript
 const assessmentApi = useInjection<AssessmentApi>(Symbols.AssessmentApi);
 
@@ -80,14 +81,13 @@ const result = await assessmentApi.calculateAssessmentClusterRequirements({
 });
 ```
 
-
 ### 3. Update SizingResult.tsx
 
 Add null checks for optional API response fields:
 
 ```typescript
-sizerOutput.resourceConsumption.overCommitRatio?.cpu ?? 0
-sizerOutput.resourceConsumption.limits?.cpu ?? 0
+sizerOutput.resourceConsumption.overCommitRatio?.cpu ?? 0;
+sizerOutput.resourceConsumption.limits?.cpu ?? 0;
 ```
 
 ### 4. Clean up Report.tsx

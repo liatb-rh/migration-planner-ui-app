@@ -1,9 +1,8 @@
-import React from 'react';
+import { Card, CardBody, CardTitle } from "@patternfly/react-core";
+import VirtualMachineIcon from "@patternfly/react-icons/dist/esm/icons/virtual-machine-icon";
+import React from "react";
 
-import { Card, CardBody, CardTitle } from '@patternfly/react-core';
-import VirtualMachineIcon from '@patternfly/react-icons/dist/esm/icons/virtual-machine-icon';
-
-import MigrationDonutChart from '../../../components/MigrationDonutChart';
+import MigrationDonutChart from "../../../components/MigrationDonutChart";
 
 interface VmMigrationStatusProps {
   data: {
@@ -19,29 +18,29 @@ export const VMMigrationStatus: React.FC<VmMigrationStatusProps> = ({
 }) => {
   const donutData = [
     {
-      name: 'Migratable',
+      name: "Migratable",
       count: data.migratable,
       countDisplay: `${data.migratable} VMs`,
-      legendCategory: 'Migratable',
+      legendCategory: "Migratable",
     },
     {
-      name: 'Non-Migratable',
+      name: "Non-Migratable",
       count: data.nonMigratable,
       countDisplay: `${data.nonMigratable} VMs`,
-      legendCategory: 'Non-Migratable',
+      legendCategory: "Non-Migratable",
     },
   ];
 
   const legend = {
-    Migratable: '#28a745',
-    'Non-Migratable': '#dc3545',
+    Migratable: "#28a745",
+    "Non-Migratable": "#dc3545",
   };
 
   return (
     <Card
-      className={isExportMode ? 'dashboard-card-print' : 'dashboard-card'}
+      className={isExportMode ? "dashboard-card-print" : "dashboard-card"}
       id="vm-migration-status"
-      style={{ height: '340px !important', overflow: 'hidden' }}
+      style={{ height: "340px !important", overflow: "hidden" }}
     >
       <CardTitle>
         <VirtualMachineIcon /> VM Migration Status

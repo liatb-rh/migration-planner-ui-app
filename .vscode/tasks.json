@@ -1,21 +1,17 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Deploy DB",
-            "type": "shell",
-            "command": "make",
-            "args": [
-                "-C",
-                "${workspaceFolder}/../migration-planner",
-                "deploy-db"
-            ],
-            "presentation": {
-                "panel": "shared",
-                "showReuseMessage": true,
-                "clear": false,
-                "close": true
-            }
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Deploy DB",
+      "type": "shell",
+      "command": "make",
+      "args": ["-C", "${workspaceFolder}/../migration-planner", "deploy-db"],
+      "presentation": {
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false,
+        "close": true
+      }
+    }
+  ]
 }

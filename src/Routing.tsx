@@ -1,14 +1,13 @@
-import React, { Suspense } from 'react';
-import { Route as RouterRoute, Routes as RouterRoutes } from 'react-router-dom';
+import { Bullseye, Spinner } from "@patternfly/react-core";
+import { InvalidObject } from "@redhat-cloud-services/frontend-components/InvalidObject";
+import React, { Suspense } from "react";
+import { Route as RouterRoute, Routes as RouterRoutes } from "react-router-dom";
 
-import { Bullseye, Spinner } from '@patternfly/react-core';
-import { InvalidObject } from '@redhat-cloud-services/frontend-components/InvalidObject';
-
-import { Provider as DiscoverySourcesProvider } from './migration-wizard/contexts/discovery-sources/Provider';
-import MigrationPage from './pages/MigrationPage';
-import MigrationWizardPage from './pages/MigrationWizardPage';
-import ExampleReport from './pages/report/ExampleReport';
-import Report from './pages/report/Report';
+import { Provider as DiscoverySourcesProvider } from "./migration-wizard/contexts/discovery-sources/Provider";
+import MigrationPage from "./pages/MigrationPage";
+import MigrationWizardPage from "./pages/MigrationWizardPage";
+import ExampleReport from "./pages/report/ExampleReport";
+import Report from "./pages/report/Report";
 
 interface RouteType {
   path?: string;
@@ -18,51 +17,51 @@ interface RouteType {
 }
 
 const CreateFromOva = React.lazy(
-  () => import('./pages/assessment/CreateFromOva'),
+  () => import("./pages/assessment/CreateFromOva"),
 );
 
 const AssessmentDetails = React.lazy(
-  () => import('./pages/assessment/AssessmentDetails'),
+  () => import("./pages/assessment/AssessmentDetails"),
 );
 
 const Routing: React.FC = () => {
   const routes: RouteType[] = [
     {
-      path: '/',
+      path: "/",
       element: MigrationPage,
     },
     {
-      path: '/assessments',
+      path: "/assessments",
       element: MigrationPage,
       elementProps: { initialTabKey: 0 },
     },
     {
-      path: '/assessments/:id',
+      path: "/assessments/:id",
       element: AssessmentDetails,
     },
     {
-      path: '/environments',
+      path: "/environments",
       element: MigrationPage,
       elementProps: { initialTabKey: 1 },
     },
     {
-      path: '/assessments/:id/report',
+      path: "/assessments/:id/report",
       element: Report,
     },
     {
-      path: '/assessments/example-report',
+      path: "/assessments/example-report",
       element: ExampleReport,
     },
     {
-      path: '/assessments/create',
+      path: "/assessments/create",
       element: CreateFromOva,
     },
     {
-      path: '/wizard',
+      path: "/wizard",
       element: MigrationWizardPage,
     },
     {
-      path: '*',
+      path: "*",
       element: InvalidObject,
     },
   ];

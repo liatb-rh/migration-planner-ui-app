@@ -3,7 +3,7 @@ name: Release Tag Summary
 on:
   push:
     tags:
-      - '*'
+      - "*"
 
 jobs:
   summarize-release:
@@ -24,7 +24,7 @@ jobs:
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
         run: |
           set -e
-          
+
           # Validate required environment variables
           if [ -z "$SLACK_WEBHOOK_URL" ] && ([ -z "$SLACK_BOT_TOKEN" ] || [ -z "$SLACK_CHANNEL" ]); then
             echo "Error: Either SLACK_WEBHOOK_URL or (SLACK_BOT_TOKEN + SLACK_CHANNEL) must be set"
@@ -32,7 +32,7 @@ jobs:
             echo "For simple messaging, use: SLACK_WEBHOOK_URL"
             exit 1
           fi
-          
+
           PREV_TAG=$(git tag --sort=-committerdate | head -n 2 | tail -n 1)
 
           if [ -z "$PREV_TAG" ]; then

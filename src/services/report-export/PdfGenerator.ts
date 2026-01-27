@@ -2,12 +2,12 @@
  * Generates PDF reports from React components
  */
 
-import html2canvas from 'html2canvas-pro';
-import jsPDF from 'jspdf';
-import type { Root } from 'react-dom/client';
-import { createRoot } from 'react-dom/client';
+import html2canvas from "html2canvas-pro";
+import jsPDF from "jspdf";
+import type { Root } from "react-dom/client";
+import { createRoot } from "react-dom/client";
 
-import { EXPORT_CONFIG, TOC_ITEMS } from './constants';
+import { EXPORT_CONFIG, TOC_ITEMS } from "./constants";
 
 /**
  * Expected number of custom segments for the PDF report layout.
@@ -62,8 +62,8 @@ export class PdfGenerator {
 
   private createHiddenContainer(): void {
     // Create container if it doesn't exist in the DOM
-    this.hiddenContainer = document.createElement('div');
-    this.hiddenContainer.id = 'pdf-hidden-container';
+    this.hiddenContainer = document.createElement("div");
+    this.hiddenContainer.id = "pdf-hidden-container";
     this.hiddenContainer.style.cssText = `
       position: absolute;
       left: -9999px;
@@ -79,11 +79,11 @@ export class PdfGenerator {
 
   private async renderComponent(component: React.ReactNode): Promise<void> {
     if (!this.hiddenContainer) {
-      throw new Error('Hidden container not found');
+      throw new Error("Hidden container not found");
     }
 
-    this.tempDiv = document.createElement('div');
-    this.tempDiv.id = 'hidden-container';
+    this.tempDiv = document.createElement("div");
+    this.tempDiv.id = "hidden-container";
     this.hiddenContainer.appendChild(this.tempDiv);
 
     this.root = createRoot(this.tempDiv);
@@ -134,7 +134,7 @@ export class PdfGenerator {
   private async waitForImages(): Promise<void> {
     if (!this.tempDiv) return;
 
-    const images = Array.from(this.tempDiv.querySelectorAll('img'));
+    const images = Array.from(this.tempDiv.querySelectorAll("img"));
     if (images.length === 0) return;
 
     const imagePromises = images.map((img) => {
@@ -146,19 +146,19 @@ export class PdfGenerator {
       // Otherwise wait for load or error event
       return new Promise<void>((resolve) => {
         const handleLoad = (): void => {
-          img.removeEventListener('load', handleLoad);
-          img.removeEventListener('error', handleError);
+          img.removeEventListener("load", handleLoad);
+          img.removeEventListener("error", handleError);
           resolve();
         };
         const handleError = (): void => {
-          img.removeEventListener('load', handleLoad);
-          img.removeEventListener('error', handleError);
+          img.removeEventListener("load", handleLoad);
+          img.removeEventListener("error", handleError);
           // Resolve even on error to not block PDF generation
           resolve();
         };
 
-        img.addEventListener('load', handleLoad);
-        img.addEventListener('error', handleError);
+        img.addEventListener("load", handleLoad);
+        img.addEventListener("error", handleError);
       });
     });
 
@@ -168,7 +168,7 @@ export class PdfGenerator {
   private injectPrintStyles(): void {
     if (!this.hiddenContainer) return;
 
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
       #hidden-container .dashboard-card-print,
       #hidden-container .dashboard-card,
@@ -192,7 +192,7 @@ export class PdfGenerator {
 
     return Array.from(
       this.hiddenContainer.querySelectorAll<HTMLElement>(
-        '.dashboard-card-print, .pf-v6-c-card',
+        ".dashboard-card-print, .pf-v6-c-card",
       ),
     )
       .map((el) => {
@@ -208,7 +208,7 @@ export class PdfGenerator {
 
   private async captureCanvas(): Promise<HTMLCanvasElement> {
     if (!this.hiddenContainer) {
-      throw new Error('Hidden container not found');
+      throw new Error("Hidden container not found");
     }
     return html2canvas(this.hiddenContainer, { useCORS: true });
   }
@@ -218,7 +218,7 @@ export class PdfGenerator {
     domBlocks: BlockBoundary[],
     documentTitle?: string,
   ): jsPDF {
-    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
     const margin = EXPORT_CONFIG.PDF_MARGIN;
@@ -297,14 +297,14 @@ export class PdfGenerator {
     documentTitle?: string,
   ): void {
     pdf.setFillColor(255, 255, 255);
-    pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+    pdf.rect(0, 0, pageWidth, pageHeight, "F");
 
     pdf.setFontSize(18);
     const headerTitle =
       documentTitle && documentTitle.trim().length > 0
         ? documentTitle
-        : 'VMware Infrastructure Assessment Report';
-    pdf.text(headerTitle, pageWidth / 2, margin + 8, { align: 'center' });
+        : "VMware Infrastructure Assessment Report";
+    pdf.text(headerTitle, pageWidth / 2, margin + 8, { align: "center" });
 
     pdf.setFontSize(11);
     const d = new Date();
@@ -312,11 +312,11 @@ export class PdfGenerator {
       `Generated: ${d.toLocaleDateString()} ${d.toLocaleTimeString()}`,
       pageWidth / 2,
       margin + 18,
-      { align: 'center' },
+      { align: "center" },
     );
 
     pdf.setFontSize(14);
-    pdf.text('Table of contents', margin, margin + 32);
+    pdf.text("Table of contents", margin, margin + 32);
 
     pdf.setFontSize(11);
     let tocY = margin + 42;
@@ -526,14 +526,14 @@ export class PdfGenerator {
     height: number,
     offsetY: number,
   ): HTMLCanvasElement {
-    const pageCanvas = document.createElement('canvas');
+    const pageCanvas = document.createElement("canvas");
     pageCanvas.width = width;
     pageCanvas.height = height;
 
-    const ctx = pageCanvas.getContext('2d');
-    if (!ctx) throw new Error('Canvas 2D context unavailable');
+    const ctx = pageCanvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas 2D context unavailable");
 
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, width, height);
     ctx.drawImage(sourceCanvas, 0, offsetY, width, height, 0, 0, width, height);
 
@@ -549,7 +549,7 @@ export class PdfGenerator {
     contentHeight: number,
     margin: number,
   ): void {
-    const imgData = canvas.toDataURL('image/png');
+    const imgData = canvas.toDataURL("image/png");
     const pageScale = Math.min(
       contentWidth / imgWidth,
       contentHeight / sliceHeightPx,
@@ -559,7 +559,7 @@ export class PdfGenerator {
 
     pdf.addImage(
       imgData,
-      'PNG',
+      "PNG",
       margin + (contentWidth - renderWidthMm) / 2,
       margin,
       renderWidthMm,
@@ -572,27 +572,30 @@ export class PdfGenerator {
     pageWidth: number,
     pageHeight: number,
   ): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anyPdf = pdf as any;
+    const pdfWithPages = pdf as jsPDF & {
+      getNumberOfPages?: () => number;
+      internal?: { pages?: unknown[] };
+    };
+    const totalPagesFromMethod = pdfWithPages.getNumberOfPages?.();
     const totalPages =
-      typeof anyPdf.getNumberOfPages === 'function'
-        ? anyPdf.getNumberOfPages()
-        : Array.isArray(anyPdf.internal?.pages)
-          ? anyPdf.internal.pages.length
+      typeof totalPagesFromMethod === "number"
+        ? totalPagesFromMethod
+        : Array.isArray(pdfWithPages.internal?.pages)
+          ? pdfWithPages.internal.pages.length
           : 1;
 
     pdf.setFontSize(9);
     for (let i = 1; i <= totalPages; i++) {
       pdf.setPage(i);
       pdf.text(`Page ${i} of ${totalPages}`, pageWidth / 2, pageHeight - 6, {
-        align: 'center',
+        align: "center",
       });
     }
   }
 
   private downloadPdf(pdf: jsPDF, documentTitle?: string): void {
     const filename = documentTitle
-      ? `${documentTitle.replace(/\.pdf$/i, '')}.pdf`
+      ? `${documentTitle.replace(/\.pdf$/i, "")}.pdf`
       : EXPORT_CONFIG.PDF_FILENAME;
     pdf.save(filename);
   }

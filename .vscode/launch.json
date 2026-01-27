@@ -1,49 +1,49 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Debug (stage w/dev-proxy)",
-            "request": "launch",
-            "type": "node-terminal",
-            "command": "npm run start:dev-proxy",
-            "cwd": "${workspaceFolder}",
-            "serverReadyAction": {
-                "action": "debugWithChrome",
-                "killOnServerStop": true,
-                "pattern": "App should run on:",
-                "uriFormat": "https://stage.foo.redhat.com:1337/openshift/migration-assessment/",
-            }
-        },
-        {
-            "name": "Debug (stage)",
-            "request": "launch",
-            "type": "node-terminal",
-            "command": "npm run start",
-            "cwd": "${workspaceFolder}",
-            "serverReadyAction": {
-                "action": "debugWithChrome",
-                "killOnServerStop": true,
-                "pattern": "App should run on:",
-                "uriFormat": "https://stage.foo.redhat.com:1337/openshift/migration-assessment/",
-            }
-        },
-        {
-            "name": "Debug (standalone)",
-            "request": "launch",
-            "type": "node-terminal",
-            "envFile": "${workspaceFolder}/../migration-planner/.envrc",
-            "command": "npx concurrently --kill-others -c auto -n \"api,wds\" -p \"{name}:{pid}\" \"make -C ../migration-planner run\" \"make run-standalone\"",
-            "cwd": "${workspaceFolder}",
-            // "preLaunchTask": "Deploy DB", // Uncomment to deploy the DB before starting the back-end API
-            "serverReadyAction": {
-                "action": "debugWithChrome",
-                "killOnServerStop": true,
-                "pattern": "App should run on:",
-                "uriFormat": "http://localhost:3000/",
-            }
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug (stage w/dev-proxy)",
+      "request": "launch",
+      "type": "node-terminal",
+      "command": "npm run start:dev-proxy",
+      "cwd": "${workspaceFolder}",
+      "serverReadyAction": {
+        "action": "debugWithChrome",
+        "killOnServerStop": true,
+        "pattern": "App should run on:",
+        "uriFormat": "https://stage.foo.redhat.com:1337/openshift/migration-assessment/"
+      }
+    },
+    {
+      "name": "Debug (stage)",
+      "request": "launch",
+      "type": "node-terminal",
+      "command": "npm run start",
+      "cwd": "${workspaceFolder}",
+      "serverReadyAction": {
+        "action": "debugWithChrome",
+        "killOnServerStop": true,
+        "pattern": "App should run on:",
+        "uriFormat": "https://stage.foo.redhat.com:1337/openshift/migration-assessment/"
+      }
+    },
+    {
+      "name": "Debug (standalone)",
+      "request": "launch",
+      "type": "node-terminal",
+      "envFile": "${workspaceFolder}/../migration-planner/.envrc",
+      "command": "npx concurrently --kill-others -c auto -n \"api,wds\" -p \"{name}:{pid}\" \"make -C ../migration-planner run\" \"make run-standalone\"",
+      "cwd": "${workspaceFolder}",
+      // "preLaunchTask": "Deploy DB", // Uncomment to deploy the DB before starting the back-end API
+      "serverReadyAction": {
+        "action": "debugWithChrome",
+        "killOnServerStop": true,
+        "pattern": "App should run on:",
+        "uriFormat": "http://localhost:3000/"
+      }
+    }
+  ]
 }

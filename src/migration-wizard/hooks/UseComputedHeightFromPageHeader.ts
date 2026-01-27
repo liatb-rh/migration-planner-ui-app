@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useWindowSize } from 'react-use';
+import { useEffect, useState } from "react";
+import { useWindowSize } from "react-use";
 
 const DEFAULT_HEIGHT = 635;
 
@@ -17,7 +17,7 @@ export function useComputedHeightFromPageHeader(): number {
   const [height, setHeight] = useState(DEFAULT_HEIGHT);
 
   useEffect(() => {
-    const basePageHeader = document.getElementById('base-page__header');
+    const basePageHeader = document.getElementById("base-page__header");
     if (basePageHeader) {
       const pageMainSection = basePageHeader.nextElementSibling;
       if (pageMainSection) {
@@ -25,6 +25,7 @@ export function useComputedHeightFromPageHeader(): number {
           getMainPageSectionVerticalPadding(pageMainSection);
         const { height: basePageHeaderHeight } =
           basePageHeader.getBoundingClientRect();
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setHeight(
           windowInnerHeight -
             basePageHeaderHeight -

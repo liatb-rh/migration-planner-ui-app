@@ -1,6 +1,5 @@
-import React from 'react';
-
-import { Content, Radio, Stack, StackItem } from '@patternfly/react-core';
+import { Content, Radio, Stack, StackItem } from "@patternfly/react-core";
+import React from "react";
 
 export const PrepareMigrationStep: React.FC = () => {
   return (
@@ -39,7 +38,7 @@ export const PrepareMigrationStep: React.FC = () => {
         />
       </StackItem>
       <StackItem>
-        <Content component="h3" style={{ paddingBlock: '1rem' }}>
+        <Content component="h3" style={{ paddingBlock: "1rem" }}>
           Target cluster
         </Content>
       </StackItem>
@@ -74,4 +73,4 @@ export const PrepareMigrationStep: React.FC = () => {
   );
 };
 
-PrepareMigrationStep.displayName = 'PrepareMigrationStep';
+PrepareMigrationStep.displayName = "PrepareMigrationStep";

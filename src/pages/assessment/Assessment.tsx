@@ -1,7 +1,4 @@
-import React, { useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-import { Assessment as AssessmentModel } from '@migration-planner-ui/api-client/models';
+import { Assessment as AssessmentModel } from "@migration-planner-ui/api-client/models";
 import {
   Button,
   Dropdown,
@@ -15,18 +12,19 @@ import {
   Toolbar,
   ToolbarContent,
   ToolbarItem,
-} from '@patternfly/react-core';
-import { FilterIcon, TimesIcon } from '@patternfly/react-icons';
+} from "@patternfly/react-core";
+import { FilterIcon, TimesIcon } from "@patternfly/react-icons";
+import React, { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { ConfirmationModal } from '../../components/ConfirmationModal';
-import FilterPill from '../../components/FilterPill';
-import { useDiscoverySources } from '../../migration-wizard/contexts/discovery-sources/Context';
-import StartingPageModal from '../starting-page/StartingPageModal';
-
-import AssessmentsTable from './AssessmentsTable';
-import CreateAssessmentModal, { AssessmentMode } from './CreateAssessmentModal';
-import EmptyTableBanner from './EmptyTableBanner';
-import UpdateAssessment from './UpdateAssessment';
+import { ConfirmationModal } from "../../components/ConfirmationModal";
+import FilterPill from "../../components/FilterPill";
+import { useDiscoverySources } from "../../migration-wizard/contexts/discovery-sources/Context";
+import StartingPageModal from "../starting-page/StartingPageModal";
+import AssessmentsTable from "./AssessmentsTable";
+import CreateAssessmentModal, { AssessmentMode } from "./CreateAssessmentModal";
+import EmptyTableBanner from "./EmptyTableBanner";
+import UpdateAssessment from "./UpdateAssessment";
 
 type Props = {
   assessments: AssessmentModel[];
@@ -42,17 +40,17 @@ const Assessment: React.FC<Props> = ({
 }) => {
   const navigate = useNavigate();
   const discoverySourcesContext = useDiscoverySources();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<
-    { index: number; direction: 'asc' | 'desc' } | undefined
+    { index: number; direction: "asc" | "desc" } | undefined
   >({
     index: 0,
-    direction: 'asc',
+    direction: "asc",
   });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<AssessmentMode>('inventory');
+  const [modalMode, setModalMode] = useState<AssessmentMode>("inventory");
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedAssessment, setSelectedAssessment] =
@@ -76,7 +74,7 @@ const Assessment: React.FC<Props> = ({
     }
   }, [assessments.length, isLoading]);
 
-  const toggleSourceType = (value: 'rvtools' | 'discovery'): void => {
+  const toggleSourceType = (value: "rvtools" | "discovery"): void => {
     setSelectedSourceTypes((prev) =>
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
     );
@@ -94,34 +92,30 @@ const Assessment: React.FC<Props> = ({
 
   const formatName = (name?: string): string | undefined =>
     name
-      ?.split(' ')
+      ?.split(" ")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
+      .join(" ");
 
   const owners = Array.from(
     new Set(
       (Array.isArray(assessments) ? assessments : [])
         .map((a) => {
-          const ownerFirstName = formatName(
-            (a as AssessmentModel).ownerFirstName,
-          );
-          const ownerLastName = formatName(
-            (a as AssessmentModel).ownerLastName,
-          );
+          const ownerFirstName = formatName(a.ownerFirstName);
+          const ownerLastName = formatName(a.ownerLastName);
           const ownerFullName =
             ownerFirstName && ownerLastName
               ? `${ownerFirstName} ${ownerLastName}`
-              : ownerFirstName || ownerLastName || '';
+              : ownerFirstName || ownerLastName || "";
           return ownerFullName;
         })
-        .filter((name) => !!name && name.trim() !== ''),
+        .filter((name) => !!name && name.trim() !== ""),
     ),
   ).sort((a, b) => a.localeCompare(b));
 
   const onSort = (
     _event: unknown,
     index: number,
-    direction: 'asc' | 'desc',
+    direction: "asc" | "desc",
   ): void => {
     setSortBy({ index, direction });
   };
@@ -147,7 +141,7 @@ const Assessment: React.FC<Props> = ({
 
   // Handle modal close - cancel handles everything (running job or completed assessment)
   const handleCloseModal = useCallback((): void => {
-    cancelRVToolsJob();
+    void cancelRVToolsJob();
     setIsModalOpen(false);
   }, [cancelRVToolsJob]);
 
@@ -171,10 +165,9 @@ const Assessment: React.FC<Props> = ({
   // Open RVTools modal when the trigger token changes
   React.useEffect(() => {
     if (rvtoolsOpenToken) {
-      handleOpenModal('rvtools');
+      handleOpenModal("rvtools");
     }
     // We intentionally only react to token changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rvtoolsOpenToken]);
 
   // Close filter dropdown whenever any modal in this page opens
@@ -195,9 +188,7 @@ const Assessment: React.FC<Props> = ({
   ]);
 
   const handleUpdateAssessment = (assessmentId: string): void => {
-    const assessment = assessments.find(
-      (a) => (a as AssessmentModel).id === assessmentId,
-    );
+    const assessment = assessments.find((a) => a.id === assessmentId);
     if (assessment) {
       setSelectedAssessment(assessment);
       setIsUpdateModalOpen(true);
@@ -209,9 +200,7 @@ const Assessment: React.FC<Props> = ({
   };
 
   const handleDeleteAssessment = (assessmentId: string): void => {
-    const assessment = assessments.find(
-      (a) => (a as AssessmentModel).id === assessmentId,
-    );
+    const assessment = assessments.find((a) => a.id === assessmentId);
     if (assessment) {
       setSelectedAssessment(assessment);
       setIsDeleteModalOpen(true);
@@ -236,14 +225,14 @@ const Assessment: React.FC<Props> = ({
 
     try {
       await discoverySourcesContext.updateAssessment(
-        (selectedAssessment as AssessmentModel).id,
+        selectedAssessment.id,
         name,
       );
       // Refresh assessments after successful update
       await discoverySourcesContext.listAssessments();
       handleCloseUpdateModal();
     } catch (error) {
-      console.error('Failed to update assessment:', error);
+      console.error("Failed to update assessment:", error);
     }
   };
 
@@ -251,14 +240,12 @@ const Assessment: React.FC<Props> = ({
     if (!selectedAssessment) return;
 
     try {
-      await discoverySourcesContext.deleteAssessment(
-        (selectedAssessment as AssessmentModel).id,
-      );
+      await discoverySourcesContext.deleteAssessment(selectedAssessment.id);
       // Refresh assessments after successful deletion
       await discoverySourcesContext.listAssessments();
       handleCloseDeleteModal();
     } catch (error) {
-      console.error('Failed to delete assessment:', error);
+      console.error("Failed to delete assessment:", error);
     }
   };
 
@@ -267,7 +254,7 @@ const Assessment: React.FC<Props> = ({
     name: string,
     file: File | null,
   ): Promise<void> => {
-    if (!file) throw new Error('File is required for RVTools assessment');
+    if (!file) throw new Error("File is required for RVTools assessment");
     await createRVToolsJob(name, file);
   };
 
@@ -276,18 +263,18 @@ const Assessment: React.FC<Props> = ({
       <StartingPageModal
         isOpen={isStartingPageModalOpen}
         onClose={() => setIsStartingPageModalOpen(false)}
-        onOpenRVToolsModal={() => handleOpenModal('rvtools')}
+        onOpenRVToolsModal={() => handleOpenModal("rvtools")}
       />
 
       <div
         style={{
-          background: 'white',
-          padding: '0 20px 20px 20px',
-          marginTop: '10px',
-          marginBottom: '10px',
+          background: "white",
+          padding: "0 20px 20px 20px",
+          marginTop: "10px",
+          marginBottom: "10px",
         }}
       >
-        <Toolbar inset={{ default: 'insetNone' }}>
+        <Toolbar inset={{ default: "insetNone" }}>
           <ToolbarContent>
             <ToolbarItem>
               <InputGroup>
@@ -303,8 +290,8 @@ const Assessment: React.FC<Props> = ({
                           setIsFilterDropdownOpen(!isFilterDropdownOpen)
                         }
                         isExpanded={isFilterDropdownOpen}
-                        style={{ minWidth: '220px', width: '220px' }}
-                        icon={<FilterIcon style={{ marginRight: '8px' }} />}
+                        style={{ minWidth: "220px", width: "220px" }}
+                        icon={<FilterIcon style={{ marginRight: "8px" }} />}
                       >
                         Filters
                       </MenuToggle>
@@ -316,9 +303,11 @@ const Assessment: React.FC<Props> = ({
                       </DropdownItem>
                       <DropdownItem
                         key="st-all"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
+                        onClick={(
+                          event: React.MouseEvent | React.KeyboardEvent,
+                        ) => {
+                          event.preventDefault();
+                          event.stopPropagation();
                           clearSourceTypes();
                         }}
                       >
@@ -326,33 +315,37 @@ const Assessment: React.FC<Props> = ({
                       </DropdownItem>
                       <DropdownItem
                         key="st-discovery"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          toggleSourceType('discovery');
+                        onClick={(
+                          event: React.MouseEvent | React.KeyboardEvent,
+                        ) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          toggleSourceType("discovery");
                         }}
                       >
                         <input
                           type="checkbox"
                           readOnly
-                          checked={selectedSourceTypes.includes('discovery')}
-                          style={{ marginRight: '8px' }}
+                          checked={selectedSourceTypes.includes("discovery")}
+                          style={{ marginRight: "8px" }}
                         />
                         Discovery OVA
                       </DropdownItem>
                       <DropdownItem
                         key="st-rvtools"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          toggleSourceType('rvtools');
+                        onClick={(
+                          event: React.MouseEvent | React.KeyboardEvent,
+                        ) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          toggleSourceType("rvtools");
                         }}
                       >
                         <input
                           type="checkbox"
                           readOnly
-                          checked={selectedSourceTypes.includes('rvtools')}
-                          style={{ marginRight: '8px' }}
+                          checked={selectedSourceTypes.includes("rvtools")}
+                          style={{ marginRight: "8px" }}
                         />
                         RVTools (XLS/X)
                       </DropdownItem>
@@ -362,9 +355,11 @@ const Assessment: React.FC<Props> = ({
                       </DropdownItem>
                       <DropdownItem
                         key="owner-all"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
+                        onClick={(
+                          event: React.MouseEvent | React.KeyboardEvent,
+                        ) => {
+                          event.preventDefault();
+                          event.stopPropagation();
                           clearOwners();
                         }}
                       >
@@ -373,9 +368,11 @@ const Assessment: React.FC<Props> = ({
                       {owners.map((owner) => (
                         <DropdownItem
                           key={`owner-${owner}`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
+                          onClick={(
+                            event: React.MouseEvent | React.KeyboardEvent,
+                          ) => {
+                            event.preventDefault();
+                            event.stopPropagation();
                             toggleOwner(owner);
                           }}
                         >
@@ -383,7 +380,7 @@ const Assessment: React.FC<Props> = ({
                             type="checkbox"
                             readOnly
                             checked={selectedOwners.includes(owner)}
-                            style={{ marginRight: '8px' }}
+                            style={{ marginRight: "8px" }}
                           />
                           {owner}
                         </DropdownItem>
@@ -398,14 +395,14 @@ const Assessment: React.FC<Props> = ({
                     placeholder="Search by name"
                     value={search}
                     onChange={(_event, value) => setSearch(value)}
-                    onClear={() => setSearch('')}
-                    style={{ minWidth: '300px', width: '300px' }}
+                    onClear={() => setSearch("")}
+                    style={{ minWidth: "300px", width: "300px" }}
                   />
                 </InputGroupItem>
               </InputGroup>
             </ToolbarItem>
             {!isTableEmpty() ? (
-              <ToolbarItem align={{ default: 'alignStart' }}>
+              <ToolbarItem align={{ default: "alignStart" }}>
                 <Dropdown
                   isOpen={isDropdownOpen}
                   onOpenChange={setIsDropdownOpen}
@@ -415,7 +412,7 @@ const Assessment: React.FC<Props> = ({
                       variant="primary"
                       onClick={onDropdownToggle}
                       isExpanded={isDropdownOpen}
-                      style={{ minWidth: '290px' }}
+                      style={{ minWidth: "290px" }}
                     >
                       Create new migration assessment
                     </MenuToggle>
@@ -428,7 +425,7 @@ const Assessment: React.FC<Props> = ({
                       component="button"
                       onClick={() =>
                         navigate(
-                          '/openshift/migration-assessment/assessments/create',
+                          "/openshift/migration-assessment/assessments/create",
                           {
                             state: { reset: true },
                           },
@@ -440,7 +437,7 @@ const Assessment: React.FC<Props> = ({
                     <DropdownItem
                       key="rvtools"
                       component="button"
-                      onClick={() => handleOpenModal('rvtools')}
+                      onClick={() => handleOpenModal("rvtools")}
                     >
                       From RVTools (XLS/X)
                     </DropdownItem>
@@ -454,48 +451,46 @@ const Assessment: React.FC<Props> = ({
         </Toolbar>
 
         {(selectedSourceTypes.length > 0 || selectedOwners.length > 0) && (
-          <div style={{ marginTop: '8px' }}>
+          <div style={{ marginTop: "8px" }}>
             <div
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                flexWrap: 'wrap',
-                background: '#f5f5f5',
-                padding: '6px 8px',
-                borderRadius: '6px',
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                flexWrap: "wrap",
+                background: "#f5f5f5",
+                padding: "6px 8px",
+                borderRadius: "6px",
               }}
             >
               <span
                 style={{
-                  background: '#e7e7e7',
-                  borderRadius: '12px',
-                  padding: '2px 8px',
-                  fontSize: '12px',
+                  background: "#e7e7e7",
+                  borderRadius: "12px",
+                  padding: "2px 8px",
+                  fontSize: "12px",
                 }}
               >
                 Filters
               </span>
 
               {selectedSourceTypes
-                .filter((t) => t === 'discovery' || t === 'rvtools')
+                .filter((t) => t === "discovery" || t === "rvtools")
                 .map((t) => (
                   <FilterPill
                     key={t}
                     label={`source type=${
-                      t === 'discovery' ? 'discovery ova' : 'rvtools'
+                      t === "discovery" ? "discovery ova" : "rvtools"
                     }`}
                     ariaLabel={`Remove source type ${
-                      t === 'discovery' ? 'discovery ova' : 'rvtools'
+                      t === "discovery" ? "discovery ova" : "rvtools"
                     }`}
-                    onClear={() =>
-                      toggleSourceType(t as 'discovery' | 'rvtools')
-                    }
+                    onClear={() => toggleSourceType(t)}
                   />
                 ))}
 
               {selectedOwners
-                .filter((o) => typeof o === 'string' && o.trim() !== '')
+                .filter((o) => typeof o === "string" && o.trim() !== "")
                 .map((owner) => (
                   <FilterPill
                     key={owner}
@@ -518,7 +513,7 @@ const Assessment: React.FC<Props> = ({
           </div>
         )}
 
-        <div style={{ marginTop: '10px' }}>
+        <div style={{ marginTop: "10px" }}>
           <AssessmentsTable
             assessments={assessments}
             isLoading={isLoading}
@@ -553,27 +548,31 @@ const Assessment: React.FC<Props> = ({
       <UpdateAssessment
         isOpen={isUpdateModalOpen}
         onClose={handleCloseUpdateModal}
-        onSubmit={handleConfirmUpdate}
-        name={(selectedAssessment as AssessmentModel)?.name || ''}
+        onSubmit={(name, owner) => {
+          void handleConfirmUpdate(name, owner);
+        }}
+        name={(selectedAssessment as AssessmentModel)?.name || ""}
       />
 
       <ConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={handleCloseDeleteModal}
         onCancel={handleCloseDeleteModal}
-        onConfirm={handleConfirmDelete}
+        onConfirm={() => {
+          void handleConfirmDelete();
+        }}
         isDisabled={discoverySourcesContext.isDeletingAssessment}
         title="Delete Assessment"
         titleIconVariant="warning"
         primaryButtonVariant="danger"
       >
-        Are you sure you want to delete{' '}
+        Are you sure you want to delete{" "}
         {(selectedAssessment as AssessmentModel)?.name}?
       </ConfirmationModal>
     </>
   );
 };
 
-Assessment.displayName = 'Assessment';
+Assessment.displayName = "Assessment";
 
 export default Assessment;

@@ -1,7 +1,6 @@
-import React from 'react';
-
-import { Button } from '@patternfly/react-core';
-import { TimesIcon } from '@patternfly/react-icons';
+import { Button } from "@patternfly/react-core";
+import { TimesIcon } from "@patternfly/react-icons";
+import React from "react";
 
 type Props = {
   label: string;
@@ -13,13 +12,13 @@ const FilterPill: React.FC<Props> = ({ label, onClear, ariaLabel }) => {
   return (
     <span
       style={{
-        background: '#e7e7e7',
-        borderRadius: '12px',
-        padding: '2px 6px 2px 8px',
-        fontSize: '12px',
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '4px',
+        background: "#e7e7e7",
+        borderRadius: "12px",
+        padding: "2px 6px 2px 8px",
+        fontSize: "12px",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "4px",
       }}
     >
       <span>{label}</span>
@@ -31,12 +30,12 @@ const FilterPill: React.FC<Props> = ({ label, onClear, ariaLabel }) => {
           e.stopPropagation();
           onClear();
         }}
-        style={{ padding: 0, height: '18px', width: '18px' }}
+        style={{ padding: 0, height: "18px", width: "18px" }}
       />
     </span>
   );
 };
 
-FilterPill.displayName = 'FilterPill';
+FilterPill.displayName = "FilterPill";
 
 export default FilterPill;

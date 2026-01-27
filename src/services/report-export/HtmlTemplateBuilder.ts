@@ -2,10 +2,9 @@
  * Builds HTML templates for report export
  */
 
-import { escapeHtml, formatNumber } from '../../utils/formatters';
-
-import { ChartDataTransformer } from './ChartDataTransformer';
-import { CHART_COLORS, DEFAULT_DOCUMENT_TITLE } from './constants';
+import { escapeHtml, formatNumber } from "../../utils/formatters";
+import { ChartDataTransformer } from "./ChartDataTransformer";
+import { CHART_COLORS, DEFAULT_DOCUMENT_TITLE } from "./constants";
 import type {
   ChartData,
   Datastore,
@@ -14,7 +13,7 @@ import type {
   MigrationWarning,
   SnapshotLike,
   VMsData,
-} from './types';
+} from "./types";
 
 export class HtmlTemplateBuilder {
   private chartTransformer = new ChartDataTransformer();
@@ -182,7 +181,7 @@ export class HtmlTemplateBuilder {
                     <canvas id="warningsChart"></canvas>
                 </div>
             </div>`
-                : ''
+                : ""
             }
 
             ${
@@ -194,7 +193,7 @@ export class HtmlTemplateBuilder {
                     <canvas id="storageChart"></canvas>
                 </div>
             </div>`
-                : ''
+                : ""
             }
         </div>`;
   }
@@ -236,19 +235,19 @@ export class HtmlTemplateBuilder {
                         <tr>
                             <td><strong>CPU Cores (vCPUs)</strong></td>
                             <td>${vms.cpuCores.total}</td>
-                            <td>${vms.total > 0 ? (vms.cpuCores.total / vms.total).toFixed(1) : '0.0'}</td>
+                            <td>${vms.total > 0 ? (vms.cpuCores.total / vms.total).toFixed(1) : "0.0"}</td>
                             <td>${Math.round(vms.cpuCores.total * 1.2)} (with 20% overhead)</td>
                         </tr>
                         <tr>
                             <td><strong>Memory (GB)</strong></td>
                             <td>${vms.ramGB.total}</td>
-                            <td>${vms.total > 0 ? (vms.ramGB.total / vms.total).toFixed(1) : '0.0'}</td>
+                            <td>${vms.total > 0 ? (vms.ramGB.total / vms.total).toFixed(1) : "0.0"}</td>
                             <td>${Math.round(vms.ramGB.total * 1.25)} (with 25% overhead)</td>
                         </tr>
                         <tr>
                             <td><strong>Storage (GB)</strong></td>
                             <td>${vms.diskGB.total}</td>
-                            <td>${vms.total > 0 ? (vms.diskGB.total / vms.total).toFixed(1) : '0.0'}</td>
+                            <td>${vms.total > 0 ? (vms.diskGB.total / vms.total).toFixed(1) : "0.0"}</td>
                             <td>${Math.round(vms.diskGB.total * 1.15)} (with 15% overhead)</td>
                         </tr>
                     </tbody>
@@ -299,12 +298,12 @@ export class HtmlTemplateBuilder {
     return osEntries
       .map(([osName, count]) => {
         const percentage =
-          vms.total === 0 ? '0.0' : ((count / vms.total) * 100).toFixed(1);
-        const priority = osName.includes('Windows')
-          ? 'High'
-          : osName.includes('Linux') || osName.includes('Red Hat')
-            ? 'Medium'
-            : 'Review Required';
+          vms.total === 0 ? "0.0" : ((count / vms.total) * 100).toFixed(1);
+        const priority = osName.includes("Windows")
+          ? "High"
+          : osName.includes("Linux") || osName.includes("Red Hat")
+            ? "Medium"
+            : "Review Required";
         return `
       <tr>
         <td><strong>${escapeHtml(osName)}</strong></td>
@@ -313,7 +312,7 @@ export class HtmlTemplateBuilder {
         <td>${escapeHtml(priority)}</td>
       </tr>`;
       })
-      .join('');
+      .join("");
   }
 
   private generateWarningsTable(vms: VMsData): string {
@@ -328,32 +327,32 @@ export class HtmlTemplateBuilder {
       .map((warning: MigrationWarning) => {
         const impact =
           warning.count > 50
-            ? 'Critical'
+            ? "Critical"
             : warning.count > 20
-              ? 'High'
+              ? "High"
               : warning.count > 5
-                ? 'Medium'
-                : 'Low';
+                ? "Medium"
+                : "Low";
         const percentage =
           vms.total > 0
             ? ((warning.count / vms.total) * 100).toFixed(1)
-            : '0.0';
+            : "0.0";
         const priority =
-          impact === 'Critical'
-            ? 'Immediate'
-            : impact === 'High'
-              ? 'Before Migration'
-              : impact === 'Medium'
-                ? 'During Migration'
-                : 'Post Migration';
+          impact === "Critical"
+            ? "Immediate"
+            : impact === "High"
+              ? "Before Migration"
+              : impact === "Medium"
+                ? "During Migration"
+                : "Post Migration";
         const rowClass =
-          impact === 'Critical'
-            ? 'warning-high'
-            : impact === 'High'
-              ? 'warning-medium'
-              : impact === 'Medium'
-                ? 'warning-low'
-                : '';
+          impact === "Critical"
+            ? "warning-high"
+            : impact === "High"
+              ? "warning-medium"
+              : impact === "Medium"
+                ? "warning-low"
+                : "";
 
         return `
       <tr class="${rowClass}">
@@ -364,7 +363,7 @@ export class HtmlTemplateBuilder {
         <td>${escapeHtml(priority)}</td>
       </tr>`;
       })
-      .join('');
+      .join("");
 
     return `<div class="table-section">
     <h3>Migration Warnings Analysis</h3>
@@ -399,8 +398,8 @@ export class HtmlTemplateBuilder {
                   ds.totalCapacityGB) *
                 100
               ).toFixed(1)
-            : '0.0';
-        const hwAccel = ds.hardwareAcceleratedMove ? '✅ Yes' : '❌ No';
+            : "0.0";
+        const hwAccel = ds.hardwareAcceleratedMove ? "✅ Yes" : "❌ No";
 
         return `
       <tr>
@@ -413,7 +412,7 @@ export class HtmlTemplateBuilder {
         <td>${hwAccel}</td>
       </tr>`;
       })
-      .join('');
+      .join("");
   }
 
   private buildChartScripts(
@@ -435,7 +434,7 @@ export class HtmlTemplateBuilder {
                 new Chart(powerCtx, {
                     type: 'doughnut',
                     data: {
-                        labels: ${JSON.stringify(powerStateData.map((d) => d[0])).replace(/<\//g, '<\\/')},
+                        labels: ${JSON.stringify(powerStateData.map((d) => d[0])).replace(/<\//g, "<\\/")},
                         datasets: [{
                             data: ${JSON.stringify(powerStateData.map((d) => d[1]))},
                             backgroundColor: ['${CHART_COLORS.SUCCESS}', '${CHART_COLORS.DANGER}', '${CHART_COLORS.WARNING}']
@@ -455,7 +454,7 @@ export class HtmlTemplateBuilder {
                 new Chart(resourceCtx, {
                     type: 'bar',
                     data: {
-                        labels: ${JSON.stringify(resourceData.map((d) => d[0])).replace(/<\//g, '<\\/')},
+                        labels: ${JSON.stringify(resourceData.map((d) => d[0])).replace(/<\//g, "<\\/")},
                         datasets: [{
                             label: 'Current',
                             data: ${JSON.stringify(resourceData.map((d) => d[1]))},
@@ -481,7 +480,7 @@ export class HtmlTemplateBuilder {
                 new Chart(osCtx, {
                     type: 'bar',
                     data: {
-                        labels: ${JSON.stringify(osData.map((d) => d[0])).replace(/<\//g, '<\\/')},
+                        labels: ${JSON.stringify(osData.map((d) => d[0])).replace(/<\//g, "<\\/")},
                         datasets: [{
                             data: ${JSON.stringify(osData.map((d) => d[1]))},
                             backgroundColor: ${JSON.stringify([
@@ -515,7 +514,7 @@ export class HtmlTemplateBuilder {
                 new Chart(warningsCtx, {
                     type: 'bar',
                     data: {
-                        labels: ${JSON.stringify(warningsData.map((d) => d[0])).replace(/<\//g, '<\\/')},
+                        labels: ${JSON.stringify(warningsData.map((d) => d[0])).replace(/<\//g, "<\\/")},
                         datasets: [{
                             data: ${JSON.stringify(warningsData.map((d) => d[1]))},
                             backgroundColor: ${JSON.stringify(
@@ -540,7 +539,7 @@ export class HtmlTemplateBuilder {
                     }
                 });
             }`
-                : ''
+                : ""
             }
 
             ${
@@ -552,7 +551,7 @@ export class HtmlTemplateBuilder {
                 new Chart(storageCtx, {
                     type: 'bar',
                     data: {
-                        labels: ${JSON.stringify(storageLabels).replace(/<\//g, '<\\/')},
+                        labels: ${JSON.stringify(storageLabels).replace(/<\//g, "<\\/")},
                         datasets: [{
                             label: 'Used (GB)',
                             data: ${JSON.stringify(storageUsedData)},
@@ -571,7 +570,7 @@ export class HtmlTemplateBuilder {
                     }
                 });
             }`
-                : ''
+                : ""
             }
         });`;
   }

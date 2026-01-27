@@ -1,6 +1,4 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import "@testing-library/jest-dom";
 
 import type {
   Assessment,
@@ -10,23 +8,23 @@ import type {
   Source,
   VMResourceBreakdown,
   VMs,
-} from '@migration-planner-ui/api-client/models';
+} from "@migration-planner-ui/api-client/models";
 import {
   cleanup,
   render,
   screen,
   waitFor,
   within,
-} from '@testing-library/react';
+} from "@testing-library/react";
+import React from "react";
+import { useParams } from "react-router-dom";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useDiscoverySources } from '../../migration-wizard/contexts/discovery-sources/Context';
-
-import Report from './Report';
-
-import '@testing-library/jest-dom';
+import { useDiscoverySources } from "../../migration-wizard/contexts/discovery-sources/Context";
+import Report from "./Report";
 
 // Mock react-router-dom
-vi.mock('react-router-dom', () => ({
+vi.mock("react-router-dom", () => ({
   Link: ({
     children,
     to,
@@ -38,17 +36,17 @@ vi.mock('react-router-dom', () => ({
 }));
 
 // Mock react-use
-vi.mock('react-use', () => ({
-  useMount: vi.fn((callback) => callback()),
+vi.mock("react-use", () => ({
+  useMount: vi.fn((callback: () => void) => callback()),
 }));
 
 // Mock DiscoverySources context
-vi.mock('../../migration-wizard/contexts/discovery-sources/Context', () => ({
+vi.mock("../../migration-wizard/contexts/discovery-sources/Context", () => ({
   useDiscoverySources: vi.fn(),
 }));
 
 // Mock Provider to avoid IoC dependency
-vi.mock('../../migration-wizard/contexts/discovery-sources/Provider', () => ({
+vi.mock("../../migration-wizard/contexts/discovery-sources/Provider", () => ({
   Provider: ({
     children,
   }: {
@@ -58,7 +56,7 @@ vi.mock('../../migration-wizard/contexts/discovery-sources/Provider', () => ({
 
 // Mock child components
 vi.mock(
-  '../../migration-wizard/steps/discovery/EnhancedDownloadButton',
+  "../../migration-wizard/steps/discovery/EnhancedDownloadButton",
   () => ({
     EnhancedDownloadButton: ({
       isDisabled,
@@ -67,29 +65,29 @@ vi.mock(
     }): React.ReactElement => (
       <div
         data-testid="download-button"
-        data-disabled={isDisabled ? 'true' : 'false'}
+        data-disabled={isDisabled ? "true" : "false"}
       />
     ),
   }),
 );
 
-vi.mock('./assessment-report/Dashboard', () => ({
+vi.mock("./assessment-report/Dashboard", () => ({
   Dashboard: (): React.ReactElement => <div data-testid="dashboard" />,
 }));
 
-vi.mock('./cluster-sizer/ClusterSizingWizard', () => ({
+vi.mock("./cluster-sizer/ClusterSizingWizard", () => ({
   ClusterSizingWizard: (): React.ReactElement => (
     <div data-testid="cluster-sizing-wizard" />
   ),
 }));
 
-vi.mock('../environment/sources-table/AgentStatusView', () => ({
+vi.mock("../environment/sources-table/AgentStatusView", () => ({
   AgentStatusView: (): React.ReactElement => (
     <div data-testid="agent-status-view" />
   ),
 }));
 
-vi.mock('../../components/AppPage', () => ({
+vi.mock("../../components/AppPage", () => ({
   AppPage: ({
     children,
     headerActions,
@@ -173,7 +171,7 @@ const createAssessment = (
           acc.total += clusterVms.total || 0;
           acc.totalMigratable += clusterVms.totalMigratable || 0;
           Object.entries(clusterVms.os || {}).forEach(([os, count]) => {
-            acc.os[os] = (acc.os[os] || 0) + count;
+            acc.os![os] = (acc.os![os] || 0) + count;
           });
         }
         return acc;
@@ -183,14 +181,14 @@ const createAssessment = (
   return {
     id,
     name: `Assessment ${id}`,
-    sourceId: 'source-1',
-    sourceType: 'vcenter' as unknown as Assessment['sourceType'],
+    sourceId: "source-1",
+    sourceType: "vcenter" as unknown as Assessment["sourceType"],
     createdAt: new Date(),
     snapshots: [
       {
         createdAt: new Date(),
         inventory: {
-          vcenterId: 'vcenter-1',
+          vcenterId: "vcenter-1",
           clusters: clusterData ?? null,
           vcenter: {
             infra: aggregateInfra,
@@ -203,19 +201,19 @@ const createAssessment = (
 };
 
 const mockSource: Source = {
-  id: 'source-1',
-  name: 'Test Source',
+  id: "source-1",
+  name: "Test Source",
   createdAt: new Date(),
   updatedAt: new Date(),
   onPremises: false,
   agent: {
-    id: 'agent-1',
-    status: 'connected' as unknown as NonNullable<Source['agent']>['status'],
-    statusInfo: '',
-    credentialUrl: '',
+    id: "agent-1",
+    status: "connected" as unknown as NonNullable<Source["agent"]>["status"],
+    statusInfo: "",
+    credentialUrl: "",
     createdAt: new Date(),
     updatedAt: new Date(),
-    version: '',
+    version: "",
   },
 } as Source;
 
@@ -258,7 +256,7 @@ const mockDiscoverySourcesContext = {
   selectSource: vi.fn(),
   selectSourceById: vi.fn(),
   updateInventory: vi.fn(),
-  downloadSourceUrl: '',
+  downloadSourceUrl: "",
   setDownloadUrl: vi.fn(),
   sourceCreatedId: undefined,
   deleteSourceCreated: vi.fn(),
@@ -283,13 +281,13 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe('Report', () => {
+describe("Report", () => {
   beforeEach(() => {
-    vi.mocked(useParams).mockReturnValue({ id: 'assessment-1' });
+    vi.mocked(useParams).mockReturnValue({ id: "assessment-1" });
     vi.mocked(useDiscoverySources).mockReturnValue(mockDiscoverySourcesContext);
   });
 
-  it('renders loading spinner when assessments are loading', () => {
+  it("renders loading spinner when assessments are loading", () => {
     vi.mocked(useDiscoverySources).mockReturnValue({
       ...mockDiscoverySourcesContext,
       isLoadingAssessments: true,
@@ -298,10 +296,10 @@ describe('Report', () => {
 
     render(<Report />);
 
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
   });
 
-  it('renders not found message when assessment does not exist', () => {
+  it("renders not found message when assessment does not exist", () => {
     vi.mocked(useDiscoverySources).mockReturnValue({
       ...mockDiscoverySourcesContext,
       assessments: [],
@@ -314,10 +312,10 @@ describe('Report', () => {
     ).toBeInTheDocument();
   });
 
-  describe('Cluster recommendations button', () => {
+  describe("Cluster recommendations button", () => {
     it('does not show button when "all" clusters is selected', async () => {
-      const assessment = createAssessment('assessment-1', {
-        'Cluster A': {
+      const assessment = createAssessment("assessment-1", {
+        "Cluster A": {
           infra: createInfra(2, 2),
           vms: createVMs(5),
         },
@@ -332,7 +330,7 @@ describe('Report', () => {
 
       await waitFor(() => {
         expect(
-          screen.queryByText('View target cluster recommendations'),
+          screen.queryByText("View target cluster recommendations"),
         ).not.toBeInTheDocument();
       });
     });
@@ -341,9 +339,9 @@ describe('Report', () => {
     // These tests verify the component renders correctly with cluster data.
     // The actual button enable/disable logic is tested through the hasClusterResources function logic
     // which checks both hosts (via totalHosts or hosts array) and VMs (via total).
-    it('renders component with cluster data containing both hosts and VMs', async () => {
-      const assessment = createAssessment('assessment-1', {
-        'Cluster A': {
+    it("renders component with cluster data containing both hosts and VMs", async () => {
+      const assessment = createAssessment("assessment-1", {
+        "Cluster A": {
           infra: createInfra(2, 2),
           vms: createVMs(5),
         },
@@ -357,10 +355,10 @@ describe('Report', () => {
       render(<Report />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('app-page')).toBeInTheDocument();
+        expect(screen.getByTestId("app-page")).toBeInTheDocument();
         // Component shows dashboard when hasClusterScopedData is true (aggregate view with data)
         // or empty state when no data
-        const dashboard = screen.queryByTestId('dashboard');
+        const dashboard = screen.queryByTestId("dashboard");
         const emptyMessage = screen.queryByText(
           /This assessment does not have report data yet/,
         );
@@ -368,9 +366,9 @@ describe('Report', () => {
       });
     });
 
-    it('renders component with cluster data containing no hosts', async () => {
-      const assessment = createAssessment('assessment-1', {
-        'Cluster A': {
+    it("renders component with cluster data containing no hosts", async () => {
+      const assessment = createAssessment("assessment-1", {
+        "Cluster A": {
           infra: createInfra(0, 0), // No hosts
           vms: createVMs(5), // Has VMs
         },
@@ -384,13 +382,13 @@ describe('Report', () => {
       render(<Report />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('app-page')).toBeInTheDocument();
+        expect(screen.getByTestId("app-page")).toBeInTheDocument();
       });
     });
 
-    it('renders component with cluster data containing no VMs', async () => {
-      const assessment = createAssessment('assessment-1', {
-        'Cluster A': {
+    it("renders component with cluster data containing no VMs", async () => {
+      const assessment = createAssessment("assessment-1", {
+        "Cluster A": {
           infra: createInfra(2, 2), // Has hosts
           vms: createVMs(0), // No VMs
         },
@@ -404,13 +402,13 @@ describe('Report', () => {
       render(<Report />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('app-page')).toBeInTheDocument();
+        expect(screen.getByTestId("app-page")).toBeInTheDocument();
       });
     });
 
-    it('renders component with empty cluster data', async () => {
-      const assessment = createAssessment('assessment-1', {
-        'Cluster A': {
+    it("renders component with empty cluster data", async () => {
+      const assessment = createAssessment("assessment-1", {
+        "Cluster A": {
           infra: createInfra(0, 0), // No hosts
           vms: createVMs(0), // No VMs
         },
@@ -424,15 +422,15 @@ describe('Report', () => {
       render(<Report />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('app-page')).toBeInTheDocument();
+        expect(screen.getByTestId("app-page")).toBeInTheDocument();
       });
     });
   });
 
-  describe('Export report button', () => {
-    it('enables export button when cluster has both hosts and VMs', async () => {
-      const assessment = createAssessment('assessment-1', {
-        'Cluster A': {
+  describe("Export report button", () => {
+    it("enables export button when cluster has both hosts and VMs", async () => {
+      const assessment = createAssessment("assessment-1", {
+        "Cluster A": {
           infra: createInfra(2, 2),
           vms: createVMs(5),
         },
@@ -446,18 +444,18 @@ describe('Report', () => {
       render(<Report />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('app-page')).toBeInTheDocument();
+        expect(screen.getByTestId("app-page")).toBeInTheDocument();
       });
 
-      const headerActions = screen.getByTestId('header-actions');
+      const headerActions = screen.getByTestId("header-actions");
       const downloadButton =
-        within(headerActions).getByTestId('download-button');
-      expect(downloadButton).toHaveAttribute('data-disabled', 'false');
+        within(headerActions).getByTestId("download-button");
+      expect(downloadButton).toHaveAttribute("data-disabled", "false");
     });
 
-    it('disables export button with tooltip when cluster has no hosts', async () => {
-      const assessment = createAssessment('assessment-1', {
-        'Cluster A': {
+    it("disables export button with tooltip when cluster has no hosts", async () => {
+      const assessment = createAssessment("assessment-1", {
+        "Cluster A": {
           infra: createInfra(0, 0), // No hosts
           vms: createVMs(5), // Has VMs
         },
@@ -471,21 +469,21 @@ describe('Report', () => {
       render(<Report />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('app-page')).toBeInTheDocument();
+        expect(screen.getByTestId("app-page")).toBeInTheDocument();
       });
 
-      const headerActions = screen.getByTestId('header-actions');
+      const headerActions = screen.getByTestId("header-actions");
       const downloadButton =
-        within(headerActions).getByTestId('download-button');
-      expect(downloadButton).toHaveAttribute('data-disabled', 'true');
+        within(headerActions).getByTestId("download-button");
+      expect(downloadButton).toHaveAttribute("data-disabled", "true");
 
       // Note: PatternFly Tooltips render content on hover, so we verify the button
       // is disabled which indicates the tooltip wrapper is present in the component
     });
 
-    it('disables export button with tooltip when cluster has no VMs', async () => {
-      const assessment = createAssessment('assessment-1', {
-        'Cluster A': {
+    it("disables export button with tooltip when cluster has no VMs", async () => {
+      const assessment = createAssessment("assessment-1", {
+        "Cluster A": {
           infra: createInfra(2, 2), // Has hosts
           vms: createVMs(0), // No VMs
         },
@@ -499,21 +497,21 @@ describe('Report', () => {
       render(<Report />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('app-page')).toBeInTheDocument();
+        expect(screen.getByTestId("app-page")).toBeInTheDocument();
       });
 
-      const headerActions = screen.getByTestId('header-actions');
+      const headerActions = screen.getByTestId("header-actions");
       const downloadButton =
-        within(headerActions).getByTestId('download-button');
-      expect(downloadButton).toHaveAttribute('data-disabled', 'true');
+        within(headerActions).getByTestId("download-button");
+      expect(downloadButton).toHaveAttribute("data-disabled", "true");
 
       // Note: PatternFly Tooltips render content on hover, so we verify the button
       // is disabled which indicates the tooltip wrapper is present in the component
     });
 
-    it('disables export button with tooltip when cluster has neither hosts nor VMs', async () => {
-      const assessment = createAssessment('assessment-1', {
-        'Cluster A': {
+    it("disables export button with tooltip when cluster has neither hosts nor VMs", async () => {
+      const assessment = createAssessment("assessment-1", {
+        "Cluster A": {
           infra: createInfra(0, 0), // No hosts
           vms: createVMs(0), // No VMs
         },
@@ -527,25 +525,25 @@ describe('Report', () => {
       render(<Report />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('app-page')).toBeInTheDocument();
+        expect(screen.getByTestId("app-page")).toBeInTheDocument();
       });
 
-      const headerActions = screen.getByTestId('header-actions');
+      const headerActions = screen.getByTestId("header-actions");
       const downloadButton =
-        within(headerActions).getByTestId('download-button');
-      expect(downloadButton).toHaveAttribute('data-disabled', 'true');
+        within(headerActions).getByTestId("download-button");
+      expect(downloadButton).toHaveAttribute("data-disabled", "true");
 
       // Note: PatternFly Tooltips render content on hover, so we verify the button
       // is disabled which indicates the tooltip wrapper is present in the component
     });
 
-    it('enables export button when aggregate view has hosts and VMs', async () => {
-      const assessment = createAssessment('assessment-1', {
-        'Cluster A': {
+    it("enables export button when aggregate view has hosts and VMs", async () => {
+      const assessment = createAssessment("assessment-1", {
+        "Cluster A": {
           infra: createInfra(2, 2),
           vms: createVMs(5),
         },
-        'Cluster B': {
+        "Cluster B": {
           infra: createInfra(3, 3),
           vms: createVMs(7),
         },
@@ -559,13 +557,13 @@ describe('Report', () => {
       render(<Report />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('app-page')).toBeInTheDocument();
+        expect(screen.getByTestId("app-page")).toBeInTheDocument();
       });
 
-      const headerActions = screen.getByTestId('header-actions');
+      const headerActions = screen.getByTestId("header-actions");
       const downloadButton =
-        within(headerActions).getByTestId('download-button');
-      expect(downloadButton).toHaveAttribute('data-disabled', 'false');
+        within(headerActions).getByTestId("download-button");
+      expect(downloadButton).toHaveAttribute("data-disabled", "false");
     });
   });
 });

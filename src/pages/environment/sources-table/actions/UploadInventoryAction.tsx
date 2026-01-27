@@ -1,10 +1,9 @@
-import React, { useCallback } from 'react';
+import { Button, Icon, Tooltip } from "@patternfly/react-core";
+import { UploadIcon } from "@patternfly/react-icons";
+import React, { useCallback } from "react";
 
-import { Button, Icon, Tooltip } from '@patternfly/react-core';
-import { UploadIcon } from '@patternfly/react-icons';
-
-import { DiscoverySources } from '../../../../migration-wizard/contexts/discovery-sources/@types/DiscoverySources';
-import { uploadInventoryFile } from '../../../../utils/uploadInventory';
+import { DiscoverySources } from "../../../../migration-wizard/contexts/discovery-sources/@types/DiscoverySources";
+import { uploadInventoryFile } from "../../../../utils/uploadInventory";
 
 interface UploadInventoryProps {
   discoverySourcesContext: DiscoverySources.Context;
@@ -35,7 +34,7 @@ export const UploadInventoryAction: React.FC<UploadInventoryProps> = ({
     <Button
       variant="link"
       onClick={handleUploadSource}
-      style={{ padding: 0, marginTop: '5px' }}
+      style={{ padding: 0, marginTop: "5px" }}
     >
       Upload discovery file (JSON)
     </Button>

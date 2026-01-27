@@ -1,7 +1,6 @@
-import React from 'react';
-
-import { ChartPie } from '@patternfly/react-charts';
-import { Content } from '@patternfly/react-core';
+import { ChartPie } from "@patternfly/react-charts";
+import { Content } from "@patternfly/react-core";
+import React from "react";
 
 type ChartBarDataEntry = {
   name: string;
@@ -28,7 +27,7 @@ function getLegendData(
   histogram: ReportPieChart.Histogram,
   legendLabel: string,
 ): { name: string }[] {
-  return histogramToPieChartData(histogram, '').map((d) => ({
+  return histogramToPieChartData(histogram, "").map((d) => ({
     name: `${d.x} ${legendLabel}: ${d.y} VM`,
   }));
 }
@@ -52,17 +51,20 @@ export function ReportPieChart(props: ReportPieChart.Props): React.ReactNode {
   const { title, histogram, legendLabel } = props;
   return (
     <>
-      <Content style={{ textAlign: 'center' }}>
+      <Content style={{ textAlign: "center" }}>
         <Content component="p">{title}</Content>
       </Content>
       <ChartPie
-        name={title.toLowerCase().split(' ').join('-')}
-        ariaDesc={title + ' chart'}
-        ariaTitle={title + ' chart'}
+        name={title.toLowerCase().split(" ").join("-")}
+        ariaDesc={title + " chart"}
+        ariaTitle={title + " chart"}
         constrainToVisibleArea
         data={histogramToPieChartData(histogram, legendLabel)}
         height={230}
-        labels={({ datum }) => `${datum.x}: ${datum.y}`}
+        labels={({ datum }) => {
+          const safeDatum = datum as ChartBarDataEntry;
+          return `${safeDatum.x}: ${safeDatum.y}`;
+        }}
         legendData={getLegendData(histogram, legendLabel)}
         legendOrientation="vertical"
         legendPosition="right"
@@ -74,16 +76,16 @@ export function ReportPieChart(props: ReportPieChart.Props): React.ReactNode {
         }}
         width={450}
         colorScale={[
-          '#73BCF7',
-          '#73C5C5',
-          '#F9E0A2',
-          '#BDE5B8',
-          '#D2D2D2',
-          '#F4B678',
-          '#CBC1FF',
-          '#FF7468',
-          '#7CDBF3',
-          '#E4F5BC',
+          "#73BCF7",
+          "#73C5C5",
+          "#F9E0A2",
+          "#BDE5B8",
+          "#D2D2D2",
+          "#F4B678",
+          "#CBC1FF",
+          "#FF7468",
+          "#7CDBF3",
+          "#E4F5BC",
         ]}
       />
     </>

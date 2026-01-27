@@ -1,34 +1,38 @@
-const webpack = require('webpack');
+const webpack = require("webpack");
 
 /** @type {import('@redhat-cloud-services/frontend-components-config').FecWebpackConfiguration} */
 module.exports = {
-  appUrl: '/openshift/migration-assessment',
+  appUrl: "/openshift/migration-assessment",
   debug: true,
   useProxy: true,
   proxyVerbose: true,
-  sassPrefix: '.assisted-migration-app, .assistedMigrationApp',
+  sassPrefix: ".assisted-migration-app, .assistedMigrationApp",
   interceptChromeConfig: false,
   plugins: [
     new webpack.DefinePlugin({
-      'process.env.PLANNER_API_BASE_URL': JSON.stringify(
-        process.env.PLANNER_API_BASE_URL || '/api/migration-assessment'
+      "process.env.PLANNER_API_BASE_URL": JSON.stringify(
+        process.env.PLANNER_API_BASE_URL || "/api/migration-assessment",
       ),
-      'process.env.MIGRATION_PLANNER_UI_GIT_COMMIT': JSON.stringify(process.env.MIGRATION_PLANNER_UI_GIT_COMMIT),
-      'process.env.MIGRATION_PLANNER_UI_VERSION': JSON.stringify(process.env.MIGRATION_PLANNER_UI_VERSION),
-    })
+      "process.env.MIGRATION_PLANNER_UI_GIT_COMMIT": JSON.stringify(
+        process.env.MIGRATION_PLANNER_UI_GIT_COMMIT,
+      ),
+      "process.env.MIGRATION_PLANNER_UI_VERSION": JSON.stringify(
+        process.env.MIGRATION_PLANNER_UI_VERSION,
+      ),
+    }),
   ],
-  hotReload: process.env.HOT === 'true',
+  hotReload: process.env.HOT === "true",
   moduleFederation: {
     exposes: {
-      './RootApp': './src/AppEntry',
+      "./RootApp": "./src/AppEntry",
     },
-    exclude: ['react-router-dom'],
+    exclude: ["react-router-dom"],
     shared: [
       {
-        'react-router-dom': {
+        "react-router-dom": {
           singleton: true,
           import: false,
-          version: '^6.3.0',
+          version: "^6.3.0",
         },
       },
     ],

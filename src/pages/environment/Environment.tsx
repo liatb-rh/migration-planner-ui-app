@@ -1,5 +1,3 @@
-import React, { useCallback, useEffect, useState } from 'react';
-
 import {
   Alert,
   AlertActionLink,
@@ -17,15 +15,15 @@ import {
   Toolbar,
   ToolbarContent,
   ToolbarItem,
-} from '@patternfly/react-core';
-import { FilterIcon, PlusCircleIcon, TimesIcon } from '@patternfly/react-icons';
+} from "@patternfly/react-core";
+import { FilterIcon, PlusCircleIcon, TimesIcon } from "@patternfly/react-icons";
+import React, { useCallback, useEffect, useState } from "react";
 
-import FilterPill from '../../components/FilterPill';
-import { useDiscoverySources } from '../../migration-wizard/contexts/discovery-sources/Context';
-
-import { DiscoverySourceSetupModal } from './sources-table/empty-state/DiscoverySourceSetupModal';
-import { SourcesTable } from './sources-table/SourcesTable';
-import { TroubleshootingModal } from './TroubleshootingModal';
+import FilterPill from "../../components/FilterPill";
+import { useDiscoverySources } from "../../migration-wizard/contexts/discovery-sources/Context";
+import { DiscoverySourceSetupModal } from "./sources-table/empty-state/DiscoverySourceSetupModal";
+import { SourcesTable } from "./sources-table/SourcesTable";
+import { TroubleshootingModal } from "./TroubleshootingModal";
 
 export const Environment: React.FC = () => {
   const discoverySourcesContext = useDiscoverySources();
@@ -54,7 +52,7 @@ export const Environment: React.FC = () => {
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
   const [isUploadError, setIsUploadError] = useState(false);
   const [isTroubleshootingOpen, setIsTroubleshootingOpen] = useState(false);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
 
   // Multi-select status filters
@@ -71,12 +69,12 @@ export const Environment: React.FC = () => {
   const clearStatuses = (): void => setSelectedStatuses([]);
 
   const statusOptions: { key: string; label: string }[] = [
-    { key: 'not-connected-uploaded', label: 'Uploaded manually' },
-    { key: 'not-connected', label: 'Not connected' },
-    { key: 'waiting-for-credentials', label: 'Waiting for credentials' },
-    { key: 'gathering-initial-inventory', label: 'Gathering inventory' },
-    { key: 'error', label: 'Error' },
-    { key: 'up-to-date', label: 'Ready' },
+    { key: "not-connected-uploaded", label: "Uploaded manually" },
+    { key: "not-connected", label: "Not connected" },
+    { key: "waiting-for-credentials", label: "Waiting for credentials" },
+    { key: "gathering-initial-inventory", label: "Gathering inventory" },
+    { key: "error", label: "Error" },
+    { key: "up-to-date", label: "Ready" },
   ];
 
   useEffect(() => {
@@ -102,6 +100,7 @@ export const Environment: React.FC = () => {
   // Close filter dropdown whenever any modal in this page opens
   useEffect(() => {
     if (shouldShowDiscoverySourceSetupModal || isTroubleshootingOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsFilterDropdownOpen(false);
     }
   }, [shouldShowDiscoverySourceSetupModal, isTroubleshootingOpen]);
@@ -110,13 +109,13 @@ export const Environment: React.FC = () => {
     <>
       <div
         style={{
-          background: 'white',
-          padding: '0 20px 20px 20px',
-          marginTop: '10px',
-          marginBottom: '10px',
+          background: "white",
+          padding: "0 20px 20px 20px",
+          marginTop: "10px",
+          marginBottom: "10px",
         }}
       >
-        <Toolbar inset={{ default: 'insetNone' }}>
+        <Toolbar inset={{ default: "insetNone" }}>
           <ToolbarContent>
             <ToolbarItem>
               <InputGroup>
@@ -132,8 +131,8 @@ export const Environment: React.FC = () => {
                           setIsFilterDropdownOpen(!isFilterDropdownOpen)
                         }
                         isExpanded={isFilterDropdownOpen}
-                        style={{ minWidth: '220px', width: '220px' }}
-                        icon={<FilterIcon style={{ marginRight: '8px' }} />}
+                        style={{ minWidth: "220px", width: "220px" }}
+                        icon={<FilterIcon style={{ marginRight: "8px" }} />}
                       >
                         Filters
                       </MenuToggle>
@@ -145,9 +144,11 @@ export const Environment: React.FC = () => {
                       </DropdownItem>
                       <DropdownItem
                         key="status-all"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
+                        onClick={(
+                          event: React.MouseEvent | React.KeyboardEvent,
+                        ) => {
+                          event.preventDefault();
+                          event.stopPropagation();
                           clearStatuses();
                         }}
                       >
@@ -156,9 +157,11 @@ export const Environment: React.FC = () => {
                       {statusOptions.map((opt) => (
                         <DropdownItem
                           key={`status-${opt.key}`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
+                          onClick={(
+                            event: React.MouseEvent | React.KeyboardEvent,
+                          ) => {
+                            event.preventDefault();
+                            event.stopPropagation();
                             toggleStatus(opt.key);
                           }}
                         >
@@ -166,7 +169,7 @@ export const Environment: React.FC = () => {
                             type="checkbox"
                             readOnly
                             checked={selectedStatuses.includes(opt.key)}
-                            style={{ marginRight: '8px' }}
+                            style={{ marginRight: "8px" }}
                           />
                           {opt.label}
                         </DropdownItem>
@@ -181,8 +184,8 @@ export const Environment: React.FC = () => {
                     placeholder="Search by name"
                     value={search}
                     onChange={(_event, value) => setSearch(value)}
-                    onClear={() => setSearch('')}
-                    style={{ minWidth: '300px', width: '300px' }}
+                    onClear={() => setSearch("")}
+                    style={{ minWidth: "300px", width: "300px" }}
                   />
                 </InputGroupItem>
               </InputGroup>
@@ -205,24 +208,24 @@ export const Environment: React.FC = () => {
         </Toolbar>
 
         {selectedStatuses.length > 0 && (
-          <div style={{ marginTop: '8px' }}>
+          <div style={{ marginTop: "8px" }}>
             <div
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                flexWrap: 'wrap',
-                background: '#f5f5f5',
-                padding: '6px 8px',
-                borderRadius: '6px',
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                flexWrap: "wrap",
+                background: "#f5f5f5",
+                padding: "6px 8px",
+                borderRadius: "6px",
               }}
             >
               <span
                 style={{
-                  background: '#e7e7e7',
-                  borderRadius: '12px',
-                  padding: '2px 8px',
-                  fontSize: '12px',
+                  background: "#e7e7e7",
+                  borderRadius: "12px",
+                  padding: "2px 8px",
+                  fontSize: "12px",
                 }}
               >
                 Filters
@@ -270,14 +273,14 @@ export const Environment: React.FC = () => {
           </div>
         )}
 
-        <div style={{ marginTop: '10px' }}>
+        <div style={{ marginTop: "10px" }}>
           <SourcesTable
             onUploadResult={(message, isError) => {
-              setUploadMessage(message);
+              setUploadMessage(message ?? null);
               setIsUploadError(isError ?? false);
             }}
-            onUploadSuccess={async () => {
-              await discoverySourcesContext.listSources();
+            onUploadSuccess={() => {
+              void discoverySourcesContext.listSources();
             }}
             search={search}
             selectedStatuses={selectedStatuses}
@@ -307,7 +310,7 @@ export const Environment: React.FC = () => {
       )}
 
       {sourceSelected?.agent &&
-        sourceSelected?.agent.status === 'waiting-for-credentials' && (
+        sourceSelected?.agent.status === "waiting-for-credentials" && (
           <StackItem>
             <Alert
               isInline
@@ -338,8 +341,8 @@ export const Environment: React.FC = () => {
         <StackItem>
           <Alert
             isInline
-            variant={isUploadError ? 'danger' : 'success'}
-            title={isUploadError ? 'Upload error' : 'Upload success'}
+            variant={isUploadError ? "danger" : "success"}
+            title={isUploadError ? "Upload error" : "Upload success"}
           >
             {uploadMessage}
           </Alert>
@@ -352,7 +355,7 @@ export const Environment: React.FC = () => {
           onClose={() => {
             setEditSourceId(null);
             toggleDiscoverySourceSetupModal();
-            discoverySourcesContext.listSources();
+            void discoverySourcesContext.listSources();
           }}
           isDisabled={discoverySourcesContext.isDownloadingSource}
           onStartDownload={() => setIsOvaDownloading(true)}
@@ -370,4 +373,4 @@ export const Environment: React.FC = () => {
   );
 };
 
-Environment.displayName = 'Environment';
+Environment.displayName = "Environment";

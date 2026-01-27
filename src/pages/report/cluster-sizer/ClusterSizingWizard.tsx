@@ -1,24 +1,22 @@
-import React, { useCallback, useState } from 'react';
-
-import { AssessmentApi } from '@migration-planner-ui/api-client/apis';
-import { ResponseError } from '@migration-planner-ui/api-client/runtime';
-import { useInjection } from '@migration-planner-ui/ioc';
+import { AssessmentApi } from "@migration-planner-ui/api-client/apis";
+import { ResponseError } from "@migration-planner-ui/api-client/runtime";
+import { useInjection } from "@migration-planner-ui/ioc";
 import {
   Modal,
   Wizard,
   WizardHeader,
   WizardStep,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
+import React, { useCallback, useState } from "react";
 
-import { Symbols } from '../../../main/Symbols';
-
-import { DEFAULT_FORM_VALUES, WORKER_NODE_PRESETS } from './constants';
-import { SizingInputForm } from './SizingInputForm';
-import { SizingInputFormWizardStepFooter } from './SizingInputFormWizardStepFooter';
-import { SizingResult } from './SizingResult';
-import { SizingResultWizardStepFooter } from './SizingResultWizardStepFooter';
-import type { ClusterRequirementsResponse, SizingFormValues } from './types';
-import { formValuesToRequest } from './types';
+import { Symbols } from "../../../main/Symbols";
+import { DEFAULT_FORM_VALUES, WORKER_NODE_PRESETS } from "./constants";
+import { SizingInputForm } from "./SizingInputForm";
+import { SizingInputFormWizardStepFooter } from "./SizingInputFormWizardStepFooter";
+import { SizingResult } from "./SizingResult";
+import { SizingResultWizardStepFooter } from "./SizingResultWizardStepFooter";
+import type { ClusterRequirementsResponse, SizingFormValues } from "./types";
+import { formValuesToRequest } from "./types";
 
 interface ClusterSizingWizardProps {
   isOpen: boolean;
@@ -61,11 +59,11 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
     try {
       // Get worker node CPU and memory based on preset or custom values
       const workerCpu =
-        formValues.workerNodePreset !== 'custom'
+        formValues.workerNodePreset !== "custom"
           ? WORKER_NODE_PRESETS[formValues.workerNodePreset].cpu
           : formValues.customCpu;
       const workerMemory =
-        formValues.workerNodePreset !== 'custom'
+        formValues.workerNodePreset !== "custom"
           ? WORKER_NODE_PRESETS[formValues.workerNodePreset].memoryGb
           : formValues.customMemoryGb;
 
@@ -92,7 +90,7 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
         setError(new Error(err.message, { cause: message }));
       } else {
         setError(
-          err instanceof Error ? err : new Error('Failed to calculate sizing'),
+          err instanceof Error ? err : new Error("Failed to calculate sizing"),
         );
       }
     } finally {
@@ -153,6 +151,6 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
   );
 };
 
-ClusterSizingWizard.displayName = 'ClusterSizingWizard';
+ClusterSizingWizard.displayName = "ClusterSizingWizard";
 
 export default ClusterSizingWizard;

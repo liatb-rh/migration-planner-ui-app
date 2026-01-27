@@ -1,7 +1,7 @@
-import React, { PropsWithChildren, useEffect } from 'react';
+import React, { PropsWithChildren, useEffect } from "react";
 
 export type SVGIconProps = PropsWithChildren<
-  Omit<React.SVGProps<SVGElement>, 'ref' | 'role'>
+  Omit<React.SVGProps<SVGElement>, "ref" | "role">
 > & {
   title?: string;
   className?: string;
@@ -18,9 +18,9 @@ export const SVGIcon = React.forwardRef<SVGSVGElement, SVGIconProps>(
     const { current: state } = React.useRef<SVGIconState>({
       title: `svg-icon-title-${currentId}`,
     });
-    const { children, className, title, viewBox = '0 0 1024 1024' } = props;
+    const { children, className, title, viewBox = "0 0 1024 1024" } = props;
     const hasTitle = Boolean(title);
-    const classes = className ? `pf-v6-svg ${className}` : 'pf-v6-svg';
+    const classes = className ? `pf-v6-svg ${className}` : "pf-v6-svg";
 
     useEffect(() => {
       currentId++;
@@ -35,8 +35,8 @@ export const SVGIcon = React.forwardRef<SVGSVGElement, SVGIconProps>(
         fill="currentColor"
         viewBox={viewBox}
         className={classes}
-        {...(hasTitle && { ['aria-labelledby']: title })}
-        {...(!hasTitle && { ['aria-hidden']: 'true' })}
+        {...(hasTitle && { ["aria-labelledby"]: title })}
+        {...(!hasTitle && { ["aria-hidden"]: "true" })}
         {...props}
       >
         {hasTitle && <title id={state.title}>{title}</title>}

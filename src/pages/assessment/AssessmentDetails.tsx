@@ -1,11 +1,4 @@
-import React, { useMemo } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { useMount } from 'react-use';
-
-import {
-  Assessment as AssessmentModel,
-  Snapshot as SnapshotModel,
-} from '@migration-planner-ui/api-client/models';
+import { Snapshot as SnapshotModel } from "@migration-planner-ui/api-client/models";
 import {
   Bullseye,
   Button,
@@ -14,45 +7,47 @@ import {
   Spinner,
   Stack,
   StackItem,
-} from '@patternfly/react-core';
-import { MonitoringIcon } from '@patternfly/react-icons';
-import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+} from "@patternfly/react-core";
+import { MonitoringIcon } from "@patternfly/react-icons";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+import React, { useMemo } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useMount } from "react-use";
 
-import { AppPage } from '../../components/AppPage';
-import { useDiscoverySources } from '../../migration-wizard/contexts/discovery-sources/Context';
-import { AgentStatusView } from '../environment/sources-table/AgentStatusView';
-
-import { parseLatestSnapshot } from './utils/snapshotParser';
+import { AppPage } from "../../components/AppPage";
+import { useDiscoverySources } from "../../migration-wizard/contexts/discovery-sources/Context";
+import { AgentStatusView } from "../environment/sources-table/AgentStatusView";
+import { parseLatestSnapshot } from "./utils/snapshotParser";
 
 const AssessmentDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const discoverySourcesContext = useDiscoverySources();
 
-  useMount(async () => {
+  useMount(() => {
     if (
       !discoverySourcesContext.assessments ||
       discoverySourcesContext.assessments.length === 0
     ) {
-      await discoverySourcesContext.listAssessments();
+      void discoverySourcesContext.listAssessments();
     }
     if (
       !discoverySourcesContext.sources ||
       discoverySourcesContext.sources.length === 0
     ) {
-      await discoverySourcesContext.listSources();
+      void discoverySourcesContext.listSources();
     }
   });
 
   const assessment = useMemo(() => {
     return (discoverySourcesContext.assessments || []).find(
-      (a) => String((a as AssessmentModel).id) === String(id),
-    ) as AssessmentModel | undefined;
+      (a) => String(a.id) === String(id),
+    );
   }, [discoverySourcesContext.assessments, id]);
 
   // Compute derived values with hooks before any early return
   const snapshotsSorted = useMemo(() => {
     const snaps = Array.isArray(assessment?.snapshots)
-      ? (assessment?.snapshots as SnapshotModel[])
+      ? assessment?.snapshots
       : [];
     return [...snaps].sort((a, b) => {
       const aDate = new Date(a.createdAt || 0).getTime();
@@ -67,11 +62,12 @@ const AssessmentDetails: React.FC = () => {
     );
   }, [assessment?.snapshots]);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const source = useMemo(() => {
     if (!assessment?.sourceId) return undefined;
     try {
       return discoverySourcesContext.getSourceById(assessment.sourceId);
-    } catch (e) {
+    } catch {
       return undefined;
     }
   }, [assessment?.sourceId, discoverySourcesContext]);
@@ -92,14 +88,14 @@ const AssessmentDetails: React.FC = () => {
         breadcrumbs={[
           {
             key: 1,
-            children: 'Migration assessment',
+            children: "Migration assessment",
           },
           {
             key: 2,
-            to: '/openshift/migration-assessment/assessments',
-            children: 'assessments',
+            to: "/openshift/migration-assessment/assessments",
+            children: "assessments",
           },
-          { key: 3, children: 'Assessment not found', isActive: true },
+          { key: 3, children: "Assessment not found", isActive: true },
         ]}
         title="Assessment details"
       >
@@ -124,14 +120,14 @@ const AssessmentDetails: React.FC = () => {
   const ownerFullName = ((): string => {
     const formatName = (name?: string): string | undefined =>
       name
-        ?.split(' ')
+        ?.split(" ")
         .map(
           (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
         )
-        .join(' ');
+        .join(" ");
     const first = formatName(assessment.ownerFirstName);
     const last = formatName(assessment.ownerLastName);
-    return first && last ? `${first} ${last}` : first || last || '-';
+    return first && last ? `${first} ${last}` : first || last || "-";
   })();
 
   return (
@@ -139,13 +135,13 @@ const AssessmentDetails: React.FC = () => {
       breadcrumbs={[
         {
           key: 1,
-          to: '/openshift/migration-assessment',
-          children: 'Migration assessment',
+          to: "/openshift/migration-assessment",
+          children: "Migration assessment",
         },
         {
           key: 2,
-          to: '/openshift/migration-assessment/assessments',
-          children: 'assessments',
+          to: "/openshift/migration-assessment/assessments",
+          children: "assessments",
         },
         {
           key: 3,
@@ -156,13 +152,13 @@ const AssessmentDetails: React.FC = () => {
       title={assessment.name || `Assessment ${id}`}
     >
       <div
-        style={{ background: 'white', padding: '16px', borderRadius: '4px' }}
+        style={{ background: "white", padding: "16px", borderRadius: "4px" }}
       >
         <div
           style={{
-            borderBottom: '1px solid #eee',
-            paddingBottom: '8px',
-            marginBottom: '16px',
+            borderBottom: "1px solid #eee",
+            paddingBottom: "8px",
+            marginBottom: "16px",
           }}
         >
           <Content>
@@ -171,24 +167,24 @@ const AssessmentDetails: React.FC = () => {
         </div>
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(6, 1fr)',
-            gap: '16px',
+            display: "grid",
+            gridTemplateColumns: "repeat(6, 1fr)",
+            gap: "16px",
           }}
         >
           <div>
             <Content>
               <Content component="small">Discovery VM status</Content>
               <AgentStatusView
-                status={agent ? agent.status : 'not-connected'}
+                status={agent ? agent.status : "not-connected"}
                 statusInfo={
                   source?.onPremises && source?.inventory !== undefined
                     ? undefined
                     : agent
                       ? agent.statusInfo
-                      : 'Not connected'
+                      : "Not connected"
                 }
-                credentialUrl={agent ? agent.credentialUrl : ''}
+                credentialUrl={agent ? agent.credentialUrl : ""}
                 uploadedManually={Boolean(
                   source?.onPremises && source?.inventory !== undefined,
                 )}
@@ -238,17 +234,17 @@ const AssessmentDetails: React.FC = () => {
 
       <div
         style={{
-          background: 'white',
-          padding: '16px',
-          borderRadius: '4px',
-          marginTop: '16px',
+          background: "white",
+          padding: "16px",
+          borderRadius: "4px",
+          marginTop: "16px",
         }}
       >
         <div
           style={{
-            borderBottom: '1px solid #eee',
-            paddingBottom: '8px',
-            marginBottom: '16px',
+            borderBottom: "1px solid #eee",
+            paddingBottom: "8px",
+            marginBottom: "16px",
           }}
         >
           <Content>
@@ -274,21 +270,21 @@ const AssessmentDetails: React.FC = () => {
             {snapshotsSorted.map((s, idx) => {
               const date = s.createdAt
                 ? new Date(s.createdAt).toLocaleString()
-                : '-';
-              const hosts = s.inventory?.vcenter?.infra?.totalHosts ?? '-';
-              const vms = s.inventory?.vcenter?.vms?.total ?? '-';
+                : "-";
+              const hosts = s.inventory?.vcenter?.infra?.totalHosts ?? "-";
+              const vms = s.inventory?.vcenter?.vms?.total ?? "-";
               const networks = Array.isArray(
                 s.inventory?.vcenter?.infra?.networks,
               )
                 ? s.inventory?.vcenter?.infra?.networks?.length
-                : '-';
+                : "-";
               const datastores = Array.isArray(
                 s.inventory?.vcenter?.infra?.datastores,
               )
                 ? s.inventory?.vcenter?.infra?.datastores?.length
-                : '-';
+                : "-";
               return (
-                <Tr key={`${s.createdAt ?? idx}`}>
+                <Tr key={s.createdAt ? String(s.createdAt) : String(idx)}>
                   <Td>{date}</Td>
                   <Td>{hosts}</Td>
                   <Td>{vms}</Td>
@@ -301,7 +297,7 @@ const AssessmentDetails: React.FC = () => {
                       <Button
                         icon={
                           <Icon isInline>
-                            <MonitoringIcon style={{ color: '#0066cc' }} />
+                            <MonitoringIcon style={{ color: "#0066cc" }} />
                           </Icon>
                         }
                         variant="plain"
@@ -319,6 +315,6 @@ const AssessmentDetails: React.FC = () => {
   );
 };
 
-AssessmentDetails.displayName = 'AssessmentDetails';
+AssessmentDetails.displayName = "AssessmentDetails";
 
 export default AssessmentDetails;

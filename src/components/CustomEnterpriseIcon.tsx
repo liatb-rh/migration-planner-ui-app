@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 
-import { SVGIcon } from './SVGIcon';
+import { SVGIcon } from "./SVGIcon";
 
 export const CustomEnterpriseIcon: React.FC<{ color?: string }> = ({
   color,
@@ -12,4 +12,4 @@ export const CustomEnterpriseIcon: React.FC<{ color?: string }> = ({
   </SVGIcon>
 );
 
-CustomEnterpriseIcon.displayName = 'CustomEnterpriseIcon';
+CustomEnterpriseIcon.displayName = "CustomEnterpriseIcon";

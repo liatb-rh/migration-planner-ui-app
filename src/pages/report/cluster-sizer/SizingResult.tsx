@@ -1,5 +1,3 @@
-import React, { useCallback, useMemo } from 'react';
-
 import {
   Alert,
   Button,
@@ -14,14 +12,15 @@ import {
   Stack,
   StackItem,
   Title,
-} from '@patternfly/react-core';
-import { CopyIcon } from '@patternfly/react-icons';
+} from "@patternfly/react-core";
+import { CopyIcon } from "@patternfly/react-icons";
+import React, { useCallback, useMemo } from "react";
 
-import { OVERCOMMIT_OPTIONS } from './constants';
-import type { ClusterRequirementsResponse, SizingFormValues } from './types';
+import { OVERCOMMIT_OPTIONS } from "./constants";
+import type { ClusterRequirementsResponse, SizingFormValues } from "./types";
 
 const DISCLAIMER_TEXT =
-  'Note: Resource requirements are estimates based on current workloads. Please verify this architecture with your SME team to ensure optimal performance.';
+  "Note: Resource requirements are estimates based on current workloads. Please verify this architecture with your SME team to ensure optimal performance.";
 
 interface SizingResultProps {
   clusterName: string;
@@ -92,7 +91,7 @@ export const SizingResult: React.FC<SizingResultProps> = ({
   error = null,
 }) => {
   const plainTextRecommendation = useMemo(() => {
-    if (!sizerOutput) return '';
+    if (!sizerOutput) return "";
     return generatePlainTextRecommendation(
       clusterName,
       formValues,
@@ -100,12 +99,10 @@ export const SizingResult: React.FC<SizingResultProps> = ({
     );
   }, [clusterName, formValues, sizerOutput]);
 
-  const handleCopyRecommendations = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(plainTextRecommendation);
-    } catch (err) {
-      console.error('Failed to copy recommendations:', err);
-    }
+  const handleCopyRecommendations = useCallback(() => {
+    void navigator.clipboard.writeText(plainTextRecommendation).catch((err) => {
+      console.error("Failed to copy recommendations:", err);
+    });
   }, [plainTextRecommendation]);
 
   if (isLoading) {
@@ -113,9 +110,9 @@ export const SizingResult: React.FC<SizingResultProps> = ({
       <Stack hasGutter>
         <StackItem>
           <Flex
-            alignItems={{ default: 'alignItemsCenter' }}
-            justifyContent={{ default: 'justifyContentCenter' }}
-            style={{ minHeight: '200px' }}
+            alignItems={{ default: "alignItemsCenter" }}
+            justifyContent={{ default: "justifyContentCenter" }}
+            style={{ minHeight: "200px" }}
           >
             <FlexItem>
               <Spinner size="lg" aria-label="Loading recommendations" />
@@ -127,13 +124,14 @@ export const SizingResult: React.FC<SizingResultProps> = ({
   }
 
   if (error) {
-    const title = 'Failed to calculate sizing recommendation';
+    const title = "Failed to calculate sizing recommendation";
     let message = error.message;
-    if (error.cause && typeof error.cause === 'string') {
+    if (error.cause && typeof error.cause === "string") {
       try {
         const parsedCause = JSON.parse(error.cause) as { message: string };
         const m = parsedCause.message;
-        message = m.at(0).toUpperCase() + m.slice(1);
+        const firstChar = m.charAt(0);
+        message = firstChar ? firstChar.toUpperCase() + m.slice(1) : m;
       } catch {
         // Fall back to original message without crashing
       }
@@ -174,7 +172,7 @@ export const SizingResult: React.FC<SizingResultProps> = ({
     <Panel>
       {/* Sticky Header with title and copy button */}
       <PanelHeader>
-        <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+        <Flex justifyContent={{ default: "justifyContentSpaceBetween" }}>
           <FlexItem>
             <Title headingLevel="h2">Review cluster recommendations</Title>
           </FlexItem>
@@ -208,13 +206,13 @@ export const SizingResult: React.FC<SizingResultProps> = ({
                 <Content>
                   <strong>
                     Total Nodes: {sizerOutput.clusterSizing.totalNodes} (
-                    {sizerOutput.clusterSizing.workerNodes} workers +{' '}
+                    {sizerOutput.clusterSizing.workerNodes} workers +{" "}
                     {sizerOutput.clusterSizing.controlPlaneNodes} control plane)
                   </strong>
                 </Content>
                 <Content>
                   <strong>
-                    Node Size: {formValues.customCpu} CPU /{' '}
+                    Node Size: {formValues.customCpu} CPU /{" "}
                     {formValues.customMemoryGb} GB
                   </strong>
                 </Content>
@@ -229,33 +227,33 @@ export const SizingResult: React.FC<SizingResultProps> = ({
                 </Content>
                 <Content>Target Platform: BareMetal</Content>
                 <Content>
-                  Over-Commitment:{' '}
+                  Over-Commitment:{" "}
                   {getOvercommitLabel(formValues.overcommitRatio)}
                 </Content>
                 <Content>
-                  VMs to Migrate:{' '}
+                  VMs to Migrate:{" "}
                   {formatNumber(sizerOutput.inventoryTotals.totalVMs)} VMs
                 </Content>
                 <Content>
                   ~ CPU Over-Commit Ratio: {formatRatio(cpuOverCommitRatio)}
                 </Content>
                 <Content>
-                  - Memory Over-Commit Ratio:{' '}
+                  - Memory Over-Commit Ratio:{" "}
                   {formatRatio(memoryOverCommitRatio)}
                 </Content>
                 <Content>Resource Breakdown</Content>
                 <Content>
-                  VM Resources (requested):{' '}
-                  {formatNumber(sizerOutput.inventoryTotals.totalCPU)} CPU /{' '}
+                  VM Resources (requested):{" "}
+                  {formatNumber(sizerOutput.inventoryTotals.totalCPU)} CPU /{" "}
                   {formatNumber(sizerOutput.inventoryTotals.totalMemory)} GB
                 </Content>
                 <Content>
-                  With Over-commit (limits): {formatNumber(cpuLimits)} CPU /{' '}
+                  With Over-commit (limits): {formatNumber(cpuLimits)} CPU /{" "}
                   {formatNumber(memoryLimits)} GB
                 </Content>
                 <Content>
-                  Physical Capacity:{' '}
-                  {formatNumber(sizerOutput.clusterSizing.totalCPU)} CPU /{' '}
+                  Physical Capacity:{" "}
+                  {formatNumber(sizerOutput.clusterSizing.totalCPU)} CPU /{" "}
                   {formatNumber(sizerOutput.clusterSizing.totalMemory)} GB
                 </Content>
               </Content>
@@ -267,6 +265,6 @@ export const SizingResult: React.FC<SizingResultProps> = ({
   );
 };
 
-SizingResult.displayName = 'SizingResult';
+SizingResult.displayName = "SizingResult";
 
 export default SizingResult;

@@ -1,16 +1,15 @@
-import React from 'react';
+import React from "react";
 
-export const PageHeader: React.FC<Record<string, unknown>> = ({
-  children,
-  ...props
-}): JSX.Element => {
-  console.warn('FrontendComponents Mock: PageHeader rendered');
+export const PageHeader: React.FC<
+  React.PropsWithChildren<Record<string, unknown>>
+> = ({ children, ...props }): JSX.Element => {
+  console.warn("FrontendComponents Mock: PageHeader rendered");
   return (
     <div
       style={{
-        padding: '15px',
-        borderBottom: '1px solid #ddd',
-        background: '#f8f8f8',
+        padding: "15px",
+        borderBottom: "1px solid #ddd",
+        background: "#f8f8f8",
       }}
       {...props}
     >
@@ -22,26 +21,24 @@ export const PageHeader: React.FC<Record<string, unknown>> = ({
   );
 };
 
-export const PageHeaderTitle: React.FC<Record<string, unknown>> = ({
-  children,
-  ...props
-}): JSX.Element => {
-  console.warn('FrontendComponents Mock: PageHeaderTitle rendered');
+export const PageHeaderTitle: React.FC<
+  React.PropsWithChildren<Record<string, unknown>>
+> = ({ children, ...props }): JSX.Element => {
+  console.warn("FrontendComponents Mock: PageHeaderTitle rendered");
   return <h1 {...props}>{children}</h1>;
 };
 
 // Mock for InvalidObject
-export const InvalidObject: React.FC<Record<string, unknown>> = ({
-  children,
-  ...props
-}): JSX.Element => {
-  console.warn('FrontendComponents Mock: InvalidObject rendered');
+export const InvalidObject: React.FC<
+  React.PropsWithChildren<Record<string, unknown>>
+> = ({ children, ...props }): JSX.Element => {
+  console.warn("FrontendComponents Mock: InvalidObject rendered");
   return (
     <div
       style={{
-        padding: '15px',
-        border: '1px solid #c9190b',
-        background: '#fafafa',
+        padding: "15px",
+        border: "1px solid #c9190b",
+        background: "#fafafa",
       }}
       {...props}
     >

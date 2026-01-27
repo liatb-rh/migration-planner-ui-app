@@ -2,9 +2,9 @@
  * Main service for exporting reports in various formats
  */
 
-import { HtmlGenerator, type HtmlGeneratorOptions } from './HtmlGenerator';
-import { PdfGenerator, type PdfGeneratorOptions } from './PdfGenerator';
-import type { ExportError, InventoryData, SnapshotLike } from './types';
+import { HtmlGenerator, type HtmlGeneratorOptions } from "./HtmlGenerator";
+import { PdfGenerator, type PdfGeneratorOptions } from "./PdfGenerator";
+import type { ExportError, InventoryData, SnapshotLike } from "./types";
 
 export interface ReportExportResult {
   success: boolean;
@@ -40,8 +40,8 @@ export class ReportExportService {
         success: false,
         error: {
           message:
-            error instanceof Error ? error.message : 'Failed to generate PDF',
-          type: 'pdf',
+            error instanceof Error ? error.message : "Failed to generate PDF",
+          type: "pdf",
         },
       };
     }
@@ -64,8 +64,8 @@ export class ReportExportService {
           message:
             error instanceof Error
               ? error.message
-              : 'Failed to generate HTML file',
-          type: 'html',
+              : "Failed to generate HTML file",
+          type: "html",
         },
       };
     }

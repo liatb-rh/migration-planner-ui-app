@@ -1,7 +1,4 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-
-import { css } from '@emotion/css';
+import { css } from "@emotion/css";
 import {
   Button,
   Card,
@@ -15,12 +12,14 @@ import {
   Split,
   SplitItem,
   Title,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
+import React from "react";
+import { Link } from "react-router-dom";
 
-import { OpenShiftIcon } from './OpenShiftIcon';
+import { OpenShiftIcon } from "./OpenShiftIcon";
 
 const classes = {
-  cardRoot: css({ width: '22em', height: '22em' }),
+  cardRoot: css({ width: "22em", height: "22em" }),
 };
 
 export const VMwareMigrationCard: React.FC = () => {
@@ -62,4 +61,4 @@ export const VMwareMigrationCard: React.FC = () => {
   );
 };
 
-VMwareMigrationCard.displayName = 'VMwareMigrationCard';
+VMwareMigrationCard.displayName = "VMwareMigrationCard";

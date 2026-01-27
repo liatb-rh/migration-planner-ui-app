@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect } from 'react';
+/* eslint-disable */
+import { useEffect } from "react";
 
 export const useChrome = (): Record<string, unknown> => {
   useEffect(() => {
@@ -9,7 +9,7 @@ export const useChrome = (): Record<string, unknown> => {
     ) {
       (window as Record<string, any>).insights.chrome.init();
       (window as Record<string, any>).insights.chrome.identifyApp(
-        'assisted-migration-app',
+        "assisted-migration-app",
       ); // Your appname from package.json
     }
   }, []);
@@ -18,3 +18,4 @@ export const useChrome = (): Record<string, unknown> => {
     ? (window as Record<string, any>).insights.chrome
     : {};
 };
+/* eslint-enable */

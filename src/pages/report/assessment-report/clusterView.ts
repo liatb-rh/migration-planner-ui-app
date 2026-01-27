@@ -3,9 +3,9 @@ import {
   InventoryData,
   VMResourceBreakdown,
   VMs,
-} from '@migration-planner-ui/api-client/models';
+} from "@migration-planner-ui/api-client/models";
 
-export type ClusterSelection = 'all' | string;
+export type ClusterSelection = string;
 
 export type ClusterOption = { id: string; label: string };
 
@@ -28,7 +28,7 @@ export const getClusterOptions = (clusters?: {
 }): ClusterOption[] => {
   const keys = clusters ? Object.keys(clusters) : [];
   return [
-    { id: 'all', label: 'All clusters' },
+    { id: "all", label: "All clusters" },
     ...keys.map((key) => ({ id: key, label: key })),
   ];
 };
@@ -45,7 +45,7 @@ export const buildClusterViewModel = ({
   infra,
   vms,
   clusters,
-  selectedClusterId = 'all',
+  selectedClusterId = "all",
 }: {
   infra?: Infra;
   vms?: VMs;
@@ -54,16 +54,16 @@ export const buildClusterViewModel = ({
 }): ClusterViewModel => {
   const options = getClusterOptions(clusters);
   const clusterExists =
-    selectedClusterId === 'all'
+    selectedClusterId === "all"
       ? true
       : Boolean(
           clusters &&
           Object.prototype.hasOwnProperty.call(clusters, selectedClusterId),
         );
   const effectiveSelection =
-    selectedClusterId === 'all' || clusterExists ? selectedClusterId : 'all';
+    selectedClusterId === "all" || clusterExists ? selectedClusterId : "all";
 
-  if (effectiveSelection === 'all') {
+  if (effectiveSelection === "all") {
     return {
       viewInfra: infra,
       viewVms: vms,
@@ -72,17 +72,17 @@ export const buildClusterViewModel = ({
       nicCount: vms?.nicCount,
       viewClusters: clusters,
       isAggregateView: true,
-      selectionId: 'all',
-      selectionLabel: 'All clusters',
+      selectionId: "all",
+      selectionLabel: "All clusters",
       clusterOptions: options,
       clusterFound: true,
     };
   }
 
   const clusterData = clusters ? clusters[effectiveSelection] : undefined;
-  const clusterInfra = clusterData?.infra as Infra | undefined;
-  const clusterVms = clusterData?.vms as VMs | undefined;
-  const selectionLabel = clusterData ? effectiveSelection : 'Missing cluster';
+  const clusterInfra = clusterData?.infra;
+  const clusterVms = clusterData?.vms;
+  const selectionLabel = clusterData ? effectiveSelection : "Missing cluster";
 
   return {
     viewInfra: clusterInfra,

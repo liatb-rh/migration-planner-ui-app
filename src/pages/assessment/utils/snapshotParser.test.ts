@@ -1,8 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import type { Snapshot as SnapshotModel } from "@migration-planner-ui/api-client/models";
+import { describe, expect, it } from "vitest";
 
-import type { Snapshot as SnapshotModel } from '@migration-planner-ui/api-client/models';
-
-import { hasUsefulData } from './snapshotParser';
+import { hasUsefulData } from "./snapshotParser";
 
 const buildSnapshot = (
   createdAt: string,
@@ -24,55 +23,55 @@ const buildLegacySnapshot = (
   } as unknown as SnapshotModel;
 };
 
-describe('hasUsefulData', () => {
-  it('returns false when snapshots are empty', () => {
+describe("hasUsefulData", () => {
+  it("returns false when snapshots are empty", () => {
     expect(hasUsefulData(undefined)).toBe(false);
     expect(hasUsefulData([])).toBe(false);
   });
 
-  it('returns true when clusters is present and non-null', () => {
+  it("returns true when clusters is present and non-null", () => {
     const snapshots = [
-      buildSnapshot('2024-01-01T00:00:00Z', {
+      buildSnapshot("2024-01-01T00:00:00Z", {
         inventory: {
-          vcenterId: 'vcenter-1',
+          vcenterId: "vcenter-1",
           clusters: {},
-        } as unknown as SnapshotModel['inventory'],
+        } as unknown as SnapshotModel["inventory"],
       }),
     ];
 
     expect(hasUsefulData(snapshots)).toBe(true);
   });
 
-  it('returns false when clusters is null even if legacy inventory data exists', () => {
+  it("returns false when clusters is null even if legacy inventory data exists", () => {
     const snapshots = [
-      buildSnapshot('2024-01-01T00:00:00Z', {
+      buildSnapshot("2024-01-01T00:00:00Z", {
         inventory: {
-          vcenterId: 'vcenter-1',
+          vcenterId: "vcenter-1",
           clusters: null,
           infra: { totalHosts: 7 },
-        } as unknown as SnapshotModel['inventory'],
+        } as unknown as SnapshotModel["inventory"],
       }),
     ];
 
     expect(hasUsefulData(snapshots)).toBe(false);
   });
 
-  it('returns true when legacy inventory.infra or inventory.vms exists', () => {
+  it("returns true when legacy inventory.infra or inventory.vms exists", () => {
     const snapshots = [
-      buildSnapshot('2024-01-01T00:00:00Z', {
+      buildSnapshot("2024-01-01T00:00:00Z", {
         inventory: {
           infra: { totalHosts: 7 },
           vms: { total: 217 },
-        } as unknown as SnapshotModel['inventory'],
+        } as unknown as SnapshotModel["inventory"],
       }),
     ];
 
     expect(hasUsefulData(snapshots)).toBe(true);
   });
 
-  it('returns true when legacy top-level infra or vms exists', () => {
+  it("returns true when legacy top-level infra or vms exists", () => {
     const snapshots = [
-      buildLegacySnapshot('2024-01-01T00:00:00Z', {
+      buildLegacySnapshot("2024-01-01T00:00:00Z", {
         infra: { totalHosts: 3 },
         vms: { total: 12 },
       }),
@@ -81,16 +80,16 @@ describe('hasUsefulData', () => {
     expect(hasUsefulData(snapshots)).toBe(true);
   });
 
-  it('returns false when latest snapshot lacks inventory data', () => {
+  it("returns false when latest snapshot lacks inventory data", () => {
     const snapshots = [
-      buildLegacySnapshot('2024-01-01T00:00:00Z', {
+      buildLegacySnapshot("2024-01-01T00:00:00Z", {
         inventory: { infra: { totalHosts: 1 } },
       }),
-      buildSnapshot('2024-01-02T00:00:00Z', {
+      buildSnapshot("2024-01-02T00:00:00Z", {
         inventory: {
-          vcenterId: 'vcenter-1',
+          vcenterId: "vcenter-1",
           clusters: null,
-        } as unknown as SnapshotModel['inventory'],
+        } as unknown as SnapshotModel["inventory"],
       }),
     ];
 

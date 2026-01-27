@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import "./MigrationChart.css";
 
 import {
   Button,
@@ -7,11 +7,10 @@ import {
   Flex,
   FlexItem,
   Popover,
-} from '@patternfly/react-core';
-import { InfoCircleIcon } from '@patternfly/react-icons';
-import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
-
-import './MigrationChart.css';
+} from "@patternfly/react-core";
+import { InfoCircleIcon } from "@patternfly/react-icons";
+import { Table, Tbody, Td, Tr } from "@patternfly/react-table";
+import React, { useMemo } from "react";
 
 interface OSData {
   name: string;
@@ -44,29 +43,30 @@ type DLength =
   | 90
   | 100;
 
-const legendColors = ['#28a745', '#f0ad4e', '#d9534f', '#C9190B'];
+const legendColors = ["#28a745", "#f0ad4e", "#d9534f", "#C9190B"];
 
 const MigrationChart: React.FC<MigrationChartProps> = ({
   data,
   legend,
   dataLength = 40,
-  maxHeight = '200px',
+  maxHeight = "200px",
   barHeight = 8,
 }: MigrationChartProps) => {
   // Ensure tiny percentages still render a visible colored segment
   const MIN_BAR_PX = 3;
-  const dynamicLegend = useMemo(() => {
-    return data.reduce(
-      (acc, current) => {
-        const key = `${current.legendCategory}`;
-        if (!acc.seen.has(key)) {
-          acc.seen.add(key);
-          acc.result.push({ [key]: legendColors[acc.seen.size - 1] });
-        }
-        return acc;
-      },
-      { seen: new Set(), result: [] },
-    ).result;
+  const dynamicLegend = useMemo<Record<string, string>>(() => {
+    const legendMap: Record<string, string> = {};
+    const seen = new Set<string>();
+
+    data.forEach((item) => {
+      const key = item.legendCategory;
+      if (!seen.has(key)) {
+        seen.add(key);
+        legendMap[key] = legendColors[seen.size - 1] ?? legendColors[0];
+      }
+    });
+
+    return legendMap;
   }, [data]);
 
   // Calculate the sum of all count values to normalize bar widths
@@ -75,33 +75,34 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
     return data.reduce((sum, item) => sum + item.count, 0) || 1;
   }, [data]);
 
-  const chartLegend = legend ? legend : Object.assign({}, ...dynamicLegend);
-  const getColor = (name: string): string => chartLegend[name];
+  const chartLegend = legend ?? dynamicLegend;
+  const getColor = (name: string): string =>
+    chartLegend[name] ?? legendColors[0];
 
   return (
     <Flex
-      direction={{ default: 'column' }}
-      spaceItems={{ default: 'spaceItemsLg' }}
+      direction={{ default: "column" }}
+      spaceItems={{ default: "spaceItemsLg" }}
     >
       {/* Legend */}
       <FlexItem>
         <Flex
-          spaceItems={{ default: 'spaceItemsLg' }}
-          justifyContent={{ default: 'justifyContentFlexEnd' }}
+          spaceItems={{ default: "spaceItemsLg" }}
+          justifyContent={{ default: "justifyContentFlexEnd" }}
         >
           {Object.entries(chartLegend).map(([key, color]) => (
             <FlexItem key={key}>
               <Flex
-                alignItems={{ default: 'alignItemsCenter' }}
-                spaceItems={{ default: 'spaceItemsSm' }}
+                alignItems={{ default: "alignItemsCenter" }}
+                spaceItems={{ default: "spaceItemsSm" }}
               >
                 <FlexItem>
                   <div
                     style={{
-                      width: '12px',
-                      height: '12px',
-                      backgroundColor: color as string,
-                      borderRadius: '2px',
+                      width: "12px",
+                      height: "12px",
+                      backgroundColor: color,
+                      borderRadius: "2px",
                     }}
                   />
                 </FlexItem>
@@ -116,31 +117,31 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
       {/* Chart Area */}
       <FlexItem>
         <Flex
-          direction={{ default: 'column' }}
-          spaceItems={{ default: 'spaceItemsMd' }}
+          direction={{ default: "column" }}
+          spaceItems={{ default: "spaceItemsMd" }}
         >
-          <div style={{ maxHeight: maxHeight, overflowY: 'auto' }}>
+          <div style={{ maxHeight: maxHeight, overflowY: "auto" }}>
             <Table variant="compact" borders={false}>
               <Tbody>
                 {data.map((item, index) => (
                   <Tr key={index}>
-                    <Td width={dataLength} style={{ paddingLeft: '0px' }}>
+                    <Td width={dataLength} style={{ paddingLeft: "0px" }}>
                       <Flex
-                        alignItems={{ default: 'alignItemsCenter' }}
-                        spaceItems={{ default: 'spaceItemsSm' }}
+                        alignItems={{ default: "alignItemsCenter" }}
+                        spaceItems={{ default: "spaceItemsSm" }}
                       >
                         <FlexItem>
                           <Content
                             component={ContentVariants.p}
                             style={{
-                              fontSize: 'clamp(0.4rem, 0.7vw, 1.1rem)',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              wordBreak: 'break-word',
-                              display: '-webkit-box',
+                              fontSize: "clamp(0.4rem, 0.7vw, 1.1rem)",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              wordBreak: "break-word",
+                              display: "-webkit-box",
                               WebkitLineClamp: 1,
-                              textTransform: 'capitalize',
-                              WebkitBoxOrient: 'vertical',
+                              textTransform: "capitalize",
+                              WebkitBoxOrient: "vertical",
                             }}
                           >
                             {item.name}
@@ -171,10 +172,10 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                       <div>
                         <div
                           style={{
-                            position: 'relative',
+                            position: "relative",
                             height: `${barHeight}px`,
-                            backgroundColor: '#F5F5F5',
-                            overflow: 'hidden',
+                            backgroundColor: "#F5F5F5",
+                            overflow: "hidden",
                           }}
                         >
                           {((): React.ReactNode => {
@@ -186,13 +187,13 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                             return (
                               <div
                                 style={{
-                                  height: '100%',
+                                  height: "100%",
                                   width: `${barWidth}%`,
-                                  minWidth: hasValue ? `${MIN_BAR_PX}px` : '0',
+                                  minWidth: hasValue ? `${MIN_BAR_PX}px` : "0",
                                   backgroundColor: `${getColor(
                                     item.legendCategory,
                                   )}`,
-                                  transition: 'width 0.3s ease',
+                                  transition: "width 0.3s ease",
                                 }}
                               />
                             );
@@ -202,11 +203,11 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                     </Td>
                     <Td
                       width={10}
-                      style={{ paddingRight: '0px', textAlign: 'center' }}
+                      style={{ paddingRight: "0px", textAlign: "center" }}
                     >
                       <Content
                         component="p"
-                        style={{ fontSize: 'clamp(0.4rem, 0.7vw, 1.1rem)' }}
+                        style={{ fontSize: "clamp(0.4rem, 0.7vw, 1.1rem)" }}
                       >
                         {item.count}
                       </Content>

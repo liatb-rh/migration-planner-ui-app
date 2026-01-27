@@ -1,13 +1,12 @@
-import { useCallback, useRef, useState } from 'react';
-import { useInterval } from 'react-use';
-
-import { JobApi } from '@migration-planner-ui/api-client/apis';
-import { Job, JobStatus } from '@migration-planner-ui/api-client/models';
+import { JobApi } from "@migration-planner-ui/api-client/apis";
+import { Job, JobStatus } from "@migration-planner-ui/api-client/models";
+import { useCallback, useRef, useState } from "react";
+import { useInterval } from "react-use";
 
 import {
   JOB_POLLING_INTERVAL,
   TERMINAL_JOB_STATUSES,
-} from '../utils/rvToolsJobUtils';
+} from "../utils/rvToolsJobUtils";
 
 interface UseRVToolsJobProps {
   jobApi: JobApi;
@@ -20,10 +19,7 @@ interface UseRVToolsJobReturn {
   currentJob: Job | null;
   isCreatingRVToolsJob: boolean;
   errorCreatingRVToolsJob: Error | undefined;
-  createRVToolsJob: (
-    name: string,
-    file: File,
-  ) => Promise<Job | undefined | unknown>;
+  createRVToolsJob: (name: string, file: File) => Promise<Job | undefined>;
   cancelRVToolsJob: () => Promise<void>;
 }
 
@@ -79,7 +75,7 @@ export const useRVToolsJob = ({
           }
         })
         .catch((err) => {
-          console.error('Failed to poll job status:', err);
+          console.error("Failed to poll job status:", err);
         });
     }
   }, jobPollingDelay);
@@ -160,7 +156,7 @@ export const useRVToolsJob = ({
         try {
           await jobApi.cancelJob({ id: latestJob.id });
         } catch (err) {
-          console.error('Failed to cancel job:', err);
+          console.error("Failed to cancel job:", err);
         }
       } else if (
         latestJob.status === JobStatus.Completed &&
@@ -171,7 +167,7 @@ export const useRVToolsJob = ({
         try {
           await onDeleteAssessment(latestJob.assessmentId);
         } catch (err) {
-          console.error('Failed to delete assessment:', err);
+          console.error("Failed to delete assessment:", err);
         }
       }
     }

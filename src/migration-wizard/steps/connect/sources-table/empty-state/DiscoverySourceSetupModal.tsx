@@ -1,5 +1,3 @@
-import React, { useCallback, useEffect, useState } from 'react';
-
 import {
   Alert,
   Button,
@@ -12,18 +10,17 @@ import {
   FormHelperText,
   HelperText,
   HelperTextItem,
-  Radio,
-  TextArea,
-  TextInput,
-} from '@patternfly/react-core';
-import {
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
-} from '@patternfly/react-core';
+  Radio,
+  TextArea,
+  TextInput,
+} from "@patternfly/react-core";
+import React, { useCallback, useEffect, useState } from "react";
 
-import { useDiscoverySources } from '../../../../contexts/discovery-sources/Context';
+import { useDiscoverySources } from "../../../../contexts/discovery-sources/Context";
 
 export interface DiscoverySourceSetupModalProps {
   isOpen?: boolean;
@@ -44,7 +41,7 @@ export const DiscoverySourceSetupModal: React.FC<
     onStartDownload,
     onAfterDownload,
   } = props;
-  const [sshKey, setSshKey] = useState('');
+  const [sshKey, setSshKey] = useState("");
   const [sshKeyError, setSshKeyError] = useState<string | null>(null);
   const [ipAddressError, setIpAddressError] = useState<string | null>(null);
   const [subnetMaskError, setSubnetMaskError] = useState<string | null>(null);
@@ -53,24 +50,24 @@ export const DiscoverySourceSetupModal: React.FC<
   );
   const [dnsError, setDnsError] = useState<string | null>(null);
   const [showUrl, setShowUrl] = useState(false);
-  const [generatedUrl, setGeneratedUrl] = useState<string>('');
-  const [sourceName, setSourceName] = useState<string>('');
-  const [environmentName, setEnvironmentName] = useState<string>('');
-  const [httpProxy, setHttpProxy] = useState<string>('');
-  const [httpsProxy, setHttpsProxy] = useState<string>('');
-  const [noProxy, setNoProxy] = useState<string>('');
+  const [generatedUrl, setGeneratedUrl] = useState<string>("");
+  const [sourceName, setSourceName] = useState<string>("");
+  const [environmentName, setEnvironmentName] = useState<string>("");
+  const [httpProxy, setHttpProxy] = useState<string>("");
+  const [httpsProxy, setHttpsProxy] = useState<string>("");
+  const [noProxy, setNoProxy] = useState<string>("");
   const [enableProxy, setEnableProxy] = useState(false);
   const [httpProxyError, setHttpProxyError] = useState<string | null>(null);
   const [httpsProxyError, setHttpsProxyError] = useState<string | null>(null);
   const [proxyGroupError, setProxyGroupError] = useState<string | null>(null);
   const [isEditingConfiguration, setIsEditingConfiguration] = useState(false);
-  const [networkConfigType, setNetworkConfigType] = useState<'dhcp' | 'static'>(
-    'dhcp',
+  const [networkConfigType, setNetworkConfigType] = useState<"dhcp" | "static">(
+    "dhcp",
   );
-  const [dns, setDns] = useState<string>('');
-  const [subnetMask, setSubnetMask] = useState<string>('');
-  const [defaultGateway, setDefaultGateway] = useState<string>('');
-  const [ipAddress, setIpAddress] = useState<string>('');
+  const [dns, setDns] = useState<string>("");
+  const [subnetMask, setSubnetMask] = useState<string>("");
+  const [defaultGateway, setDefaultGateway] = useState<string>("");
+  const [ipAddress, setIpAddress] = useState<string>("");
 
   const validateSshKey = useCallback((key: string): string | null => {
     const SSH_KEY_PATTERNS = {
@@ -87,7 +84,7 @@ export const DiscoverySourceSetupModal: React.FC<
     );
     return isValidKey
       ? null
-      : 'Invalid SSH key format. Please provide a valid SSH public key.';
+      : "Invalid SSH key format. Please provide a valid SSH public key.";
   }, []);
 
   const validateIpAddress = useCallback((ip: string): string | null => {
@@ -95,18 +92,18 @@ export const DiscoverySourceSetupModal: React.FC<
 
     const ipPattern = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/;
     if (!ipPattern.test(ip.trim())) {
-      return 'Invalid IP address format. Please use format like 192.168.1.100';
+      return "Invalid IP address format. Please use format like 192.168.1.100";
     }
 
-    const parts = ip.trim().split('.');
+    const parts = ip.trim().split(".");
     if (parts.length !== 4) {
-      return 'IP address must have 4 octets separated by dots';
+      return "IP address must have 4 octets separated by dots";
     }
 
     for (const part of parts) {
       const num = parseInt(part, 10);
       if (isNaN(num) || num < 0 || num > 255) {
-        return 'Each octet must be between 0 and 255';
+        return "Each octet must be between 0 and 255";
       }
     }
 
@@ -118,7 +115,7 @@ export const DiscoverySourceSetupModal: React.FC<
 
     const maskNum = parseInt(mask.trim(), 10);
     if (isNaN(maskNum) || maskNum < 1 || maskNum > 32) {
-      return 'Subnet mask must be between 1 and 32';
+      return "Subnet mask must be between 1 and 32";
     }
 
     return null;
@@ -149,30 +146,31 @@ export const DiscoverySourceSetupModal: React.FC<
     setDnsError(validateIpAddress(value));
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const resetForm = (): void => {
-    setSshKey('');
+    setSshKey("");
     setSshKeyError(null);
     setIpAddressError(null);
     setSubnetMaskError(null);
     setDefaultGatewayError(null);
     setDnsError(null);
     setShowUrl(false);
-    setGeneratedUrl('');
-    setSourceName('');
-    setEnvironmentName('');
-    setHttpProxy('');
-    setHttpsProxy('');
-    setNoProxy('');
+    setGeneratedUrl("");
+    setSourceName("");
+    setEnvironmentName("");
+    setHttpProxy("");
+    setHttpsProxy("");
+    setNoProxy("");
     setEnableProxy(false);
     setHttpProxyError(null);
     setHttpsProxyError(null);
     setProxyGroupError(null);
-    setNetworkConfigType('dhcp');
-    setDns('');
-    setSubnetMask('');
-    setDefaultGateway('');
-    setIpAddress('');
-    discoverySourcesContext.setDownloadUrl('');
+    setNetworkConfigType("dhcp");
+    setDns("");
+    setSubnetMask("");
+    setDefaultGateway("");
+    setIpAddress("");
+    discoverySourcesContext.setDownloadUrl?.("");
     discoverySourcesContext.deleteSourceCreated();
     discoverySourcesContext.clearErrors?.({
       downloading: true,
@@ -183,132 +181,134 @@ export const DiscoverySourceSetupModal: React.FC<
 
   const backToOvaConfiguration = (): void => {
     setShowUrl(false);
-    discoverySourcesContext.setDownloadUrl('');
+    discoverySourcesContext.setDownloadUrl?.("");
     setIsEditingConfiguration(true);
   };
 
   const handleSubmit = useCallback<React.FormEventHandler<HTMLFormElement>>(
-    async (event) => {
+    (event) => {
       event.preventDefault();
-
-      if (!discoverySourcesContext.downloadSourceUrl) {
-        // Proxy validation when enabled
-        if (enableProxy) {
-          const hasAnyProxyValue = Boolean(
-            httpProxy.trim() || httpsProxy.trim() || noProxy.trim(),
-          );
-          const httpErr = httpProxy.trim()
-            ? /^http:\/\//i.test(httpProxy.trim())
-              ? null
-              : 'URL must start with http://'
-            : null;
-          const httpsErr = httpsProxy.trim()
-            ? /^https:\/\//i.test(httpsProxy.trim())
-              ? null
-              : 'URL must start with https://'
-            : null;
-          setHttpProxyError(httpErr);
-          setHttpsProxyError(httpsErr);
-          setProxyGroupError(
-            hasAnyProxyValue
-              ? null
-              : 'At least one proxy field is required when proxy is enabled',
-          );
-          if (!hasAnyProxyValue || httpErr || httpsErr) {
-            return;
+      void (async () => {
+        if (!discoverySourcesContext.downloadSourceUrl) {
+          // Proxy validation when enabled
+          if (enableProxy) {
+            const hasAnyProxyValue = Boolean(
+              httpProxy.trim() || httpsProxy.trim() || noProxy.trim(),
+            );
+            const httpErr = httpProxy.trim()
+              ? /^http:\/\//i.test(httpProxy.trim())
+                ? null
+                : "URL must start with http://"
+              : null;
+            const httpsErr = httpsProxy.trim()
+              ? /^https:\/\//i.test(httpsProxy.trim())
+                ? null
+                : "URL must start with https://"
+              : null;
+            setHttpProxyError(httpErr);
+            setHttpsProxyError(httpsErr);
+            setProxyGroupError(
+              hasAnyProxyValue
+                ? null
+                : "At least one proxy field is required when proxy is enabled",
+            );
+            if (!hasAnyProxyValue || httpErr || httpsErr) {
+              return;
+            }
+          } else {
+            setHttpProxyError(null);
+            setHttpsProxyError(null);
+            setProxyGroupError(null);
           }
-        } else {
-          setHttpProxyError(null);
-          setHttpsProxyError(null);
-          setProxyGroupError(null);
-        }
-        if (isEditingConfiguration) {
-          const sourceIdToUpdate =
-            discoverySourcesContext.sourceCreatedId ||
-            discoverySourcesContext.sourceSelected?.id;
-          if (!sourceIdToUpdate) {
-            console.error('No source ID available for editing');
-            return;
-          }
-          await discoverySourcesContext.updateSource(
-            sourceIdToUpdate,
-            sshKey,
-            httpProxy,
-            httpsProxy,
-            noProxy,
-            networkConfigType,
-            ipAddress,
-            subnetMask,
-            defaultGateway,
-            dns,
-          );
-          // Refresh sources to update any dependent views immediately
-          await discoverySourcesContext.listSources();
-        } else {
-          const keyValidationError = validateSshKey(sshKey);
-          if (keyValidationError) {
-            setSshKeyError(keyValidationError);
-            return;
-          }
-
-          if (environmentName === '') {
-            return;
-          }
-
-          // Validate static IP configuration fields if static IP is selected
-          if (networkConfigType === 'static') {
-            if (
-              !dns.trim() ||
-              !subnetMask.trim() ||
-              !defaultGateway.trim() ||
-              !ipAddress.trim()
-            ) {
+          if (isEditingConfiguration) {
+            const sourceIdToUpdate =
+              discoverySourcesContext.sourceCreatedId ||
+              discoverySourcesContext.sourceSelected?.id;
+            if (!sourceIdToUpdate) {
+              console.error("No source ID available for editing");
+              return;
+            }
+            await discoverySourcesContext.updateSource(
+              sourceIdToUpdate,
+              sshKey,
+              httpProxy,
+              httpsProxy,
+              noProxy,
+              networkConfigType,
+              ipAddress,
+              subnetMask,
+              defaultGateway,
+              dns,
+            );
+            // Refresh sources to update any dependent views immediately
+            await discoverySourcesContext.listSources();
+          } else {
+            const keyValidationError = validateSshKey(sshKey);
+            if (keyValidationError) {
+              setSshKeyError(keyValidationError);
               return;
             }
 
-            // Validate network fields and show errors
-            const ipError = validateIpAddress(ipAddress);
-            const maskError = validateSubnetMask(subnetMask);
-            const gatewayError = validateIpAddress(defaultGateway);
-            const dnsValidationError = validateIpAddress(dns);
-
-            setIpAddressError(ipError);
-            setSubnetMaskError(maskError);
-            setDefaultGatewayError(gatewayError);
-            setDnsError(dnsValidationError);
-
-            if (ipError || maskError || gatewayError || dnsValidationError) {
+            if (environmentName === "") {
               return;
             }
+
+            // Validate static IP configuration fields if static IP is selected
+            if (networkConfigType === "static") {
+              if (
+                !dns.trim() ||
+                !subnetMask.trim() ||
+                !defaultGateway.trim() ||
+                !ipAddress.trim()
+              ) {
+                return;
+              }
+
+              // Validate network fields and show errors
+              const ipError = validateIpAddress(ipAddress);
+              const maskError = validateSubnetMask(subnetMask);
+              const gatewayError = validateIpAddress(defaultGateway);
+              const dnsValidationError = validateIpAddress(dns);
+
+              setIpAddressError(ipError);
+              setSubnetMaskError(maskError);
+              setDefaultGatewayError(gatewayError);
+              setDnsError(dnsValidationError);
+
+              if (ipError || maskError || gatewayError || dnsValidationError) {
+                return;
+              }
+            }
+
+            setSourceName(environmentName);
+
+            await discoverySourcesContext.createDownloadSource(
+              environmentName,
+              sshKey,
+              httpProxy,
+              httpsProxy,
+              noProxy,
+              networkConfigType,
+              ipAddress,
+              subnetMask,
+              defaultGateway,
+              dns,
+            );
           }
-
-          setSourceName(environmentName);
-
-          await discoverySourcesContext.createDownloadSource(
-            environmentName,
-            sshKey,
-            httpProxy,
-            httpsProxy,
-            noProxy,
-            networkConfigType,
-            ipAddress,
-            subnetMask,
-            defaultGateway,
-            dns,
-          );
+        } else {
+          onStartDownload();
+          const anchor = document.createElement("a");
+          anchor.download = sourceName + ".ova";
+          anchor.href = discoverySourcesContext.downloadSourceUrl;
+          anchor.click();
+          anchor.remove();
+          await onAfterDownload();
+          resetForm();
+          onClose?.();
         }
-      } else {
-        onStartDownload();
-        const anchor = document.createElement('a');
-        anchor.download = sourceName + '.ova';
-        anchor.href = discoverySourcesContext.downloadSourceUrl;
-        anchor.click();
-        anchor.remove();
-        await onAfterDownload();
-        resetForm();
-        onClose?.();
-      }
+      })();
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       sshKey,
       environmentName,
@@ -341,7 +341,7 @@ export const DiscoverySourceSetupModal: React.FC<
     if (isOpen) {
       resetForm();
     }
-  }, [isOpen]);
+  }, [isOpen, resetForm]);
 
   return (
     <Modal
@@ -371,8 +371,8 @@ export const DiscoverySourceSetupModal: React.FC<
         labelId="discovery-source-setup-modal-title"
         description={
           !showUrl
-            ? 'To add a new environment create a discovery OVA image. Then download and import the OVA file into your VMWare environment'
-            : ''
+            ? "To add a new environment create a discovery OVA image. Then download and import the OVA file into your VMWare environment"
+            : ""
         }
       />
       <ModalBody id="modal-box-body-discovery-source-setup">
@@ -422,16 +422,16 @@ export const DiscoverySourceSetupModal: React.FC<
                   type="text"
                   placeholder="Example: ssh-rsa AAAAB3NzaC1yc2E..."
                   aria-describedby="sshkey-helper-text"
-                  validated={sshKeyError ? 'error' : 'default'}
+                  validated={sshKeyError ? "error" : "default"}
                 />
                 <FormHelperText>
                   <HelperText>
                     <HelperTextItem
-                      variant={sshKeyError ? 'error' : 'default'}
+                      variant={sshKeyError ? "error" : "default"}
                       id="sshkey-helper-text"
                     >
                       {sshKeyError ||
-                        'Paste the content of a public ssh key you want to connect to your discovery VM.'}
+                        "Paste the content of a public ssh key you want to connect to your discovery VM."}
                     </HelperTextItem>
                   </HelperText>
                 </FormHelperText>
@@ -453,7 +453,7 @@ export const DiscoverySourceSetupModal: React.FC<
                       setProxyGroupError(
                         hasAny
                           ? null
-                          : 'At least one proxy field is required when proxy is enabled',
+                          : "At least one proxy field is required when proxy is enabled",
                       );
                     }
                   }}
@@ -472,7 +472,7 @@ export const DiscoverySourceSetupModal: React.FC<
                         setHttpProxy(value);
                         const trimmed = value.trim();
                         if (trimmed && !/^http:\/\//i.test(trimmed)) {
-                          setHttpProxyError('URL must start with http://');
+                          setHttpProxyError("URL must start with http://");
                         } else {
                           setHttpProxyError(null);
                         }
@@ -483,20 +483,20 @@ export const DiscoverySourceSetupModal: React.FC<
                           setProxyGroupError(
                             hasAny
                               ? null
-                              : 'At least one proxy field is required when proxy is enabled',
+                              : "At least one proxy field is required when proxy is enabled",
                           );
                         } else {
                           setProxyGroupError(null);
                         }
                       }}
-                      validated={httpProxyError ? 'error' : 'default'}
+                      validated={httpProxyError ? "error" : "default"}
                     />
                     <FormHelperText>
                       <HelperText>
                         <HelperTextItem
-                          variant={httpProxyError ? 'error' : 'default'}
+                          variant={httpProxyError ? "error" : "default"}
                         >
-                          {httpProxyError || 'URL must start with http.'}
+                          {httpProxyError || "URL must start with http."}
                         </HelperTextItem>
                       </HelperText>
                     </FormHelperText>
@@ -512,7 +512,7 @@ export const DiscoverySourceSetupModal: React.FC<
                         setHttpsProxy(value);
                         const trimmed = value.trim();
                         if (trimmed && !/^https:\/\//i.test(trimmed)) {
-                          setHttpsProxyError('URL must start with https://');
+                          setHttpsProxyError("URL must start with https://");
                         } else {
                           setHttpsProxyError(null);
                         }
@@ -523,20 +523,20 @@ export const DiscoverySourceSetupModal: React.FC<
                           setProxyGroupError(
                             hasAny
                               ? null
-                              : 'At least one proxy field is required when proxy is enabled',
+                              : "At least one proxy field is required when proxy is enabled",
                           );
                         } else {
                           setProxyGroupError(null);
                         }
                       }}
-                      validated={httpsProxyError ? 'error' : 'default'}
+                      validated={httpsProxyError ? "error" : "default"}
                     />
                     <FormHelperText>
                       <HelperText>
                         <HelperTextItem
-                          variant={httpsProxyError ? 'error' : 'default'}
+                          variant={httpsProxyError ? "error" : "default"}
                         >
-                          {httpsProxyError || 'URL must start with https.'}
+                          {httpsProxyError || "URL must start with https."}
                         </HelperTextItem>
                       </HelperText>
                     </FormHelperText>
@@ -558,7 +558,7 @@ export const DiscoverySourceSetupModal: React.FC<
                           setProxyGroupError(
                             hasAny
                               ? null
-                              : 'At least one proxy field is required when proxy is enabled',
+                              : "At least one proxy field is required when proxy is enabled",
                           );
                         } else {
                           setProxyGroupError(null);
@@ -567,9 +567,9 @@ export const DiscoverySourceSetupModal: React.FC<
                       onBlur={() =>
                         setNoProxy(
                           noProxy
-                            .split(',')
+                            .split(",")
                             .map((s) => s.trim())
-                            .join(','),
+                            .join(","),
                         )
                       }
                     />
@@ -588,25 +588,25 @@ export const DiscoverySourceSetupModal: React.FC<
               )}
 
               <FormGroup>
-                <div style={{ display: 'flex', gap: '16px' }}>
+                <div style={{ display: "flex", gap: "16px" }}>
                   <Radio
                     id="dhcp-radio"
                     name="network-config"
                     label="DHCP"
-                    isChecked={networkConfigType === 'dhcp'}
-                    onChange={() => setNetworkConfigType('dhcp')}
+                    isChecked={networkConfigType === "dhcp"}
+                    onChange={() => setNetworkConfigType("dhcp")}
                   />
                   <Radio
                     id="static-ip-radio"
                     name="network-config"
                     label="Static IP configuration"
-                    isChecked={networkConfigType === 'static'}
-                    onChange={() => setNetworkConfigType('static')}
+                    isChecked={networkConfigType === "static"}
+                    onChange={() => setNetworkConfigType("static")}
                   />
                 </div>
               </FormGroup>
 
-              {networkConfigType === 'static' && (
+              {networkConfigType === "static" && (
                 <>
                   <FormGroup
                     label="IP address / mask"
@@ -615,9 +615,9 @@ export const DiscoverySourceSetupModal: React.FC<
                   >
                     <div
                       style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
                       }}
                     >
                       <TextInput
@@ -628,7 +628,7 @@ export const DiscoverySourceSetupModal: React.FC<
                         onChange={(_, value) => handleIpAddressChange(value)}
                         placeholder="10.0.0.2"
                         isRequired
-                        validated={ipAddressError ? 'error' : 'default'}
+                        validated={ipAddressError ? "error" : "default"}
                         aria-describedby="ip-address-helper-text"
                         style={{ flex: 1 }}
                       />
@@ -641,8 +641,8 @@ export const DiscoverySourceSetupModal: React.FC<
                         onChange={(_, value) => handleSubnetMaskChange(value)}
                         placeholder="24"
                         isRequired
-                        validated={subnetMaskError ? 'error' : 'default'}
-                        style={{ width: '60px' }}
+                        validated={subnetMaskError ? "error" : "default"}
+                        style={{ width: "60px" }}
                         aria-describedby="ip-address-helper-text"
                       />
                     </div>
@@ -661,7 +661,7 @@ export const DiscoverySourceSetupModal: React.FC<
                       onChange={(_, value) => handleDefaultGatewayChange(value)}
                       placeholder="10.0.0.1"
                       isRequired
-                      validated={defaultGatewayError ? 'error' : 'default'}
+                      validated={defaultGatewayError ? "error" : "default"}
                       style={{ flex: 1 }}
                       aria-describedby="default-gateway-helper-text"
                     />
@@ -676,7 +676,7 @@ export const DiscoverySourceSetupModal: React.FC<
                       onChange={(_, value) => handleDnsChange(value)}
                       placeholder="10.0.0.1"
                       isRequired
-                      validated={dnsError ? 'error' : 'default'}
+                      validated={dnsError ? "error" : "default"}
                       style={{ flex: 1 }}
                       aria-describedby="dns-helper-text"
                     />
@@ -732,7 +732,7 @@ export const DiscoverySourceSetupModal: React.FC<
             !environmentName.trim() ||
             (enableProxy &&
               !(httpProxy.trim() || httpsProxy.trim() || noProxy.trim())) ||
-            (networkConfigType === 'static' &&
+            (networkConfigType === "static" &&
               (!dns.trim() ||
                 !subnetMask.trim() ||
                 !defaultGateway.trim() ||
@@ -741,9 +741,9 @@ export const DiscoverySourceSetupModal: React.FC<
         >
           {!showUrl
             ? isEditingConfiguration
-              ? 'Update OVA configuration'
-              : 'Generate OVA'
-            : 'Download OVA'}
+              ? "Update OVA configuration"
+              : "Generate OVA"
+            : "Download OVA"}
         </Button>
         {showUrl && (
           <Button

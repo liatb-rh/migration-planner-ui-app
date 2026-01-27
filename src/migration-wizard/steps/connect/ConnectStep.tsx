@@ -1,6 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
-
-import { Source } from '@migration-planner-ui/api-client/models';
+import { Source } from "@migration-planner-ui/api-client/models";
 import {
   Alert,
   AlertActionLink,
@@ -15,16 +13,16 @@ import {
   PanelMain,
   Stack,
   StackItem,
-} from '@patternfly/react-core';
-import { ClusterIcon, PlusCircleIcon } from '@patternfly/react-icons';
-import { chart_color_blue_300 as blueColor } from '@patternfly/react-tokens/dist/js/chart_color_blue_300';
+} from "@patternfly/react-core";
+import { ClusterIcon, PlusCircleIcon } from "@patternfly/react-icons";
+import { chart_color_blue_300 as blueColor } from "@patternfly/react-tokens/dist/js/chart_color_blue_300";
+import React, { useCallback, useEffect, useState } from "react";
 
-import { useDiscoverySources } from '../../contexts/discovery-sources/Context';
-
-import { UploadInventoryAction } from './sources-table/actions/UploadInventoryAction';
-import { DiscoverySourceSetupModal } from './sources-table/empty-state/DiscoverySourceSetupModal';
-import { SourcesTable } from './sources-table/SourcesTable';
-import { TroubleshootingModal } from './TroubleshootingModal';
+import { useDiscoverySources } from "../../contexts/discovery-sources/Context";
+import { UploadInventoryAction } from "./sources-table/actions/UploadInventoryAction";
+import { DiscoverySourceSetupModal } from "./sources-table/empty-state/DiscoverySourceSetupModal";
+import { SourcesTable } from "./sources-table/SourcesTable";
+import { TroubleshootingModal } from "./TroubleshootingModal";
 
 export const ConnectStep: React.FC = () => {
   const discoverySourcesContext = useDiscoverySources();
@@ -53,6 +51,7 @@ export const ConnectStep: React.FC = () => {
         (source) => source.id === discoverySourcesContext.sourceSelected?.id,
       );
       if (foundSource) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSourceSelected(foundSource);
       } else {
         if (firstSource) {
@@ -95,7 +94,7 @@ export const ConnectStep: React.FC = () => {
           <Content component="h2">Connect your VMware environment</Content>
         </StackItem>
         <StackItem>
-          <Content style={{ paddingBlock: '1rem' }} component="h4">
+          <Content style={{ paddingBlock: "1rem" }} component="h4">
             Follow these steps to connect your environment and start the
             discovery process
           </Content>
@@ -117,7 +116,7 @@ export const ConnectStep: React.FC = () => {
                 onClick={() => setIsTroubleshootingOpen(true)}
               >
                 (VM not showing up?)
-              </Button>{' '}
+              </Button>{" "}
             </ListItem>
             <ListItem>
               When the connection is established, you will be able to proceed
@@ -130,7 +129,7 @@ export const ConnectStep: React.FC = () => {
             <PanelMain>
               <PanelHeader style={{ paddingBlockEnd: 0 }}>
                 <Content component="h3">
-                  <Icon isInline style={{ marginRight: '1rem' }}>
+                  <Icon isInline style={{ marginRight: "1rem" }}>
                     <ClusterIcon />
                   </Icon>
                   Environment
@@ -138,11 +137,11 @@ export const ConnectStep: React.FC = () => {
               </PanelHeader>
               <SourcesTable
                 onUploadResult={(message, isError) => {
-                  setUploadMessage(message);
+                  setUploadMessage(message ?? null);
                   setIsUploadError(isError ?? false);
                 }}
-                onUploadSuccess={async () => {
-                  await discoverySourcesContext.listSources();
+                onUploadSuccess={() => {
+                  void discoverySourcesContext.listSources();
                 }}
               />
             </PanelMain>
@@ -154,7 +153,7 @@ export const ConnectStep: React.FC = () => {
             <Button
               variant="secondary"
               onClick={toggleDiscoverySourceSetupModal}
-              style={{ marginTop: '1rem' }}
+              style={{ marginTop: "1rem" }}
               icon={<PlusCircleIcon color={blueColor.value} />}
             >
               Add environment
@@ -179,7 +178,7 @@ export const ConnectStep: React.FC = () => {
         )}
 
         {sourceSelected?.agent &&
-          sourceSelected?.agent.status === 'waiting-for-credentials' && (
+          sourceSelected?.agent.status === "waiting-for-credentials" && (
             <StackItem>
               <Alert
                 isInline
@@ -206,7 +205,7 @@ export const ConnectStep: React.FC = () => {
 
         {hasSources &&
           !sourceSelected?.agent &&
-          sourceSelected?.name !== 'Example' && (
+          sourceSelected?.name !== "Example" && (
             <StackItem>
               <Alert
                 isInline
@@ -219,7 +218,7 @@ export const ConnectStep: React.FC = () => {
                 </Content>
                 <UploadInventoryAction
                   discoverySourcesContext={discoverySourcesContext}
-                  sourceId={sourceSelected?.id ?? ''}
+                  sourceId={sourceSelected?.id ?? ""}
                   asLink
                   onUploadResult={(message, isError) => {
                     setUploadMessage(message ?? null);
@@ -234,7 +233,7 @@ export const ConnectStep: React.FC = () => {
           <StackItem>
             <Alert
               isInline
-              variant={isUploadError ? 'danger' : 'success'}
+              variant={isUploadError ? "danger" : "success"}
               title={uploadMessage}
             />
           </StackItem>
@@ -259,4 +258,4 @@ export const ConnectStep: React.FC = () => {
   );
 };
 
-ConnectStep.displayName = 'ConnectStep';
+ConnectStep.displayName = "ConnectStep";

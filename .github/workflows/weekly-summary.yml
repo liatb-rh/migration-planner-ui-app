@@ -4,7 +4,7 @@ on:
   schedule:
     # Run every Saturday at 10:00 AM UTC
     # Format: minute(0-59) hour(0-23) day_of_month(1-31) month(1-12) day_of_week(0-6, 0=Sunday, 6=Saturday)
-    - cron: '0 10 * * 6'
+    - cron: "0 10 * * 6"
 
 jobs:
   summarize-commits:
@@ -24,7 +24,7 @@ jobs:
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
         run: |
           set -e
-          
+
           # Validate required environment variables
           if [ -z "$SLACK_WEBHOOK_URL" ] && ([ -z "$SLACK_BOT_TOKEN" ] || [ -z "$SLACK_CHANNEL" ]); then
             echo "Error: Either SLACK_WEBHOOK_URL or (SLACK_BOT_TOKEN + SLACK_CHANNEL) must be set"
@@ -32,10 +32,10 @@ jobs:
             echo "For simple messaging, use: SLACK_WEBHOOK_URL"
             exit 1
           fi
-          
+
           # Simplified: get commits from last 7 days
           COMMITS=$(git log --since="7 days ago" --pretty=format:"%an|%s")
-          
+
           MESSAGE_TYPE="Weekly Summary (Last 7 Days) 📅"
 
           echo "Processing weekly commits..."

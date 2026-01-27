@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import "./StartingPageModal.css";
 
 import {
   Button,
@@ -9,12 +8,12 @@ import {
   MenuToggle,
   MenuToggleElement,
   Title,
-} from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
+} from "@patternfly/react-core";
+import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import StartingPage from './StartingPage';
-
-import './StartingPageModal.css';
+import StartingPage from "./StartingPage";
 
 type Props = {
   isOpen: boolean;
@@ -39,7 +38,7 @@ const StartingPageModal: React.FC<Props> = ({
   const handleCreateFromOVA = (): void => {
     setIsDropdownOpen(false);
     onClose();
-    navigate('/openshift/migration-assessment/assessments/create', {
+    navigate("/openshift/migration-assessment/assessments/create", {
       state: { reset: true },
     });
   };
@@ -67,7 +66,7 @@ const StartingPageModal: React.FC<Props> = ({
               variant="primary"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               isExpanded={isDropdownOpen}
-              style={{ minWidth: '290px' }}
+              style={{ minWidth: "290px" }}
             >
               Create new migration assessment
             </MenuToggle>
@@ -92,6 +91,6 @@ const StartingPageModal: React.FC<Props> = ({
   );
 };
 
-StartingPageModal.displayName = 'StartingPageModal';
+StartingPageModal.displayName = "StartingPageModal";
 
 export default StartingPageModal;

@@ -10,14 +10,17 @@ This document explains how to view version information for the Migration Planner
 4. Type one of the following commands:
 
 ### Option 1: View via Window Object
+
 ```javascript
-window.__MIGRATION_PLANNER_VERSION__
+window.__MIGRATION_PLANNER_VERSION__;
 ```
 
 This will display the complete version information object with UI and API versions.
 
 ### Option 2: View via Document Object Model Element
+
 In the **Elements/Inspector** tab, search for the element with id `migration-planner-version-info`. You'll see version data in the element's attributes:
+
 - `data-ui-name`
 - `data-ui-version`
 - `data-ui-git-commit`
@@ -26,8 +29,9 @@ In the **Elements/Inspector** tab, search for the element with id `migration-pla
 - `data-api-git-commit`
 
 Or access it via console:
+
 ```javascript
-document.getElementById('migration-planner-version-info')
+document.getElementById("migration-planner-version-info");
 ```
 
 ## What Version Information is Available

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {
   Button,
   Flex,
@@ -7,7 +5,8 @@ import {
   ModalBody /* data-codemods */,
   ModalFooter /* data-codemods */,
   ModalHeader /* data-codemods */,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
+import React from "react";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace ConfirmationModal {
@@ -17,17 +16,17 @@ export namespace ConfirmationModal {
     onConfirm?: React.MouseEventHandler<HTMLButtonElement> | undefined;
     isOpen?: boolean;
     isDisabled?: boolean;
-    titleIconVariant?: 'warning' | 'success' | 'danger' | 'info' | 'custom';
-    variant?: 'default' | 'small' | 'medium' | 'large';
+    titleIconVariant?: "warning" | "success" | "danger" | "info" | "custom";
+    variant?: "default" | "small" | "medium" | "large";
     primaryButtonVariant?:
-      | 'warning'
-      | 'danger'
-      | 'link'
-      | 'primary'
-      | 'secondary'
-      | 'tertiary'
-      | 'plain'
-      | 'control';
+      | "warning"
+      | "danger"
+      | "link"
+      | "primary"
+      | "secondary"
+      | "tertiary"
+      | "plain"
+      | "control";
     title: string;
   };
 }
@@ -41,9 +40,9 @@ export const ConfirmationModal: React.FC<
     onClose,
     onConfirm,
     onCancel,
-    variant = 'small',
-    titleIconVariant = 'info',
-    primaryButtonVariant = 'primary',
+    variant = "small",
+    titleIconVariant = "info",
+    primaryButtonVariant = "primary",
     title,
     children,
   } = props;
@@ -64,7 +63,7 @@ export const ConfirmationModal: React.FC<
       />
       <ModalBody>{children}</ModalBody>
       <ModalFooter>
-        <Flex justifyContent={{ default: 'justifyContentFlexStart' }}>
+        <Flex justifyContent={{ default: "justifyContentFlexStart" }}>
           <Button
             key="confirm"
             variant={primaryButtonVariant}
@@ -84,4 +83,4 @@ export const ConfirmationModal: React.FC<
   );
 };
 
-ConfirmationModal.displayName = 'ConfirmationModal';
+ConfirmationModal.displayName = "ConfirmationModal";

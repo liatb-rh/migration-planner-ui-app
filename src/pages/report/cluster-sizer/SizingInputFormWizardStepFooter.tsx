@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {
   ActionList,
   ActionListGroup,
@@ -7,7 +5,8 @@ import {
   Button,
   useWizardContext,
   WizardFooterWrapper,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
+import React from "react";
 
 export interface SizingInputFormWizardStepFooterProps {
   onClose: () => void;
@@ -20,9 +19,10 @@ export const SizingInputFormWizardStepFooter: React.FC<
 > = ({ onClose, onCalculate, isLoading }) => {
   const { goToNextStep } = useWizardContext();
 
-  const handleNext = async (): Promise<void> => {
-    await onCalculate();
-    goToNextStep();
+  const handleNext = (): void => {
+    void onCalculate().then(() => {
+      void goToNextStep();
+    });
   };
 
   return (
@@ -52,4 +52,4 @@ export const SizingInputFormWizardStepFooter: React.FC<
   );
 };
 
-SizingInputFormWizardStepFooter.displayName = 'SizingInputFormWizardStepFooter';
+SizingInputFormWizardStepFooter.displayName = "SizingInputFormWizardStepFooter";

@@ -1,11 +1,11 @@
 # following the contribution guide this check enforces the commit format
 # [JIRA-TICKET] | [TYPE]: <MESSAGE>
-name: 'Commit'
+name: "Commit"
 on:
   pull_request:
     branches:
       - master
-      - 'release-**'
+      - "release-**"
 
 jobs:
   commit-message-format:
@@ -27,7 +27,7 @@ jobs:
           MERGE_BASE=$(git merge-base $BASE_SHA $HEAD_SHA)
           echo "MERGE_BASE: $MERGE_BASE"
           IFS=$'\n' commit_messages=($(git log --pretty=format:"%s" $MERGE_BASE..$HEAD_SHA))
-          
+
           # Lists of GitHub users for whom the commit validation should be skipped:
           # * red-hat-konflux[bot] - automatic bot responsible for any library or konflux integration update
           declare -a skip_pr_authors=(
@@ -44,7 +44,7 @@ jobs:
 
           VALID_TYPES="fix|feat|build|ci|docs|perf|refactor|style|test"
           PATTERN="^(NO-JIRA|[A-Z]+-[0-9]+) \| ($VALID_TYPES): .+"
-          
+
           for message in "${commit_messages[@]}"
           do
             echo "validating commit message:\"$message\""

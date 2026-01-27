@@ -1,12 +1,18 @@
-import React, { useCallback, useMemo } from 'react';
-
-import { ChartDonut, ChartLabel, ChartLegend } from '@patternfly/react-charts';
+import { ChartDonut, ChartLabel, ChartLegend } from "@patternfly/react-charts";
+import React, { useCallback, useMemo } from "react";
 
 interface OSData {
   name: string;
   count: number;
   legendCategory: string;
   countDisplay?: string;
+}
+
+interface ChartDatum {
+  x: string;
+  y: number;
+  legendCategory: string;
+  countDisplay?: string | number;
 }
 
 interface MigrationDonutChartProps {
@@ -40,7 +46,7 @@ interface MigrationDonutChartProps {
   }) => string;
 }
 
-const legendColors = ['#0066cc', '#5e40be', '#b6a6e9', '#b98412'];
+const legendColors = ["#0066cc", "#5e40be", "#b6a6e9", "#b98412"];
 
 const MigrationDonutChart: React.FC<MigrationDonutChartProps> = ({
   data,
@@ -51,10 +57,10 @@ const MigrationDonutChart: React.FC<MigrationDonutChartProps> = ({
   width = 420,
   title,
   subTitle,
-  titleColor = '#000000',
-  subTitleColor = '#000000',
+  titleColor = "#000000",
+  subTitleColor = "#000000",
   itemsPerRow = 1,
-  marginLeft = '0%',
+  marginLeft = "0%",
   labelFontSize = 25,
   titleFontSize = 28,
   subTitleFontSize = 14,
@@ -62,30 +68,30 @@ const MigrationDonutChart: React.FC<MigrationDonutChartProps> = ({
   padAngle = 1,
   tooltipLabelFormatter,
 }: MigrationDonutChartProps) => {
-  const dynamicLegend = useMemo(() => {
-    return data.reduce(
-      (acc, current) => {
-        const key = `${current.legendCategory}`;
-        if (!acc.seen.has(key)) {
-          acc.seen.add(key);
-          const color =
-            customColors?.[key] ??
-            legendColors[(acc.seen.size - 1) % legendColors.length];
-          acc.result.push({ [key]: color });
-        }
-        return acc;
-      },
-      { seen: new Set(), result: [] },
-    ).result;
+  const dynamicLegend = useMemo<Record<string, string>>(() => {
+    const legendMap: Record<string, string> = {};
+    const seen = new Set<string>();
+
+    data.forEach((item) => {
+      const key = item.legendCategory;
+      if (!seen.has(key)) {
+        seen.add(key);
+        legendMap[key] =
+          customColors?.[key] ??
+          legendColors[(seen.size - 1) % legendColors.length];
+      }
+    });
+
+    return legendMap;
   }, [data, customColors]);
 
-  const chartLegend = legend ? legend : Object.assign({}, ...dynamicLegend);
+  const chartLegend = legend ?? dynamicLegend;
   const getColor = useCallback(
-    (name: string): string => chartLegend[name],
+    (name: string): string => chartLegend[name] ?? legendColors[0],
     [chartLegend],
   );
 
-  const chartData = useMemo(() => {
+  const chartData = useMemo<ChartDatum[]>(() => {
     return data.map((item) => ({
       x: item.name,
       y: item.count,
@@ -117,7 +123,7 @@ const MigrationDonutChart: React.FC<MigrationDonutChartProps> = ({
 
   if (!data || data.length === 0) {
     return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
+      <div style={{ padding: "20px", textAlign: "center" }}>
         No data available
       </div>
     );
@@ -126,28 +132,32 @@ const MigrationDonutChart: React.FC<MigrationDonutChartProps> = ({
   return (
     <div
       style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
       }}
     >
       <ChartDonut
         ariaDesc="Migration data donut chart"
         data={chartData}
         labels={({ datum }) => {
-          const percent = totalY > 0 ? (Number(datum.y) / totalY) * 100 : 0;
+          const safeDatum = datum as ChartDatum;
+          const percent = totalY > 0 ? (Number(safeDatum.y) / totalY) * 100 : 0;
           return tooltipLabelFormatter
             ? tooltipLabelFormatter({
                 datum: {
-                  x: datum.x,
-                  y: Number(datum.y),
-                  countDisplay: datum.countDisplay,
-                  legendCategory: datum.legendCategory,
+                  x: safeDatum.x,
+                  y: Number(safeDatum.y),
+                  countDisplay:
+                    typeof safeDatum.countDisplay === "number"
+                      ? String(safeDatum.countDisplay)
+                      : safeDatum.countDisplay,
+                  legendCategory: safeDatum.legendCategory,
                 },
                 percent,
                 total: totalY,
               })
-            : `${datum.x}: ${datum.countDisplay ?? datum.y}`;
+            : `${safeDatum.x}: ${safeDatum.countDisplay ?? safeDatum.y}`;
         }}
         colorScale={colorScale}
         constrainToVisibleArea
@@ -170,7 +180,7 @@ const MigrationDonutChart: React.FC<MigrationDonutChartProps> = ({
                 {
                   fill: titleColor,
                   fontSize: titleFontSize,
-                  fontWeight: 'bold',
+                  fontWeight: "bold",
                 },
               ]}
             />
@@ -191,12 +201,12 @@ const MigrationDonutChart: React.FC<MigrationDonutChartProps> = ({
       />
       <div
         style={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'center',
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
           marginLeft: marginLeft,
-          overflowX: 'hidden',
-          overflowY: 'hidden',
+          overflowX: "hidden",
+          overflowY: "hidden",
         }}
       >
         <ChartLegend

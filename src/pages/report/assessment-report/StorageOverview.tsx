@@ -1,9 +1,7 @@
-import React, { useMemo, useState } from 'react';
-
 import {
   DiskSizeTierSummary,
   DiskTypeSummary,
-} from '@migration-planner-ui/api-client/models';
+} from "@migration-planner-ui/api-client/models";
 import {
   Chart,
   ChartAxis,
@@ -12,7 +10,7 @@ import {
   ChartTooltip,
   ChartVoronoiContainer,
   getCustomTheme,
-} from '@patternfly/react-charts';
+} from "@patternfly/react-charts";
 import {
   Card,
   CardBody,
@@ -25,9 +23,10 @@ import {
   FlexItem,
   MenuToggle,
   MenuToggleElement,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
+import React, { useMemo, useState } from "react";
 
-import MigrationDonutChart from '../../../components/MigrationDonutChart';
+import MigrationDonutChart from "../../../components/MigrationDonutChart";
 
 interface StorageOverviewProps {
   DiskSizeTierSummary: { [key: string]: DiskSizeTierSummary };
@@ -36,22 +35,22 @@ interface StorageOverviewProps {
   diskTypeSummary?: { [key: string]: DiskTypeSummary };
 }
 
-type ViewMode = 'totalSize' | 'vmCount' | 'vmCountByDiskType';
+type ViewMode = "totalSize" | "vmCount" | "vmCountByDiskType";
 
 const VIEW_MODE_LABELS: Record<ViewMode, string> = {
-  totalSize: 'Total disk size by tier',
-  vmCount: 'VM count by disk size tier',
-  vmCountByDiskType: 'VM count by disk type',
+  totalSize: "Total disk size by tier",
+  vmCount: "VM count by disk size tier",
+  vmCountByDiskType: "VM count by disk type",
 };
 
 const TIER_CONFIG: Record<
   string,
   { order: number; label: string; legendCategory: string }
 > = {
-  Easy: { order: 0, label: '0-10 TB', legendCategory: 'Easy' },
-  Medium: { order: 1, label: '11-20 TB', legendCategory: 'Medium' },
-  Hard: { order: 2, label: '21-50 TB', legendCategory: 'Hard' },
-  White: { order: 3, label: '> 50 TB', legendCategory: 'White glove' },
+  Easy: { order: 0, label: "0-10 TB", legendCategory: "Easy" },
+  Medium: { order: 1, label: "11-20 TB", legendCategory: "Medium" },
+  Hard: { order: 2, label: "21-50 TB", legendCategory: "Hard" },
+  White: { order: 3, label: "> 50 TB", legendCategory: "White glove" },
 };
 
 type TierChartDatum = {
@@ -93,7 +92,7 @@ function buildTierChartData(
       const prefix = getTierPrefix(key);
       const display = prefix
         ? tierConfig[prefix]
-        : { label: key, legendCategory: 'Unknown' };
+        : { label: key, legendCategory: "Unknown" };
       const { count, countDisplay } = selector(tier);
       return {
         name: display.label,
@@ -110,7 +109,7 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
   exportAllViews = false,
   diskTypeSummary,
 }) => {
-  const [viewMode, setViewMode] = useState<ViewMode>('vmCount');
+  const [viewMode, setViewMode] = useState<ViewMode>("vmCount");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const totals = useMemo(() => {
@@ -128,10 +127,10 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
   const chartData = useMemo(() => {
     if (!DiskSizeTierSummary) return [];
     return buildTierChartData(DiskSizeTierSummary, TIER_CONFIG, (tier) => {
-      const count = viewMode === 'totalSize' ? tier.totalSizeTB : tier.vmCount;
+      const count = viewMode === "totalSize" ? tier.totalSizeTB : tier.vmCount;
       return {
         count,
-        countDisplay: viewMode === 'totalSize' ? `${count} TB` : `${count} VMs`,
+        countDisplay: viewMode === "totalSize" ? `${count} TB` : `${count} VMs`,
       };
     });
   }, [DiskSizeTierSummary, viewMode]);
@@ -139,7 +138,7 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
   const diskTypeChartData = useMemo(() => {
     if (!diskTypeSummary || Object.keys(diskTypeSummary).length === 0)
       return [];
-    const preferredOrder = ['VMFS', 'NFS', 'vSAN', 'RDM', 'vVols'];
+    const preferredOrder = ["VMFS", "NFS", "vSAN", "RDM", "vVols"];
     const orderIndex = (name: string): number => {
       const idx = preferredOrder.indexOf(name);
       return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
@@ -148,7 +147,7 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
       .map(([diskTypeName, summary]) => ({
         name: diskTypeName,
         count: summary.vmCount,
-        legendCategory: 'Disk types',
+        legendCategory: "Disk types",
       }))
       .sort((a, b) => orderIndex(a.name) - orderIndex(b.name));
   }, [diskTypeSummary]);
@@ -183,11 +182,11 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
 
   // Distinct colors per bar, matching the visual style used elsewhere
   const diskTypeBarColors = [
-    '#0066cc',
-    '#5e40be',
-    '#b6a6e9',
-    '#b98412',
-    '#73C5C5',
+    "#0066cc",
+    "#5e40be",
+    "#b6a6e9",
+    "#b98412",
+    "#73C5C5",
   ];
 
   // Make bar chart width responsive to the number of categories to avoid
@@ -217,9 +216,9 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
     value: string | number | undefined,
   ): void => {
     if (
-      value === 'totalSize' ||
-      value === 'vmCount' ||
-      value === 'vmCountByDiskType'
+      value === "totalSize" ||
+      value === "vmCount" ||
+      value === "vmCountByDiskType"
     ) {
       setViewMode(value);
     }
@@ -242,15 +241,15 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
 
   return (
     <Card
-      className={isExportMode ? 'dashboard-card-print' : 'dashboard-card'}
+      className={isExportMode ? "dashboard-card-print" : "dashboard-card"}
       id="storage-overview"
-      style={{ overflow: 'hidden' }}
+      style={{ overflow: "hidden" }}
     >
       <CardTitle>
         <Flex
-          justifyContent={{ default: 'justifyContentSpaceBetween' }}
-          alignItems={{ default: 'alignItemsCenter' }}
-          style={{ width: '100%' }}
+          justifyContent={{ default: "justifyContentSpaceBetween" }}
+          alignItems={{ default: "alignItemsCenter" }}
+          style={{ width: "100%" }}
         >
           <FlexItem>
             <i className="fas fa-database" /> Disks
@@ -266,7 +265,7 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                     ref={toggleRef}
                     onClick={onDropdownToggle}
                     isExpanded={isDropdownOpen}
-                    style={{ minWidth: '250px' }}
+                    style={{ minWidth: "250px" }}
                   >
                     {VIEW_MODE_LABELS[viewMode]}
                   </MenuToggle>
@@ -293,12 +292,12 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
       </CardTitle>
       <CardBody>
         {!isExportMode || !exportAllViews ? (
-          viewMode === 'vmCountByDiskType' ? (
+          viewMode === "vmCountByDiskType" ? (
             <>
               <div
                 style={{
-                  display: 'flex',
-                  justifyContent: 'center',
+                  display: "flex",
+                  justifyContent: "center",
                 }}
               >
                 <div style={{ width: `${barChartWidth + 200}px` }}>
@@ -309,9 +308,10 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                     containerComponent={
                       <ChartVoronoiContainer
                         responsive
-                        labels={({ datum }) =>
-                          `${datum.x}: ${Number(datum.y)} VMs`
-                        }
+                        labels={({ datum }) => {
+                          const safeDatum = datum as { x: string; y: number };
+                          return `${safeDatum.x}: ${Number(safeDatum.y)} VMs`;
+                        }}
                         constrainToVisibleArea
                         labelComponent={
                           <ChartTooltip style={{ fontSize: 8 }} />
@@ -329,16 +329,16 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                     <ChartAxis />
                     <ChartAxis
                       tickValues={diskTypeChartData.map((d) => d.name)}
-                      tickFormat={(x) => {
+                      tickFormat={(x: string) => {
                         const item = diskTypeChartData.find(
                           (d) => d.name === x,
                         );
                         return item
-                          ? [`${item.name}`, `(${item.count} VMs)`]
-                          : x;
+                          ? `${item.name} (${item.count} VMs)`
+                          : String(x);
                       }}
                       style={{
-                        axis: { stroke: 'none' },
+                        axis: { stroke: "none" },
                         tickLabels: { fontSize: 8 },
                       }}
                     />
@@ -350,8 +350,11 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                       }))}
                       style={{
                         data: {
-                          fill: ({ index }: { index: number }) =>
-                            diskTypeBarColors[index % diskTypeBarColors.length],
+                          fill: ({ index }) =>
+                            diskTypeBarColors[
+                              (typeof index === "number" ? index : 0) %
+                                diskTypeBarColors.length
+                            ],
                         },
                         labels: { fontSize: 8 },
                       }}
@@ -363,8 +366,8 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                 <Content
                   component="small"
                   style={{
-                    color: '#6a6e73',
-                    marginLeft: '20px',
+                    color: "#6a6e73",
+                    marginLeft: "20px",
                   }}
                 >
                   Totals may exceed the unique VM count because individual VMs
@@ -380,19 +383,19 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
               donutThickness={9}
               titleFontSize={34}
               title={
-                viewMode === 'totalSize'
+                viewMode === "totalSize"
                   ? `${totals.totalSize.toFixed(2)} TB`
                   : `${totals.totalVMs} VMs`
               }
               subTitle={
-                viewMode === 'totalSize'
+                viewMode === "totalSize"
                   ? `${totals.totalVMs} VMs`
                   : `${totals.totalSize.toFixed(2)} TB`
               }
               subTitleColor="#9a9da0"
               itemsPerRow={Math.ceil(chartData.length / 2)}
               labelFontSize={18}
-              marginLeft={viewMode === 'totalSize' ? '42%' : '52%'}
+              marginLeft={viewMode === "totalSize" ? "42%" : "52%"}
               tooltipLabelFormatter={({ datum, percent }) =>
                 `${datum.countDisplay}\n${percent.toFixed(1)}%`
               }
@@ -400,14 +403,14 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
           )
         ) : (
           <>
-            <div style={{ marginBottom: '24px' }}>
+            <div style={{ marginBottom: "24px" }}>
               <div style={{ fontWeight: 600, marginBottom: 8 }}>
-                {VIEW_MODE_LABELS['vmCountByDiskType']}
+                {VIEW_MODE_LABELS["vmCountByDiskType"]}
               </div>
               <div
                 style={{
-                  display: 'flex',
-                  justifyContent: 'center',
+                  display: "flex",
+                  justifyContent: "center",
                 }}
               >
                 <div style={{ width: `${barChartWidth + 200}px` }}>
@@ -418,9 +421,10 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                     containerComponent={
                       <ChartVoronoiContainer
                         responsive
-                        labels={({ datum }) =>
-                          `${datum.x}: ${Number(datum.y)} VMs`
-                        }
+                        labels={({ datum }) => {
+                          const safeDatum = datum as { x: string; y: number };
+                          return `${safeDatum.x}: ${Number(safeDatum.y)} VMs`;
+                        }}
                         constrainToVisibleArea
                         labelComponent={
                           <ChartTooltip style={{ fontSize: 8 }} />
@@ -438,16 +442,16 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                     <ChartAxis />
                     <ChartAxis
                       tickValues={diskTypeChartData.map((d) => d.name)}
-                      tickFormat={(x) => {
+                      tickFormat={(x: string) => {
                         const item = diskTypeChartData.find(
                           (d) => d.name === x,
                         );
                         return item
-                          ? [`${item.name}`, `(${item.count} VMs)`]
-                          : x;
+                          ? `${item.name} (${item.count} VMs)`
+                          : String(x);
                       }}
                       style={{
-                        axis: { stroke: 'none' },
+                        axis: { stroke: "none" },
                         tickLabels: { fontSize: 8 },
                       }}
                     />
@@ -459,8 +463,11 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                       }))}
                       style={{
                         data: {
-                          fill: ({ index }: { index: number }) =>
-                            diskTypeBarColors[index % diskTypeBarColors.length],
+                          fill: ({ index }) =>
+                            diskTypeBarColors[
+                              (typeof index === "number" ? index : 0) %
+                                diskTypeBarColors.length
+                            ],
                         },
                         labels: { fontSize: 8 },
                       }}
@@ -469,9 +476,9 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                 </div>
               </div>
             </div>
-            <div style={{ marginBottom: '24px' }}>
+            <div style={{ marginBottom: "24px" }}>
               <div style={{ fontWeight: 600, marginBottom: 8 }}>
-                {VIEW_MODE_LABELS['vmCount']}
+                {VIEW_MODE_LABELS["vmCount"]}
               </div>
               <MigrationDonutChart
                 data={chartDataForVmCount}
@@ -492,7 +499,7 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
             </div>
             <div>
               <div style={{ fontWeight: 600, marginBottom: 8 }}>
-                {VIEW_MODE_LABELS['totalSize']}
+                {VIEW_MODE_LABELS["totalSize"]}
               </div>
               <MigrationDonutChart
                 data={chartDataForTotalSize}

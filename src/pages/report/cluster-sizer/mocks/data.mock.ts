@@ -5,8 +5,8 @@
  * @see ECOPROJECT-3631 for API specification
  */
 
-import { WORKER_NODE_PRESETS } from '../constants';
-import type { ClusterRequirementsResponse, SizingFormValues } from '../types';
+import { WORKER_NODE_PRESETS } from "../constants";
+import type { ClusterRequirementsResponse, SizingFormValues } from "../types";
 
 /**
  * Mock inventory data representing a typical VMware cluster
@@ -34,11 +34,11 @@ export const generateMockClusterRequirements = (
 ): ClusterRequirementsResponse => {
   // Get worker node specs based on preset or custom values
   const workerCpu =
-    values.workerNodePreset !== 'custom'
+    values.workerNodePreset !== "custom"
       ? WORKER_NODE_PRESETS[values.workerNodePreset].cpu
       : values.customCpu;
   const workerMemory =
-    values.workerNodePreset !== 'custom'
+    values.workerNodePreset !== "custom"
       ? WORKER_NODE_PRESETS[values.workerNodePreset].memoryGb
       : values.customMemoryGb;
 

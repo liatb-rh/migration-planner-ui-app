@@ -9,7 +9,7 @@ import type {
   ClusterSizing,
   InventoryTotals,
   SizingResourceConsumption,
-} from '../types';
+} from "../types";
 
 /**
  * Default mock response representing a typical medium-sized cluster

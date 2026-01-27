@@ -1,13 +1,12 @@
-import React from 'react';
-
 import {
   Chart,
   ChartAxis,
   ChartBar,
   ChartGroup,
   ChartVoronoiContainer,
-} from '@patternfly/react-charts';
-import { Content } from '@patternfly/react-core';
+} from "@patternfly/react-charts";
+import { Content } from "@patternfly/react-core";
+import React from "react";
 
 type ChartBarDataEntry = {
   name: string;
@@ -18,7 +17,7 @@ type ChartBarDataEntry = {
 function histogramToBarChartData(
   histogram: ReportBarChart.Histogram,
   name: string,
-  units: string = '',
+  units: string = "",
 ): ChartBarDataEntry[] {
   const { minValue, step, data } = histogram;
   return data.map((y, idx) => {
@@ -57,17 +56,20 @@ export function ReportBarChart(props: ReportBarChart.Props): React.ReactNode {
 
   return (
     <>
-      <Content style={{ textAlign: 'center' }}>
+      <Content style={{ textAlign: "center" }}>
         <Content component="p">{title}</Content>
       </Content>
       <Chart
-        name={title.toLowerCase().split(' ').join('-')}
-        ariaDesc={title + ' chart'}
-        ariaTitle={title + ' chart'}
+        name={title.toLowerCase().split(" ").join("-")}
+        ariaDesc={title + " chart"}
+        ariaTitle={title + " chart"}
         containerComponent={
           <ChartVoronoiContainer
             responsive
-            labels={({ datum }) => `${datum.name}: ${datum.y}`}
+            labels={({ datum }) => {
+              const safeDatum = datum as ChartBarDataEntry;
+              return `${safeDatum.name}: ${safeDatum.y}`;
+            }}
             constrainToVisibleArea
           />
         }
@@ -84,7 +86,7 @@ export function ReportBarChart(props: ReportBarChart.Props): React.ReactNode {
         <ChartAxis />
         <ChartAxis dependentAxis showGrid />
         <ChartGroup>
-          <ChartBar data={histogramToBarChartData(histogram, 'Count')} />
+          <ChartBar data={histogramToBarChartData(histogram, "Count")} />
         </ChartGroup>
       </Chart>
     </>

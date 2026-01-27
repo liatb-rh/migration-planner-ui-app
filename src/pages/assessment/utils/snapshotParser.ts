@@ -1,4 +1,4 @@
-import { Snapshot as SnapshotModel } from '@migration-planner-ui/api-client/models';
+import { Snapshot as SnapshotModel } from "@migration-planner-ui/api-client/models";
 
 /**
  * Checks if an assessment has useful inventory data by examining
@@ -36,7 +36,7 @@ export const hasUsefulData = (
   const legacySnapshot = lastSnapshot as { infra?: unknown; vms?: unknown };
 
   const hasClustersProp =
-    inventory != null && Object.hasOwn(inventory, 'clusters');
+    inventory != null && Object.hasOwn(inventory, "clusters");
 
   if (hasClustersProp) {
     return inventory?.clusters != null;
@@ -65,11 +65,11 @@ export const parseLatestSnapshot = (
 ): SnapshotData => {
   if (!Array.isArray(snapshots) || snapshots.length === 0) {
     return {
-      hosts: '-',
-      vms: '-',
-      networks: '-',
-      datastores: '-',
-      lastUpdated: '-',
+      hosts: "-",
+      vms: "-",
+      networks: "-",
+      datastores: "-",
+      lastUpdated: "-",
     };
   }
 
@@ -85,24 +85,24 @@ export const parseLatestSnapshot = (
   const lastSnapshot = sortedSnapshots[0];
 
   // Extract hosts data from inventory.infra.totalHosts
-  const hosts = lastSnapshot.inventory?.vcenter?.infra?.totalHosts ?? '-';
+  const hosts = lastSnapshot.inventory?.vcenter?.infra?.totalHosts ?? "-";
 
   // Extract VMs data from inventory.vms.total
-  const vms = lastSnapshot.inventory?.vcenter?.vms?.total ?? '-';
+  const vms = lastSnapshot.inventory?.vcenter?.vms?.total ?? "-";
 
   // Extract networks data from inventory.infra.networks array length
   const networks = Array.isArray(
     lastSnapshot.inventory?.vcenter?.infra?.networks,
   )
     ? lastSnapshot.inventory.vcenter?.infra?.networks.length
-    : '-';
+    : "-";
 
   // Extract datastores data from inventory.infra.datastores array length
   const datastores = Array.isArray(
     lastSnapshot.inventory?.vcenter?.infra?.datastores,
   )
     ? lastSnapshot.inventory.vcenter?.infra?.datastores.length
-    : '-';
+    : "-";
 
   // Format last updated date
   const lastUpdated = lastSnapshot.createdAt
@@ -113,20 +113,20 @@ export const parseLatestSnapshot = (
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
         if (diffDays === 0) {
-          return 'Today';
+          return "Today";
         } else if (diffDays === 1) {
-          return '1 day ago';
+          return "1 day ago";
         } else if (diffDays < 7) {
           return `${diffDays} days ago`;
         } else {
           return (
             date.toLocaleDateString() +
-            ' ' +
-            date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            " " +
+            date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
           );
         }
       })()
-    : '-';
+    : "-";
 
   return {
     hosts,

@@ -16,6 +16,7 @@ SOURCE_GIT_COMMIT_SHORT ?=$(shell git rev-parse --short "HEAD^{commit}" 2>/dev/n
 SOURCE_GIT_TAG ?=$(shell git describe --always --tags --abbrev=7 --match '[0-9]*\.[0-9]*\.[0-9]*' --match 'v[0-9]*\.[0-9]*\.[0-9]*' || echo 'v0.0.0-unknown-$(SOURCE_GIT_COMMIT_SHORT)')
 IMAGE_TAG ?= $(SOURCE_GIT_COMMIT)
 
+.PHONY: oc
 oc: # Verify oc installed, in linux install it if not already installed
 ifeq ($(OC_BIN),)
 	@if [ "$(OS)" = "darwin" ]; then \
@@ -32,12 +33,14 @@ else
 endif
 
 # Downloads and sets up all the packages, based on your package.json
+.PHONY: install
 install:
 	@echo "📦 Update all packages..."
 	npm install --legacy-peer-deps
 	@echo "✅ All packages are updated successfully..."
 
 # Build the standalone application locally
+.PHONY: build-standalone
 build-standalone: install
 	@echo "Building standalone application..."
 	rm -rf dist-standalone
@@ -47,6 +50,7 @@ build-standalone: install
 	@echo "✅ Standalone build completed in dist-standalone/"
 
 # Run the standalone application locally
+.PHONY: run-standalone
 run-standalone: install
 	@echo "Running standalone application..."
 	rm -rf dist-standalone
@@ -57,6 +61,7 @@ run-standalone: install
 	@echo "✅ Standalone run completed"
 
 # Legacy build target (federated module)
+.PHONY: build
 build: install
 	@echo "Building federated module..."
 	rm -rf dist
@@ -65,55 +70,76 @@ build: install
 	 npm run build
 	@echo "✅ Federated build completed in dist/"
 
-lint: install
-	@echo "🔍 Running npm run lint..."
-	@npm run lint:js
-	@echo "✅ Lint passed successfully!"
+# Run ESLint checks
+.PHONY: lint-check
+lint-check: install
+	@echo "🔍 Running lint checks..."
+	@npm run lint
+	@echo "✅ Lint checks passed!"
 
+# Run ESLint with auto-fix
+.PHONY: lint-fix
 lint-fix: install
-	@echo "🔍 Running npm run lint fix..."
-	npm run lint:js:fix
-	@echo "✅ Lint fix finished successfully!"
+	@echo "🧹 Running lint fix..."
+	@npm run lint -- --fix
+	@echo "✅ Lint fix completed!"
 
+# Run Prettier format checks
+.PHONY: format-check
 format-check: install
-	@echo "🎨 Checking code formatting with Prettier..."
-	@npx prettier --check "src/**/*.{ts,tsx,js,jsx,json,css,scss,md}"
-	@echo "✅ Code formatting check passed!"
+	@echo "🎨 Running format checks..."
+	@npm run format -- --check
+	@echo "✅ Format checks passed!"
 
-format: install
-	@echo "🎨 Formatting code with Prettier..."
-	@npx prettier --write "src/**/*.{ts,tsx,js,jsx,json,css,scss,md}"
-	@echo "✅ Code formatting completed!"
+# Run Prettier format fix
+.PHONY: format-fix
+format-fix: install
+	@echo "🎨 Formatting code..."
+	@npm run format -- --write
+	@echo "✅ Format completed!"
 
 # TypeScript type checking
+.PHONY: type-check
 type-check: install
 	@echo "🔍 Running TypeScript type checking..."
-	@npx tsc --noEmit --project tsconfig.json
+	@npx tsc --noEmit
 	@echo "✅ TypeScript type checking passed!"
 
+# Tests
+.PHONY: test
+test: install
+	@echo "🔍 Running tests..."
+	@npm test
+	@echo "✅ Tests passed!"
+
 # Security vulnerability scanning
+.PHONY: security-scan
 security-scan: install
 	@echo "🔒 Running security vulnerability scan..."
 	@npm audit --audit-level=moderate
 	@echo "✅ Security vulnerability scan completed!"
 
 # Fix security vulnerabilities
+.PHONY: security-fix
 security-fix: install
 	@echo "🔧 Fixing security vulnerabilities..."
 	@npm audit fix
 	@echo "✅ Security vulnerabilities fixed!"
 
 # Fix security vulnerabilities with breaking changes
+.PHONY: security-fix-force
 security-fix-force: install
 	@echo "🔧 Fixing security vulnerabilities (including breaking changes)..."
 	@npm audit fix --force
 	@echo "✅ All security vulnerabilities fixed!"
 
 # Combined format validation - runs both linting and format checks
-validate-all: lint format-check type-check security-scan
+.PHONY: validate-all
+validate-all: lint-check format-check type-check test security-scan
 	@echo "✅ All validation checks passed!"
 
 # Build the container image
+.PHONY: podman-build
 podman-build:
 	@echo "Building container image: $(IMAGE):$(IMAGE_TAG)"
 	@if [ ! -f "$(CONTAINERFILE_PATH)" ]; then \
@@ -131,11 +157,13 @@ podman-build:
 	@echo "Container image built successfully: $(IMAGE):$(IMAGE_TAG)"
 
 # Tag the image as latest
+.PHONY: podman-tag-latest
 podman-tag-latest:
 	$(PODMAN) tag $(IMAGE):$(IMAGE_TAG) $(IMAGE):latest
 	@echo "Tagged $(IMAGE):$(IMAGE_TAG) as $(IMAGE):latest"
 
 # Run the container
+.PHONY: podman-run
 podman-run:
 	@echo "Starting container: $(CONTAINER_NAME)"
 	@# Stop and remove existing container if it exists
@@ -159,6 +187,7 @@ podman-run:
 	@echo "Container name: $(CONTAINER_NAME)"
 
 # Stop the container
+.PHONY: podman-stop
 podman-stop:
 	@echo "Stopping container: $(CONTAINER_NAME)"
 	-$(PODMAN) stop $(CONTAINER_NAME) 2>/dev/null || true
@@ -166,15 +195,18 @@ podman-stop:
 	@echo "Container stopped and removed."
 
 # Show container logs
+.PHONY: podman-logs
 podman-logs:
 	$(PODMAN) logs -f $(CONTAINER_NAME)
 
 # Show container status
+.PHONY: podman-status
 podman-status:
 	@echo "Container status:"
 	$(PODMAN) ps -a --filter "name=$(CONTAINER_NAME)"
 
 # Remove the container image
+.PHONY: podman-clean
 podman-clean:
 	@echo "Removing container image: $(IMAGE):$(IMAGE_TAG)"
 	-$(PODMAN) rmi $(IMAGE):$(IMAGE_TAG) 2>/dev/null || true
@@ -182,11 +214,14 @@ podman-clean:
 	@echo "Container image removed."
 
 # Complete container workflow: build and run
+.PHONY: podman-deploy
 podman-deploy: podman-build podman-run
 
 # Container development workflow: build, tag as latest, and run
+.PHONY: podman-dev
 podman-dev: podman-build podman-tag-latest podman-run
 
+.PHONY: quay-login
 quay-login:
 	@if [ ! -f $(DOCKER_AUTH_FILE) ] && [ $(QUAY_USER) ] && [ $(QUAY_TOKEN) ]; then \
 		$(info Create Auth File: $(DOCKER_AUTH_FILE)) \
@@ -194,6 +229,7 @@ quay-login:
 		$(PODMAN) login --authfile $(DOCKER_AUTH_FILE) -u=$(QUAY_USER) -p=$(QUAY_TOKEN) quay.io; \
 	fi;
 
+.PHONY: podman-push
 podman-push:
 	@echo "Pushing container image: $(IMAGE):$(IMAGE_TAG)"
 	if [ -f $(DOCKER_AUTH_FILE) ]; then \
@@ -204,6 +240,7 @@ podman-push:
 	@echo "Container image pushed successfully."
 
 # OpenShift deployment
+.PHONY: deploy-on-openshift
 deploy-on-openshift:
 	@echo "Deploying Migration Planner UI to OpenShift..."
 	oc process -f deploy/dev/ui-template.yaml \
@@ -215,6 +252,7 @@ deploy-on-openshift:
 	@echo "Getting route information..."
 	@oc get route planner-ui -o jsonpath='{.spec.host}' 2>/dev/null && echo "" || echo "Route not yet available"
 
+.PHONY: delete-from-openshift
 delete-from-openshift:
 	@echo "Deleting Migration Planner UI from OpenShift..."
 	oc process -f deploy/dev/ui-template.yaml \
@@ -225,21 +263,23 @@ delete-from-openshift:
 	@echo "*** Migration Planner UI has been deleted successfully from OpenShift ***"
 
 # Help target
+.PHONY: help
 help:
 	@echo "Migration Planner UI - Available Make targets:"
 	@echo ""
 	@echo "Local Development:"
 	@echo "  build-standalone     Build the standalone application locally"
 	@echo "  build               Build the federated module locally"
-	@echo "  lint                Run ESLint checks"
+	@echo "  lint-check          Run ESLint checks"
 	@echo "  lint-fix            Run ESLint with auto-fix"
 	@echo "  format-check        Check code formatting with Prettier"
-	@echo "  format              Format code with Prettier"
+	@echo "  format-fix          Format code with Prettier"
 	@echo "  type-check          TypeScript type checking"
+	@echo "  test                Run tests"
 	@echo "  security-scan       Run security vulnerability scan"
 	@echo "  security-fix        Fix security vulnerabilities"
 	@echo "  security-fix-force  Fix security vulnerabilities (including breaking changes)"
-	@echo "  validate-all        Run all validation checks (lint + format-check + type-check + security-scan)"
+	@echo "  validate-all        Run all validation checks (lint-check + format-check + type-check + security-scan + test)"
 	@echo ""
 	@echo "Container Management:"
 	@echo "  podman-build        Build the container image"
@@ -265,8 +305,6 @@ help:
 	@echo "  CONTAINER_NAME=$(CONTAINER_NAME)"
 	@echo "  HOST_PORT=$(HOST_PORT)"
 	@echo "  CONTAINER_PORT=$(CONTAINER_PORT)"
-
-.PHONY: oc build-standalone build lint lint-fix format-check format type-check security-scan security-fix security-fix-force validate-all podman-build podman-tag-latest podman-run podman-stop podman-logs podman-status podman-clean podman-deploy podman-dev quay-login podman-push deploy-on-openshift delete-from-openshift help
 
 # Default target
 .DEFAULT_GOAL := help

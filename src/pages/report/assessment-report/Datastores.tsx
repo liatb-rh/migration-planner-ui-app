@@ -1,21 +1,20 @@
-import React from 'react';
-
-import { Datastore } from '@migration-planner-ui/api-client/models';
+import { Datastore } from "@migration-planner-ui/api-client/models";
 import {
   Card,
   CardBody,
   CardTitle,
   Icon,
   Progress,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
 import {
   CheckCircleIcon,
   ExclamationCircleIcon,
-} from '@patternfly/react-icons';
-import { t_global_color_status_success_default as globalSuccessColor100 } from '@patternfly/react-tokens/dist/js/t_global_color_status_success_default';
-import { t_global_icon_color_status_danger_default as globalDangerColor100 } from '@patternfly/react-tokens/dist/js/t_global_icon_color_status_danger_default';
+} from "@patternfly/react-icons";
+import { t_global_color_status_success_default as globalSuccessColor100 } from "@patternfly/react-tokens/dist/js/t_global_color_status_success_default";
+import { t_global_icon_color_status_danger_default as globalDangerColor100 } from "@patternfly/react-tokens/dist/js/t_global_icon_color_status_danger_default";
+import React from "react";
 
-import { ReportTable } from '../ReportTable';
+import { ReportTable } from "../ReportTable";
 
 interface DatastoresProps {
   datastores: Datastore[];
@@ -26,10 +25,10 @@ export const Datastores: React.FC<DatastoresProps> = ({
   datastores,
   isExportMode = false,
 }) => {
-  const tableWidth = '100%';
-  const tableHeight = isExportMode ? '100%' : '200px';
+  const tableWidth = "100%";
+  const tableHeight = isExportMode ? "100%" : "200px";
   return (
-    <Card className={isExportMode ? 'dashboard-card-print' : 'dashboard-card'}>
+    <Card className={isExportMode ? "dashboard-card-print" : "dashboard-card"}>
       <CardTitle>
         <i className="fas fa-database" /> Datastores
       </CardTitle>
@@ -37,8 +36,8 @@ export const Datastores: React.FC<DatastoresProps> = ({
         <div
           style={{
             maxHeight: tableHeight,
-            overflowY: 'auto',
-            overflowX: 'auto',
+            overflowY: "auto",
+            overflowX: "auto",
             padding: 2,
           }}
         >
@@ -51,7 +50,7 @@ export const Datastores: React.FC<DatastoresProps> = ({
             data={datastores.map((ds) => ({
               ...ds,
               usage: (
-                <div style={{ minWidth: '10rem', flexGrow: 1 }}>
+                <div style={{ minWidth: "10rem", flexGrow: 1 }}>
                   <Progress
                     value={(ds.freeCapacityGB / ds.totalCapacityGB) * 100}
                     size="sm"
@@ -70,20 +69,20 @@ export const Datastores: React.FC<DatastoresProps> = ({
               ),
             }))}
             columns={[
-              'Type',
-              'Vendor',
-              'Protocol type',
-              'Model',
-              'Total',
-              'Usage %',
+              "Type",
+              "Vendor",
+              "Protocol type",
+              "Model",
+              "Total",
+              "Usage %",
             ]}
             fields={[
-              'type',
-              'vendor',
-              'protocolType',
-              'model',
-              'totalCapacityGB',
-              'usage',
+              "type",
+              "vendor",
+              "protocolType",
+              "model",
+              "totalCapacityGB",
+              "usage",
             ]}
             style={{ width: tableWidth }}
             withoutBorder

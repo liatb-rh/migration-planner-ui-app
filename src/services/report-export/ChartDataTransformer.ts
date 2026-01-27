@@ -28,7 +28,7 @@ import type {
   OSInfo,
   SnapshotLike,
   VMsData,
-} from './types';
+} from "./types";
 
 export class ChartDataTransformer {
   /**
@@ -69,7 +69,7 @@ export class ChartDataTransformer {
       (snapshotLike as { vcenter: { vms: VMsData } }).vcenter?.vms) as VMsData;
 
     if (!infra || !vms) {
-      throw new Error('Invalid inventory data structure');
+      throw new Error("Invalid inventory data structure");
     }
 
     return { infra, vms };
@@ -102,26 +102,26 @@ export class ChartDataTransformer {
   private buildPowerStateData(vms: VMsData): Array<[string, number]> {
     const ps = vms.powerStates ?? {};
     return [
-      ['Powered On', ps.poweredOn ?? 0],
-      ['Powered Off', ps.poweredOff ?? 0],
-      ['Suspended', ps.suspended ?? 0],
+      ["Powered On", ps.poweredOn ?? 0],
+      ["Powered Off", ps.poweredOff ?? 0],
+      ["Suspended", ps.suspended ?? 0],
     ];
   }
 
   private buildResourceData(vms: VMsData): Array<[string, number, number]> {
     return [
       [
-        'CPU Cores',
+        "CPU Cores",
         vms.cpuCores.total,
         Math.round(vms.cpuCores.total * CPU_CAPACITY_MARGIN),
       ],
       [
-        'Memory GB',
+        "Memory GB",
         vms.ramGB.total,
         Math.round(vms.ramGB.total * MEMORY_OVERHEAD_FACTOR),
       ],
       [
-        'Storage GB',
+        "Storage GB",
         vms.diskGB.total,
         Math.round(vms.diskGB.total * STORAGE_SAFETY_MULTIPLIER),
       ],

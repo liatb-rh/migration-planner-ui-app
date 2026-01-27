@@ -1,14 +1,13 @@
-import { describe, expect, it } from 'vitest';
-
 import type {
   Host,
   Infra,
   InventoryData,
   VMResourceBreakdown,
   VMs,
-} from '@migration-planner-ui/api-client/models';
+} from "@migration-planner-ui/api-client/models";
+import { describe, expect, it } from "vitest";
 
-import { buildClusterViewModel } from './clusterView';
+import { buildClusterViewModel } from "./clusterView";
 
 const emptyBreakdown: VMResourceBreakdown = {
   total: 0,
@@ -46,29 +45,29 @@ const baseVms: VMs = {
   powerStates: {},
 };
 
-describe('buildClusterViewModel', () => {
-  it('returns aggregate view when no cluster is selected', () => {
+describe("buildClusterViewModel", () => {
+  it("returns aggregate view when no cluster is selected", () => {
     const model = buildClusterViewModel({
       infra: baseInfra,
       vms: baseVms,
       clusters: {
-        'Cluster A': { infra: baseInfra, vms: baseVms },
+        "Cluster A": { infra: baseInfra, vms: baseVms },
       },
     });
 
     expect(model.isAggregateView).toBe(true);
-    expect(model.selectionId).toBe('all');
-    expect(model.selectionLabel).toBe('All clusters');
+    expect(model.selectionId).toBe("all");
+    expect(model.selectionLabel).toBe("All clusters");
     expect(model.viewInfra).toBe(baseInfra);
     expect(model.viewVms).toBe(baseVms);
     expect(
-      model.clusterOptions.find((opt) => opt.id === 'Cluster A'),
+      model.clusterOptions.find((opt) => opt.id === "Cluster A"),
     ).toBeTruthy();
   });
 
-  it('returns scoped view when a valid cluster is selected', () => {
+  it("returns scoped view when a valid cluster is selected", () => {
     const clusters: Record<string, InventoryData> = {
-      'Cluster B': {
+      "Cluster B": {
         infra: {
           hosts: [] as Host[],
           clustersPerDatacenter: [],
@@ -99,26 +98,26 @@ describe('buildClusterViewModel', () => {
       infra: baseInfra,
       vms: baseVms,
       clusters,
-      selectedClusterId: 'Cluster B',
+      selectedClusterId: "Cluster B",
     });
 
     expect(model.isAggregateView).toBe(false);
-    expect(model.selectionLabel).toBe('Cluster B');
-    expect(model.viewInfra).toEqual(clusters['Cluster B'].infra);
-    expect(model.viewVms).toEqual(clusters['Cluster B'].vms);
-    expect(model.viewClusters).toEqual({ 'Cluster B': clusters['Cluster B'] });
+    expect(model.selectionLabel).toBe("Cluster B");
+    expect(model.viewInfra).toEqual(clusters["Cluster B"].infra);
+    expect(model.viewVms).toEqual(clusters["Cluster B"].vms);
+    expect(model.viewClusters).toEqual({ "Cluster B": clusters["Cluster B"] });
     expect(model.clusterFound).toBe(true);
   });
 
-  it('marks cluster as missing when entry is undefined', () => {
+  it("marks cluster as missing when entry is undefined", () => {
     const clusters = {
-      'Cluster C': undefined,
+      "Cluster C": undefined,
     } as unknown as Record<string, InventoryData>;
     const model = buildClusterViewModel({
       infra: baseInfra,
       vms: baseVms,
       clusters,
-      selectedClusterId: 'Cluster C',
+      selectedClusterId: "Cluster C",
     });
 
     expect(model.isAggregateView).toBe(false);

@@ -1,11 +1,10 @@
-import React, { useRef, useState } from 'react';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-import { createRoot } from 'react-dom/client';
+import "./DownloadPDFStyles.css";
 
-import { Button, Spinner } from '@patternfly/react-core';
-
-import './DownloadPDFStyles.css';
+import { Button, Spinner } from "@patternfly/react-core";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import React, { useRef, useState } from "react";
+import { createRoot } from "react-dom/client";
 
 interface DownloadPDFButtonProps {
   elementId: string;
@@ -26,9 +25,9 @@ const DownloadPDFButton: React.FC<DownloadPDFButtonProps> = ({
 
       const hiddenContainer = hiddenContainerRef.current;
       if (!hiddenContainer) return;
-      hiddenContainer.innerHTML = '';
+      hiddenContainer.innerHTML = "";
 
-      const tempDiv = document.createElement('div');
+      const tempDiv = document.createElement("div");
       hiddenContainer.appendChild(tempDiv);
       const root = createRoot(tempDiv);
       root.render(componentToRender);
@@ -36,8 +35,8 @@ const DownloadPDFButton: React.FC<DownloadPDFButtonProps> = ({
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       const canvas = await html2canvas(hiddenContainer, { useCORS: true });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
 
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
@@ -56,18 +55,18 @@ const DownloadPDFButton: React.FC<DownloadPDFButtonProps> = ({
 
       pdf.addImage(
         imgData,
-        'PNG',
+        "PNG",
         margin,
         margin,
         imgWidth * scaleFactor,
         imgHeight * scaleFactor,
       );
-      pdf.save('Dashboard_Report.pdf');
+      pdf.save("Dashboard_Report.pdf");
 
-      hiddenContainer.innerHTML = '';
+      hiddenContainer.innerHTML = "";
       console.warn = originalWarn;
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      console.error("Error generating PDF:", error);
     } finally {
       setIsLoading(false);
     }
@@ -75,26 +74,31 @@ const DownloadPDFButton: React.FC<DownloadPDFButtonProps> = ({
 
   return (
     <>
-      <Button variant="secondary" onClick={handleDownloadPDF}>
+      <Button
+        variant="secondary"
+        onClick={() => {
+          void handleDownloadPDF();
+        }}
+      >
         {isLoading ? (
           <>
             <Spinner size="sm" /> Generating PDF...
           </>
         ) : (
-          'Export PDF'
+          "Export PDF"
         )}
       </Button>
       <div
         id="hidden-container"
         ref={hiddenContainerRef}
         style={{
-          position: 'absolute',
-          left: '-9999px',
-          top: '0',
-          width: '1600px',
-          minHeight: '1200px',
-          padding: '2rem',
-          backgroundColor: 'white', // Para fondo claro
+          position: "absolute",
+          left: "-9999px",
+          top: "0",
+          width: "1600px",
+          minHeight: "1200px",
+          padding: "2rem",
+          backgroundColor: "white", // Para fondo claro
           zIndex: -1,
         }}
       />

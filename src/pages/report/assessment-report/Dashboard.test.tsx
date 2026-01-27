@@ -1,5 +1,4 @@
-import React from 'react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import "@testing-library/jest-dom";
 
 import type {
   Host,
@@ -7,39 +6,38 @@ import type {
   InventoryData,
   VMResourceBreakdown,
   VMs,
-} from '@migration-planner-ui/api-client/models';
-import { cleanup, render, screen } from '@testing-library/react';
+} from "@migration-planner-ui/api-client/models";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { Dashboard } from './Dashboard';
-
-import '@testing-library/jest-dom';
+import { Dashboard } from "./Dashboard";
 
 // Mock heavy child components to keep tests lightweight
-vi.mock('./ClustersOverview', () => ({
+vi.mock("./ClustersOverview", () => ({
   ClustersOverview: (): JSX.Element => <div data-testid="clusters-overview" />,
 }));
-vi.mock('./CpuAndMemoryOverview', () => ({
+vi.mock("./CpuAndMemoryOverview", () => ({
   CpuAndMemoryOverview: (): JSX.Element => <div data-testid="cpu-memory" />,
 }));
-vi.mock('./StorageOverview', () => ({
+vi.mock("./StorageOverview", () => ({
   StorageOverview: (): JSX.Element => <div data-testid="storage" />,
 }));
-vi.mock('./NetworkOverview', () => ({
+vi.mock("./NetworkOverview", () => ({
   NetworkOverview: (): JSX.Element => <div data-testid="network" />,
 }));
-vi.mock('./HostsOverview', () => ({
+vi.mock("./HostsOverview", () => ({
   HostsOverview: (): JSX.Element => <div data-testid="hosts" />,
 }));
-vi.mock('./VMMigrationStatus', () => ({
+vi.mock("./VMMigrationStatus", () => ({
   VMMigrationStatus: (): JSX.Element => <div data-testid="vm-status" />,
 }));
-vi.mock('./OSDistribution', () => ({
+vi.mock("./OSDistribution", () => ({
   OSDistribution: (): JSX.Element => <div data-testid="os-distribution" />,
 }));
-vi.mock('./WarningsTable', () => ({
+vi.mock("./WarningsTable", () => ({
   WarningsTable: (): JSX.Element => <div data-testid="warnings" />,
 }));
-vi.mock('./ErrorTable', () => ({
+vi.mock("./ErrorTable", () => ({
   ErrorTable: (): JSX.Element => <div data-testid="errors" />,
 }));
 
@@ -84,8 +82,8 @@ const baseVms: VMs = {
 
 afterEach(() => cleanup());
 
-describe('Dashboard', () => {
-  it('shows aggregate tiles including clusters overview', () => {
+describe("Dashboard", () => {
+  it("shows aggregate tiles including clusters overview", () => {
     render(
       <Dashboard
         infra={baseInfra}
@@ -103,16 +101,16 @@ describe('Dashboard', () => {
       />,
     );
 
-    expect(screen.getByTestId('vm-status')).toBeInTheDocument();
-    expect(screen.getByTestId('os-distribution')).toBeInTheDocument();
-    expect(screen.getByTestId('cpu-memory')).toBeInTheDocument();
-    expect(screen.getByTestId('storage')).toBeInTheDocument();
-    expect(screen.getByTestId('clusters-overview')).toBeInTheDocument();
-    expect(screen.getByTestId('hosts')).toBeInTheDocument();
-    expect(screen.getByTestId('network')).toBeInTheDocument();
+    expect(screen.getByTestId("vm-status")).toBeInTheDocument();
+    expect(screen.getByTestId("os-distribution")).toBeInTheDocument();
+    expect(screen.getByTestId("cpu-memory")).toBeInTheDocument();
+    expect(screen.getByTestId("storage")).toBeInTheDocument();
+    expect(screen.getByTestId("clusters-overview")).toBeInTheDocument();
+    expect(screen.getByTestId("hosts")).toBeInTheDocument();
+    expect(screen.getByTestId("network")).toBeInTheDocument();
   });
 
-  it('hides aggregate clusters overview when viewing a single cluster', () => {
+  it("hides aggregate clusters overview when viewing a single cluster", () => {
     render(
       <Dashboard
         infra={baseInfra}
@@ -131,12 +129,12 @@ describe('Dashboard', () => {
       />,
     );
 
-    expect(screen.queryByTestId('clusters-overview')).toBeNull();
-    expect(screen.getByTestId('cpu-memory')).toBeInTheDocument();
-    expect(screen.getByTestId('storage')).toBeInTheDocument();
+    expect(screen.queryByTestId("clusters-overview")).toBeNull();
+    expect(screen.getByTestId("cpu-memory")).toBeInTheDocument();
+    expect(screen.getByTestId("storage")).toBeInTheDocument();
   });
 
-  it('shows empty message when cluster data is missing', () => {
+  it("shows empty message when cluster data is missing", () => {
     render(
       <Dashboard
         infra={baseInfra}

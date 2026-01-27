@@ -9,94 +9,62 @@ on:
       - ready_for_review
     branches:
       - master
-      - 'release-**'
+      - "release-**"
 
 env:
-  NODE_OPTIONS: '--max-old-space-size=8192'
+  NODE_OPTIONS: "--max-old-space-size=8192"
 jobs:
-  preflight-check:
-    # Prevents running the workflow when a PR is marked as draft.
-    runs-on: ubuntu-latest
-    outputs:
-      skip: ${{ steps.check.outputs.skip }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Check if PR is draft
-        id: check
-        run: |
-          if [[ "${{ github.event.pull_request.draft }}" == "true" ]]; then
-            skip=true
-          else
-            skip=false
-          fi
-          echo "skip=${skip}" >> $GITHUB_OUTPUT
-          echo "skip=${skip}"
-  lint:
-    needs: preflight-check
-    if: needs.preflight-check.outputs.skip == 'false'
+  lint-check:
+    if: ${{ ! github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ vars.NODEJS_VERSION }}
-      - run: make lint
-  
+      - run: make lint-check
   format-check:
-    needs: preflight-check
-    if: needs.preflight-check.outputs.skip == 'false'
+    if: ${{ ! github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ vars.NODEJS_VERSION }}
       - run: make format-check
-
   type-check:
-    needs: preflight-check
-    if: needs.preflight-check.outputs.skip == 'false'
+    if: ${{ ! github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ vars.NODEJS_VERSION }}
       - run: make type-check
-
   security-scan:
-    needs: preflight-check
-    if: needs.preflight-check.outputs.skip == 'false'
+    if: ${{ ! github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ vars.NODEJS_VERSION }}
       - run: make security-scan
-  #####
-  ## test target is not working, need to fix and than uncomment it
-  #####
-  # test:
-  #   needs: preflight-check
-  #   if: needs.preflight-check.outputs.skip == 'false'
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ vars.NODEJS_VERSION }}
-  #     - run: npm install --immutable
-  #     - run: npm run test --passWithNoTests
-  build:
-    needs: preflight-check
-    if: needs.preflight-check.outputs.skip == 'false'
+  test:
+    if: ${{ ! github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ vars.NODEJS_VERSION }}
+      - run: make test
+  build:
+    if: ${{ ! github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ vars.NODEJS_VERSION }}
       - run: make build

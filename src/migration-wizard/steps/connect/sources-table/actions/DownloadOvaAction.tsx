@@ -1,9 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import { Button, Icon, Tooltip } from "@patternfly/react-core";
+import { DownloadIcon } from "@patternfly/react-icons";
+import React, { useCallback, useState } from "react";
 
-import { Button, Icon, Tooltip } from '@patternfly/react-core';
-import { DownloadIcon } from '@patternfly/react-icons';
-
-import { useDiscoverySources } from '../../../../contexts/discovery-sources/Context';
+import { useDiscoverySources } from "../../../../contexts/discovery-sources/Context";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace DownloadOvaAction {
@@ -21,17 +20,20 @@ export const DownloadOvaAction: React.FC<DownloadOvaAction.Props> = (props) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const url = discoverySourcesContext.getDownloadUrlForSource(sourceId);
 
-  const handleDownload = useCallback(async () => {
+  const handleDownload = useCallback(() => {
     try {
+      if (!url) {
+        return;
+      }
       setIsDownloading(true);
 
-      const anchor = document.createElement('a');
+      const anchor = document.createElement("a");
       anchor.download = `${sourceName || sourceId}.ova`;
       anchor.href = url;
       anchor.click();
       anchor.remove();
     } catch (error) {
-      console.error('Download failed:', error);
+      console.error("Download failed:", error);
     } finally {
       setIsDownloading(false);
     }
@@ -53,4 +55,4 @@ export const DownloadOvaAction: React.FC<DownloadOvaAction.Props> = (props) => {
   );
 };
 
-DownloadOvaAction.displayName = 'DownloadOvaAction';
+DownloadOvaAction.displayName = "DownloadOvaAction";

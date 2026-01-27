@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import "./DownloadPDFStyles.css";
 
-import type { Source } from '@migration-planner-ui/api-client/models';
-import { useInjection } from '@migration-planner-ui/ioc';
+import type { Source } from "@migration-planner-ui/api-client/models";
+import { useInjection } from "@migration-planner-ui/ioc";
 import {
   Button,
   Dropdown,
@@ -10,25 +10,24 @@ import {
   MenuToggle,
   MenuToggleElement,
   Spinner,
-} from '@patternfly/react-core';
-import { DownloadIcon } from '@patternfly/react-icons';
+} from "@patternfly/react-core";
+import { DownloadIcon } from "@patternfly/react-icons";
+import React, { useEffect, useState } from "react";
 
-import { Symbols } from '../../../main/Symbols';
+import { Symbols } from "../../../main/Symbols";
 import {
-  ReportExportService,
   type ExportError,
   type InventoryData,
   type LoadingState,
+  ReportExportService,
   type SnapshotLike,
-} from '../../../services/report-export';
-
-import './DownloadPDFStyles.css';
+} from "../../../services/report-export";
 
 interface ExportOption {
   key: string;
   label: string;
   description: string;
-  action: () => Promise<void>;
+  action: () => void;
   disabled?: boolean;
 }
 
@@ -57,7 +56,7 @@ export const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
     Symbols.ReportExportService,
   );
 
-  const [loadingState, setLoadingState] = useState<LoadingState>('idle');
+  const [loadingState, setLoadingState] = useState<LoadingState>("idle");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [error, setError] = useState<ExportError | null>(null);
 
@@ -68,10 +67,10 @@ export const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
   }, [error, onError]);
 
   const isLoading =
-    loadingState === 'generating-pdf' || loadingState === 'generating-html';
+    loadingState === "generating-pdf" || loadingState === "generating-html";
 
   const handleDownloadPDF = async (): Promise<void> => {
-    setLoadingState('generating-pdf');
+    setLoadingState("generating-pdf");
     setError(null);
 
     const result = await reportExportService.exportPdf(componentToRender, {
@@ -79,15 +78,15 @@ export const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
     });
 
     if (result.success) {
-      setLoadingState('idle');
+      setLoadingState("idle");
     } else {
       setError(result.error!);
-      setLoadingState('error');
+      setLoadingState("error");
     }
   };
 
   const handleHTMLExport = async (): Promise<void> => {
-    setLoadingState('generating-html');
+    setLoadingState("generating-html");
     setError(null);
 
     const inventory = (sourceData?.inventory || snapshot?.inventory) as
@@ -96,10 +95,10 @@ export const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
 
     if (!inventory) {
       setError({
-        message: 'No inventory data available for export',
-        type: 'html',
+        message: "No inventory data available for export",
+        type: "html",
       });
-      setLoadingState('error');
+      setLoadingState("error");
       return;
     }
 
@@ -108,25 +107,29 @@ export const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
     });
 
     if (result.success) {
-      setLoadingState('idle');
+      setLoadingState("idle");
     } else {
       setError(result.error!);
-      setLoadingState('error');
+      setLoadingState("error");
     }
   };
 
   const exportOptions: ExportOption[] = [
     {
-      key: 'pdf',
-      label: 'PDF',
-      description: 'Export the report as static charts',
-      action: handleDownloadPDF,
+      key: "pdf",
+      label: "PDF",
+      description: "Export the report as static charts",
+      action: () => {
+        void handleDownloadPDF();
+      },
     },
     {
-      key: 'html-interactive',
-      label: 'HTML',
-      description: 'Export the report as interactive charts',
-      action: handleHTMLExport,
+      key: "html-interactive",
+      label: "HTML",
+      description: "Export the report as interactive charts",
+      action: () => {
+        void handleHTMLExport();
+      },
     },
   ];
 
@@ -143,16 +146,18 @@ export const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
     return (
       <Button
         variant="secondary"
-        onClick={handleDownloadPDF}
+        onClick={() => {
+          void handleDownloadPDF();
+        }}
         isDisabled={isLoading || isDisabled}
         aria-label="Export to PDF"
       >
         {isLoading ? (
           <>
             <Spinner size="sm" aria-hidden="true" />
-            {loadingState === 'generating-pdf'
-              ? 'Generating PDF...'
-              : 'Generating HTML...'}
+            {loadingState === "generating-pdf"
+              ? "Generating PDF..."
+              : "Generating HTML..."}
           </>
         ) : (
           <>
@@ -180,9 +185,9 @@ export const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
           {isLoading ? (
             <>
               <Spinner size="sm" aria-hidden="true" />
-              {loadingState === 'generating-pdf'
-                ? 'Generating PDF...'
-                : 'Generating HTML...'}
+              {loadingState === "generating-pdf"
+                ? "Generating PDF..."
+                : "Generating HTML..."}
             </>
           ) : (
             <>
@@ -207,4 +212,4 @@ export const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
     </Dropdown>
   );
 };
-EnhancedDownloadButton.displayName = 'EnhancedDownloadButton';
+EnhancedDownloadButton.displayName = "EnhancedDownloadButton";

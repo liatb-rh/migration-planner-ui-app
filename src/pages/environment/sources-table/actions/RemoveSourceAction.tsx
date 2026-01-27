@@ -1,9 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import { Button, Content, Icon, Tooltip } from "@patternfly/react-core";
+import { TrashIcon } from "@patternfly/react-icons";
+import React, { useCallback, useState } from "react";
 
-import { Button, Content, Icon, Tooltip } from '@patternfly/react-core';
-import { TrashIcon } from '@patternfly/react-icons';
-
-import { ConfirmationModal } from '../../../../components/ConfirmationModal';
+import { ConfirmationModal } from "../../../../components/ConfirmationModal";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace RemoveSourceAction {
@@ -72,8 +71,8 @@ export const RemoveSourceAction: React.FC<RemoveSourceAction.Props> = (
         >
           <Content>
             <Content component="p" id="confirmation-modal-description">
-              Are you sure you want to delete{' '}
-              <b>{sourceName ? sourceName : 'this environment'}</b>?
+              Are you sure you want to delete{" "}
+              <b>{sourceName ? sourceName : "this environment"}</b>?
               <br />
               To use it again, create a new discovery image and redeploy it.
             </Content>
@@ -84,4 +83,4 @@ export const RemoveSourceAction: React.FC<RemoveSourceAction.Props> = (
   );
 };
 
-RemoveSourceAction.displayName = 'RemoveSourceAction';
+RemoveSourceAction.displayName = "RemoveSourceAction";

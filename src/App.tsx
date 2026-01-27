@@ -1,21 +1,20 @@
-import React, { Fragment, useEffect } from 'react';
-
 import {
   AssessmentApi,
   ImageApi,
   SourceApi,
-} from '@migration-planner-ui/api-client/apis';
-import { Configuration } from '@migration-planner-ui/api-client/runtime';
-import { Container } from '@migration-planner-ui/ioc';
-import { Provider as DependencyInjectionProvider } from '@migration-planner-ui/ioc';
-import { Spinner } from '@patternfly/react-core';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
+} from "@migration-planner-ui/api-client/apis";
+import { Configuration } from "@migration-planner-ui/api-client/runtime";
+import { Container } from "@migration-planner-ui/ioc";
+import { Provider as DependencyInjectionProvider } from "@migration-planner-ui/ioc";
+import { Spinner } from "@patternfly/react-core";
+import { useChrome } from "@redhat-cloud-services/frontend-components/useChrome";
+import React, { Fragment, useEffect } from "react";
 
-import { exposeVersionInfo } from './common/version';
-import { Symbols } from './main/Symbols';
-import { ReportExportService } from './services/report-export';
-import { createAuthFetch } from './utils/authFetch';
-import Routing from './Routing';
+import { exposeVersionInfo } from "./common/version";
+import { Symbols } from "./main/Symbols";
+import Routing from "./Routing";
+import { ReportExportService } from "./services/report-export";
+import { createAuthFetch } from "./utils/authFetch";
 
 const App: React.FC = () => {
   const chrome = useChrome(); // useChrome SÍ puede usarse acá
@@ -27,7 +26,7 @@ const App: React.FC = () => {
 
       const plannerApiConfig = new Configuration({
         basePath:
-          process.env.PLANNER_API_BASE_URL || '/api/migration-assessment',
+          process.env.PLANNER_API_BASE_URL || "/api/migration-assessment",
         fetchApi: authFetch,
       });
 
@@ -41,7 +40,7 @@ const App: React.FC = () => {
 
       // Expose version information for developers (async) with authenticated fetch
       exposeVersionInfo(authFetch).catch((error) => {
-        console.warn('Failed to expose version info:', error);
+        console.warn("Failed to expose version info:", error);
       });
     };
 

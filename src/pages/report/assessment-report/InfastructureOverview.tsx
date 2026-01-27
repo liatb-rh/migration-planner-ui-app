@@ -1,18 +1,17 @@
-import React from 'react';
-import Humanize from 'humanize-plus';
-
 import {
   Infra,
   VMResourceBreakdown,
-} from '@migration-planner-ui/api-client/models';
+} from "@migration-planner-ui/api-client/models";
 import {
   Card,
   CardBody,
   CardTitle,
   Gallery,
   GalleryItem,
-} from '@patternfly/react-core';
-import ClusterIcon from '@patternfly/react-icons/dist/esm/icons/cluster-icon';
+} from "@patternfly/react-core";
+import ClusterIcon from "@patternfly/react-icons/dist/esm/icons/cluster-icon";
+import Humanize from "humanize-plus";
+import React from "react";
 
 interface Props {
   infra: Infra;
@@ -25,7 +24,7 @@ export const InfrastructureOverview: React.FC<Props> = ({
   cpuCores,
   ramGB,
 }) => (
-  <Gallery hasGutter minWidths={{ default: '30%' }}>
+  <Gallery hasGutter minWidths={{ default: "30%" }}>
     <GalleryItem>
       <Card className="dashboard-card-border" id="hosts">
         <CardTitle>

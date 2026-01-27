@@ -1,4 +1,4 @@
-import { JobStatus } from '@migration-planner-ui/api-client/models';
+import { JobStatus } from "@migration-planner-ui/api-client/models";
 
 // Constants for job polling
 export const JOB_POLLING_INTERVAL = 1000;
@@ -27,18 +27,18 @@ export const getProgressValue = (status: JobStatus): number => {
 export const getProgressLabel = (status: JobStatus): string => {
   switch (status) {
     case JobStatus.Pending:
-      return 'Uploading file..';
+      return "Uploading file..";
     case JobStatus.Parsing:
-      return 'Parsing data..';
+      return "Parsing data..";
     case JobStatus.Validating:
-      return 'Validating vms..';
+      return "Validating vms..";
     case JobStatus.Completed:
-      return 'Complete!';
+      return "Complete!";
     case JobStatus.Failed:
-      return 'Failed';
+      return "Failed";
     case JobStatus.Cancelled:
-      return 'Cancelled';
+      return "Cancelled";
     default:
-      return '';
+      return "";
   }
 };

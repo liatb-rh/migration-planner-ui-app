@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
 import {
   Button,
   Tab,
   TabContent,
   Tabs,
   TabTitleText,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { AppPage } from '../components/AppPage';
-
-import { Environment } from './environment/Environment';
-import StartingPageModal from './starting-page/StartingPageModal';
-import { MigrationAssessmentPageContent } from './MigrationAssessmentPage';
+import { AppPage } from "../components/AppPage";
+import { Environment } from "./environment/Environment";
+import { MigrationAssessmentPageContent } from "./MigrationAssessmentPage";
+import StartingPageModal from "./starting-page/StartingPageModal";
 
 type Props = {
   initialTabKey?: number;
@@ -21,7 +19,7 @@ type Props = {
 
 const MigrationPage: React.FC<Props> = ({ initialTabKey }) => {
   const [activeTabKey, setActiveTabKey] = useState<string | number>(
-    typeof initialTabKey === 'number' ? initialTabKey : 0,
+    typeof initialTabKey === "number" ? initialTabKey : 0,
   );
   const [isStartingPageModalOpen, setIsStartingPageModalOpen] = useState(false);
   const [rvtoolsOpenToken, setRvtoolsOpenToken] = useState<string | undefined>(
@@ -30,17 +28,18 @@ const MigrationPage: React.FC<Props> = ({ initialTabKey }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setActiveTabKey(typeof initialTabKey === 'number' ? initialTabKey : 0);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setActiveTabKey(typeof initialTabKey === "number" ? initialTabKey : 0);
   }, [initialTabKey]);
 
   const breadcrumbs = [
     {
       key: 1,
-      children: 'Migration assessment',
+      children: "Migration assessment",
     },
     {
       key: 2,
-      children: activeTabKey === 1 ? 'environments' : 'assessments',
+      children: activeTabKey === 1 ? "environments" : "assessments",
       isActive: true,
     },
   ];
@@ -51,11 +50,11 @@ const MigrationPage: React.FC<Props> = ({ initialTabKey }) => {
   ): void => {
     setActiveTabKey(tabIndex);
     const indexNumber =
-      typeof tabIndex === 'number' ? tabIndex : Number(tabIndex);
+      typeof tabIndex === "number" ? tabIndex : Number(tabIndex);
     if (indexNumber === 1) {
-      navigate('/openshift/migration-assessment/environments/');
+      navigate("/openshift/migration-assessment/environments/");
     } else {
-      navigate('/openshift/migration-assessment/assessments/');
+      navigate("/openshift/migration-assessment/assessments/");
     }
   };
 
@@ -88,7 +87,7 @@ const MigrationPage: React.FC<Props> = ({ initialTabKey }) => {
             <TabContent
               eventKey={0}
               id="assessments-tab-content"
-              style={{ padding: 0, marginTop: '24px' }}
+              style={{ padding: 0, marginTop: "24px" }}
             >
               <MigrationAssessmentPageContent
                 rvtoolsOpenToken={rvtoolsOpenToken}
@@ -104,7 +103,7 @@ const MigrationPage: React.FC<Props> = ({ initialTabKey }) => {
             <TabContent
               eventKey={1}
               id="environments-tab-content"
-              style={{ padding: 0, marginTop: '24px' }}
+              style={{ padding: 0, marginTop: "24px" }}
             >
               <Environment />
             </TabContent>
@@ -125,6 +124,6 @@ const MigrationPage: React.FC<Props> = ({ initialTabKey }) => {
   );
 };
 
-MigrationPage.displayName = 'MigrationPage';
+MigrationPage.displayName = "MigrationPage";
 
 export default MigrationPage;

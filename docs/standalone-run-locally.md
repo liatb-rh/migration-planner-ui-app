@@ -14,7 +14,7 @@ Before proceeding, ensure you have the following:
 ## Setting Up the Migration-Planner API
 
 You need to have the Migration Planner installed and running locally.
-Please follow the instructions in this guide: 
+Please follow the instructions in this guide:
 https://github.com/kubev2v/migration-planner/blob/main/doc/run-locally.md
 
 ## Running the UI locally for Development
@@ -31,6 +31,7 @@ make run-standalone
 ### 1. Access the Application
 
 Once started, the application will be available at:
+
 - **URL**: `http://localhost:3000`
 - **Console**: Check browser console for any errors
 

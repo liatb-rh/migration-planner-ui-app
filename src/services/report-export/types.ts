@@ -6,7 +6,7 @@ import type {
   Infra,
   InventoryData as ApiInventoryData,
   VMs,
-} from '@migration-planner-ui/api-client/models';
+} from "@migration-planner-ui/api-client/models";
 
 // OS Information
 export interface OSInfo {
@@ -87,15 +87,15 @@ export interface InventoryData {
 
 // Loading states for export operations
 export type LoadingState =
-  | 'idle'
-  | 'generating-pdf'
-  | 'generating-html'
-  | 'error';
+  | "idle"
+  | "generating-pdf"
+  | "generating-html"
+  | "error";
 
 // Export error structure
 export interface ExportError {
   message: string;
-  type: 'pdf' | 'html' | 'general';
+  type: "pdf" | "html" | "general";
 }
 
 // Options for export operations

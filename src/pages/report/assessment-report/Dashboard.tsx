@@ -1,30 +1,29 @@
-import React from 'react';
+import "./Dashboard.css";
 
 import {
   Infra,
   InventoryData,
   VMResourceBreakdown,
   VMs,
-} from '@migration-planner-ui/api-client/models';
+} from "@migration-planner-ui/api-client/models";
 import {
   Gallery,
   GalleryItem,
   Grid,
   GridItem,
   PageSection,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
+import React from "react";
 
-import { ClustersOverview } from './ClustersOverview';
-import { CpuAndMemoryOverview } from './CpuAndMemoryOverview';
-import { ErrorTable } from './ErrorTable';
-import { HostsOverview } from './HostsOverview';
-import { NetworkOverview } from './NetworkOverview';
-import { OSDistribution } from './OSDistribution';
-import { StorageOverview } from './StorageOverview';
-import { VMMigrationStatus } from './VMMigrationStatus';
-import { WarningsTable } from './WarningsTable';
-
-import './Dashboard.css';
+import { ClustersOverview } from "./ClustersOverview";
+import { CpuAndMemoryOverview } from "./CpuAndMemoryOverview";
+import { ErrorTable } from "./ErrorTable";
+import { HostsOverview } from "./HostsOverview";
+import { NetworkOverview } from "./NetworkOverview";
+import { OSDistribution } from "./OSDistribution";
+import { StorageOverview } from "./StorageOverview";
+import { VMMigrationStatus } from "./VMMigrationStatus";
+import { WarningsTable } from "./WarningsTable";
 
 interface Props {
   infra: Infra;
@@ -56,7 +55,7 @@ export const Dashboard: React.FC<Props> = ({
           acc[osName] = {
             count: osInfo.count,
             supported: osInfo.supported,
-            upgradeRecommendation: osInfo.upgradeRecommendation,
+            upgradeRecommendation: osInfo.upgradeRecommendation ?? "",
           };
           return acc;
         },
@@ -73,7 +72,7 @@ export const Dashboard: React.FC<Props> = ({
           acc[osName] = {
             count: count,
             supported: true, // Default to supported when using fallback data
-            upgradeRecommendation: '',
+            upgradeRecommendation: "",
           };
           return acc;
         },
@@ -92,7 +91,7 @@ export const Dashboard: React.FC<Props> = ({
       <PageSection hasBodyWrapper={false}>
         <Grid hasGutter>
           <GridItem span={12}>
-            <div style={{ padding: '24px' }}>
+            <div style={{ padding: "24px" }}>
               No data is available for the selected cluster.
             </div>
           </GridItem>
@@ -104,8 +103,8 @@ export const Dashboard: React.FC<Props> = ({
   return (
     <PageSection hasBodyWrapper={false}>
       <Grid hasGutter>
-        <GridItem span={12} data-export-block={isExportMode ? '2' : undefined}>
-          <Gallery hasGutter minWidths={{ default: '40%' }}>
+        <GridItem span={12} data-export-block={isExportMode ? "2" : undefined}>
+          <Gallery hasGutter minWidths={{ default: "40%" }}>
             <GalleryItem>
               <VMMigrationStatus
                 data={{
@@ -120,8 +119,8 @@ export const Dashboard: React.FC<Props> = ({
             </GalleryItem>
           </Gallery>
         </GridItem>
-        <GridItem span={12} data-export-block={isExportMode ? '3' : undefined}>
-          <Gallery hasGutter minWidths={{ default: '40%' }}>
+        <GridItem span={12} data-export-block={isExportMode ? "3" : undefined}>
+          <Gallery hasGutter minWidths={{ default: "40%" }}>
             <GalleryItem>
               <CpuAndMemoryOverview
                 isExportMode={isExportMode}
@@ -134,10 +133,10 @@ export const Dashboard: React.FC<Props> = ({
             </GalleryItem>
             <GalleryItem>
               <StorageOverview
-                DiskSizeTierSummary={vms.diskSizeTier}
+                DiskSizeTierSummary={vms.diskSizeTier ?? {}}
                 isExportMode={isExportMode}
                 exportAllViews={exportAllViews}
-                diskTypeSummary={vms.diskTypes}
+                diskTypeSummary={vms.diskTypes ?? {}}
               />
             </GalleryItem>
           </Gallery>
@@ -146,15 +145,15 @@ export const Dashboard: React.FC<Props> = ({
         {isAggregateView ? (
           <GridItem
             span={12}
-            data-export-block={isExportMode ? '4' : undefined}
+            data-export-block={isExportMode ? "4" : undefined}
           >
-            <Gallery hasGutter minWidths={{ default: '300px', md: '45%' }}>
+            <Gallery hasGutter minWidths={{ default: "300px", md: "45%" }}>
               <GalleryItem>
                 <ClustersOverview
                   vmsPerCluster={Object.values(clusters || {}).map(
                     (c) => c.vms?.total ?? 0,
                   )}
-                  clustersPerDatacenter={infra.clustersPerDatacenter}
+                  clustersPerDatacenter={infra.clustersPerDatacenter ?? []}
                   isExportMode={isExportMode}
                   exportAllViews={exportAllViews}
                   clusters={clusters}
@@ -172,9 +171,9 @@ export const Dashboard: React.FC<Props> = ({
         ) : (
           <GridItem
             span={12}
-            data-export-block={isExportMode ? '4' : undefined}
+            data-export-block={isExportMode ? "4" : undefined}
           >
-            <Gallery hasGutter minWidths={{ default: '300px', md: '45%' }}>
+            <Gallery hasGutter minWidths={{ default: "300px", md: "45%" }}>
               <GalleryItem>
                 <HostsOverview
                   hosts={infra.hosts}
@@ -197,9 +196,9 @@ export const Dashboard: React.FC<Props> = ({
         {isAggregateView && (
           <GridItem
             span={12}
-            data-export-block={isExportMode ? '4a' : undefined}
+            data-export-block={isExportMode ? "4a" : undefined}
           >
-            <Gallery hasGutter minWidths={{ default: '300px', md: '45%' }}>
+            <Gallery hasGutter minWidths={{ default: "300px", md: "45%" }}>
               <GalleryItem>
                 <NetworkOverview
                   infra={infra}
@@ -212,17 +211,17 @@ export const Dashboard: React.FC<Props> = ({
             </Gallery>
           </GridItem>
         )}
-        <GridItem span={12} data-export-block={isExportMode ? '5' : undefined}>
-          <Gallery hasGutter minWidths={{ default: '300px', md: '45%' }}>
+        <GridItem span={12} data-export-block={isExportMode ? "5" : undefined}>
+          <Gallery hasGutter minWidths={{ default: "300px", md: "45%" }}>
             <GalleryItem>
               <WarningsTable
-                warnings={vms.migrationWarnings}
+                warnings={vms.migrationWarnings ?? []}
                 isExportMode={isExportMode}
               />
             </GalleryItem>
             <GalleryItem>
               <ErrorTable
-                errors={vms.notMigratableReasons}
+                errors={vms.notMigratableReasons ?? []}
                 isExportMode={isExportMode}
               />
             </GalleryItem>
@@ -233,6 +232,6 @@ export const Dashboard: React.FC<Props> = ({
   );
 };
 
-Dashboard.displayName = 'Dashboard';
+Dashboard.displayName = "Dashboard";
 
 export default Dashboard;

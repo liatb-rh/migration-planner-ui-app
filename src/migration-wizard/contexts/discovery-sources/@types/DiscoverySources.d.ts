@@ -2,7 +2,7 @@ import {
   Assessment,
   Job,
   Source,
-} from '@migration-planner-ui/api-client/models';
+} from "@migration-planner-ui/api-client/models";
 
 declare namespace DiscoverySources {
   type Context = {
@@ -16,7 +16,7 @@ declare namespace DiscoverySources {
     isCreatingSource: boolean;
     errorCreatingSource?: Error;
     isPolling: boolean;
-    sourceSelected: Source;
+    sourceSelected: Source | null;
     listSources: () => Promise<Source[]>;
     deleteSource: (id: string) => Promise<Source>;
     createDownloadSource: (
@@ -25,7 +25,7 @@ declare namespace DiscoverySources {
       httpProxy: string,
       httpsProxy: string,
       noProxy: string,
-      networkConfigType?: 'dhcp' | 'static',
+      networkConfigType?: "dhcp" | "static",
       ipAddress?: string,
       subnetMask?: string,
       defaultGateway?: string,
@@ -35,13 +35,13 @@ declare namespace DiscoverySources {
     stopPolling: () => void;
     selectSource: (source: Source) => void;
     selectSourceById: (sourceId: string) => void;
-    getSourceById: (sourceId: string) => Source;
+    getSourceById: (sourceId: string) => Source | undefined;
     updateInventory: (sourceId: string, jsonValue: string) => Promise<Source>;
     isUpdatingInventory: boolean;
     errorUpdatingInventory?: Error;
     downloadSourceUrl?: string;
     setDownloadUrl?: (url: string) => void;
-    sourceCreatedId?: string;
+    sourceCreatedId?: string | null;
     deleteSourceCreated: () => void;
     clearErrors: (options?: {
       downloading?: boolean;
@@ -55,7 +55,7 @@ declare namespace DiscoverySources {
       httpProxy: string,
       httpsProxy: string,
       noProxy: string,
-      networkConfigType?: 'dhcp' | 'static',
+      networkConfigType?: "dhcp" | "static",
       ipAddress?: string,
       subnetMask?: string,
       defaultGateway?: string,
@@ -102,7 +102,7 @@ declare namespace DiscoverySources {
     isCreatingRVToolsJob: boolean;
     errorCreatingRVToolsJob?: Error;
     // RVTools Job Methods
-    createRVToolsJob: (name: string, file: File) => Promise<Job | unknown>;
+    createRVToolsJob: (name: string, file: File) => Promise<Job | undefined>;
     cancelRVToolsJob: () => Promise<void>;
     // Callback setter for job success (navigation)
     setOnJobSuccess?: (callback: (assessmentId: string) => void) => void;

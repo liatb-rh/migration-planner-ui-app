@@ -1,24 +1,22 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useMount, useUnmount } from 'react-use';
+import { Source } from "@migration-planner-ui/api-client/models";
+import { Button, Radio, Spinner } from "@patternfly/react-core";
+import { ArrowLeftIcon } from "@patternfly/react-icons";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { useMount, useUnmount } from "react-use";
 
-import { Source } from '@migration-planner-ui/api-client/models';
-import { Button, Radio, Spinner } from '@patternfly/react-core';
-import { ArrowLeftIcon } from '@patternfly/react-icons';
-import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
-
-import { useDiscoverySources } from '../../../contexts/discovery-sources/Context';
-
-import { DownloadOvaAction } from './actions/DownloadOvaAction';
-import { RemoveSourceAction } from './actions/RemoveSourceAction';
-import { UploadInventoryAction } from './actions/UploadInventoryAction';
-import { EmptyState } from './empty-state/EmptyState';
-import { AgentStatusView } from './AgentStatusView';
-import { Columns } from './Columns';
-import { DEFAULT_POLLING_DELAY, VALUE_NOT_AVAILABLE } from './Constants';
+import { useDiscoverySources } from "../../../contexts/discovery-sources/Context";
+import { DownloadOvaAction } from "./actions/DownloadOvaAction";
+import { RemoveSourceAction } from "./actions/RemoveSourceAction";
+import { UploadInventoryAction } from "./actions/UploadInventoryAction";
+import { AgentStatusView } from "./AgentStatusView";
+import { Columns } from "./Columns";
+import { DEFAULT_POLLING_DELAY, VALUE_NOT_AVAILABLE } from "./Constants";
+import { EmptyState } from "./empty-state/EmptyState";
 
 export const SourcesTable: React.FC<{
-  onUploadResult?: (message: string, isError?: boolean) => void;
+  onUploadResult?: (message?: string, isError?: boolean) => void;
   onUploadSuccess?: () => void;
 }> = ({ onUploadResult, onUploadSuccess }) => {
   const discoverySourcesContext = useDiscoverySources();
@@ -60,10 +58,10 @@ export const SourcesTable: React.FC<{
   const [firstSource, ..._otherSources] = memoizedSources ?? [];
   const hasSources = memoizedSources && memoizedSources.length > 0;
 
-  useMount(async () => {
+  useMount(() => {
     discoverySourcesContext.startPolling(DEFAULT_POLLING_DELAY);
     if (!discoverySourcesContext.isPolling) {
-      await Promise.all([discoverySourcesContext.listSources()]);
+      void discoverySourcesContext.listSources();
     }
   });
 
@@ -89,7 +87,6 @@ export const SourcesTable: React.FC<{
       }
     }, 3000); // Timeout in milisecons (3 seconds here)
 
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     return () => {
       // Clean the timeout in case unmount the component
       if (timeoutRef.current) {
@@ -115,49 +112,49 @@ export const SourcesTable: React.FC<{
     return (
       <div>
         {discoverySourcesContext.assessmentFromAgentState && (
-          <div style={{ marginBottom: '16px' }}>
+          <div style={{ marginBottom: "16px" }}>
             <Button variant="link" icon={<ArrowLeftIcon />} onClick={() => {}}>
               Back to Assessments
             </Button>
           </div>
         )}
         <div
-          style={{ maxHeight: '300px', overflowY: 'auto', overflowX: 'auto' }}
+          style={{ maxHeight: "300px", overflowY: "auto", overflowX: "auto" }}
         >
           <Table aria-label="Sources table" variant="compact" borders={false}>
             {memoizedSources && memoizedSources.length > 0 && (
               <Thead>
                 <Tr>
-                  <Th style={{ whiteSpace: 'normal' }}>{Columns.Name}</Th>
-                  <Th style={{ whiteSpace: 'normal' }}>
+                  <Th style={{ whiteSpace: "normal" }}>{Columns.Name}</Th>
+                  <Th style={{ whiteSpace: "normal" }}>
                     {Columns.CredentialsUrl}
                   </Th>
-                  <Th style={{ whiteSpace: 'normal' }}>{Columns.Status}</Th>
-                  <Th style={{ whiteSpace: 'normal' }}>{Columns.Hosts}</Th>
-                  <Th style={{ whiteSpace: 'normal' }}>{Columns.VMs}</Th>
+                  <Th style={{ whiteSpace: "normal" }}>{Columns.Status}</Th>
+                  <Th style={{ whiteSpace: "normal" }}>{Columns.Hosts}</Th>
+                  <Th style={{ whiteSpace: "normal" }}>{Columns.VMs}</Th>
                   <Th
                     style={{
-                      whiteSpace: 'normal',
-                      minWidth: '120px',
-                      maxWidth: '200px',
+                      whiteSpace: "normal",
+                      minWidth: "120px",
+                      maxWidth: "200px",
                     }}
                   >
                     {Columns.Networks}
                   </Th>
                   <Th
                     style={{
-                      whiteSpace: 'normal',
-                      minWidth: '120px',
-                      maxWidth: '200px',
+                      whiteSpace: "normal",
+                      minWidth: "120px",
+                      maxWidth: "200px",
                     }}
                   >
                     {Columns.Datastores}
                   </Th>
                   <Th
                     style={{
-                      whiteSpace: 'normal',
-                      minWidth: '120px',
-                      maxWidth: '200px',
+                      whiteSpace: "normal",
+                      minWidth: "120px",
+                      maxWidth: "200px",
                     }}
                   >
                     {Columns.Actions}
@@ -194,16 +191,16 @@ export const SourcesTable: React.FC<{
                             {agent.credentialUrl}
                           </Link>
                         ) : (
-                          '-'
+                          "-"
                         )}
                       </Td>
                       <Td dataLabel={Columns.Status}>
                         <AgentStatusView
-                          status={agent ? agent.status : 'not-connected'}
+                          status={agent ? agent.status : "not-connected"}
                           statusInfo={
-                            agent ? agent.statusInfo : 'Not connected'
+                            agent ? agent.statusInfo : "Not connected"
                           }
-                          credentialUrl={agent ? agent.credentialUrl : ''}
+                          credentialUrl={agent ? agent.credentialUrl : ""}
                           uploadedManually={
                             source?.onPremises &&
                             source?.inventory !== undefined
@@ -228,31 +225,32 @@ export const SourcesTable: React.FC<{
                       </Td>
                       <Td dataLabel={Columns.Actions}>
                         <>
-                          {source.name !== 'Example' && (
+                          {source.name !== "Example" && (
                             <RemoveSourceAction
                               sourceId={source.id}
                               sourceName={source.name}
                               isDisabled={
                                 discoverySourcesContext.isDeletingSource
                               }
-                              onConfirm={async (event) => {
+                              onConfirm={(event) => {
                                 event.stopPropagation();
-                                await discoverySourcesContext.deleteSource(
-                                  source.id,
-                                );
-                                event.dismissConfirmationModal();
-                                await Promise.all([
-                                  discoverySourcesContext.listSources(),
-                                  firstSource &&
+                                void (async () => {
+                                  await discoverySourcesContext.deleteSource(
+                                    source.id,
+                                  );
+                                  event.dismissConfirmationModal();
+                                  await discoverySourcesContext.listSources();
+                                  if (firstSource) {
                                     discoverySourcesContext.selectSource(
                                       firstSource,
-                                    ),
-                                ]);
+                                    );
+                                  }
+                                })();
                               }}
                             />
                           )}
                           {(!source?.agent || source?.onPremises) &&
-                            source?.name !== 'Example' && (
+                            source?.name !== "Example" && (
                               <UploadInventoryAction
                                 sourceId={source.id}
                                 discoverySourcesContext={
@@ -264,7 +262,7 @@ export const SourcesTable: React.FC<{
                                 onUploadSuccess={onUploadSuccess}
                               />
                             )}
-                          {source.name !== 'Example' && (
+                          {source.name !== "Example" && (
                             <DownloadOvaAction
                               sourceId={source.id}
                               sourceName={source.name}

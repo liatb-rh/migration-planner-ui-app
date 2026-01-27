@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import "./ClustersOverview.css";
 
-import { InventoryData } from '@migration-planner-ui/api-client/models';
+import { InventoryData } from "@migration-planner-ui/api-client/models";
 import {
   Card,
   CardBody,
@@ -12,11 +12,10 @@ import {
   FlexItem,
   MenuToggle,
   MenuToggleElement,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
+import React, { useMemo, useState } from "react";
 
-import MigrationDonutChart from '../../../components/MigrationDonutChart';
-
-import './ClustersOverview.css';
+import MigrationDonutChart from "../../../components/MigrationDonutChart";
 
 interface ClustersOverviewProps {
   vmsPerCluster: number[];
@@ -26,26 +25,26 @@ interface ClustersOverviewProps {
   clusters?: { [key: string]: InventoryData };
 }
 
-type ViewMode = 'dataCenterDistribution' | 'vmByCluster' | 'cpuOverCommitment';
+type ViewMode = "dataCenterDistribution" | "vmByCluster" | "cpuOverCommitment";
 
 const VIEW_MODE_LABELS: Record<ViewMode, string> = {
-  dataCenterDistribution: 'Cluster distribution by data center',
-  vmByCluster: 'VM distribution by cluster',
-  cpuOverCommitment: 'Cluster CPU over commitment',
+  dataCenterDistribution: "Cluster distribution by data center",
+  vmByCluster: "VM distribution by cluster",
+  cpuOverCommitment: "Cluster CPU over commitment",
 };
 
 // Extended palette to avoid repeating colors when we have >4 slices
 const colorPalette = [
-  '#0066cc',
-  '#5e40be',
-  '#b6a6e9',
-  '#73c5c5',
-  '#b98412',
-  '#28a745',
-  '#f0ad4e',
-  '#d9534f',
-  '#009596',
-  '#6a6e73',
+  "#0066cc",
+  "#5e40be",
+  "#b6a6e9",
+  "#73c5c5",
+  "#b98412",
+  "#28a745",
+  "#f0ad4e",
+  "#d9534f",
+  "#009596",
+  "#6a6e73",
 ];
 
 export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
@@ -55,7 +54,7 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
   exportAllViews = false,
   clusters,
 }) => {
-  const [viewMode, setViewMode] = useState<ViewMode>('vmByCluster');
+  const [viewMode, setViewMode] = useState<ViewMode>("vmByCluster");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const { chartData, legend, title, subTitle } = useMemo(() => {
@@ -67,13 +66,13 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
       return legendMap;
     };
 
-    if (viewMode === 'cpuOverCommitment') {
+    if (viewMode === "cpuOverCommitment") {
       const entries = clusters ? Object.entries(clusters) : [];
 
       const parseCpuOverCommitment = (raw: unknown): number => {
         if (raw == null) return NaN;
-        if (typeof raw === 'number') return raw;
-        if (typeof raw === 'string') {
+        if (typeof raw === "number") return raw;
+        if (typeof raw === "string") {
           const match = raw.match(/^\s*\d+\s*:\s*(\d+(?:\.\d+)?)\s*$/);
           if (match) return Number(match[1]);
           const asNum = Number(raw);
@@ -85,7 +84,7 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
       const withValue = entries
         .map(([clusterName, data]) => {
           const raw = (
-            (data as InventoryData)?.infra as unknown as {
+            data?.infra as unknown as {
               cpuOverCommitment?: unknown;
             }
           )?.cpuOverCommitment;
@@ -100,7 +99,7 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
 
       const formatRatio = (r: number): string => {
         const formatted = r % 1 === 0 ? r.toFixed(0) : r.toFixed(2);
-        return `${formatted.replace(/(?:\.0+|(\.\d*[1-9]))0+$/, '$1')}`;
+        return `${formatted.replace(/(?:\.0+|(\.\d*[1-9]))0+$/, "$1")}`;
       };
 
       const slices = top.map((item, idx) => ({
@@ -113,12 +112,12 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
       return {
         chartData: slices,
         legend: buildLegend(legendCategories),
-        title: '',
-        subTitle: '',
+        title: "",
+        subTitle: "",
       };
     }
 
-    if (viewMode === 'vmByCluster') {
+    if (viewMode === "vmByCluster") {
       const counts = Array.isArray(vmsPerCluster) ? [...vmsPerCluster] : [];
       const totalVMs = counts.reduce((acc, n) => acc + n, 0);
       const TOP_N = 4;
@@ -140,10 +139,10 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
       });
       if (restSum > 0) {
         slices.push({
-          name: 'Rest of clusters',
+          name: "Rest of clusters",
           count: restSum,
           countDisplay: `${restSum} VMs`,
-          legendCategory: 'Rest of clusters',
+          legendCategory: "Rest of clusters",
         });
       }
 
@@ -152,7 +151,7 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
         chartData: slices,
         legend: buildLegend(legendCategories),
         title: `${totalVMs}`,
-        subTitle: 'VMs',
+        subTitle: "VMs",
       };
     }
 
@@ -180,10 +179,10 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
     });
     if (restSum > 0) {
       slices.push({
-        name: 'Rest of datacenters',
+        name: "Rest of datacenters",
         count: restSum,
         countDisplay: `${restSum} clusters`,
-        legendCategory: 'Rest of datacenters',
+        legendCategory: "Rest of datacenters",
       });
     }
 
@@ -192,7 +191,7 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
       chartData: slices,
       legend: buildLegend(legendCategories),
       title: `${totalClusters}`,
-      subTitle: 'Clusters',
+      subTitle: "Clusters",
     };
   }, [viewMode, vmsPerCluster, clustersPerDatacenter, clusters]);
 
@@ -225,10 +224,10 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
     });
     if (restSum > 0) {
       slices.push({
-        name: 'Rest of clusters',
+        name: "Rest of clusters",
         count: restSum,
         countDisplay: `${restSum} VMs`,
-        legendCategory: 'Rest of clusters',
+        legendCategory: "Rest of clusters",
       });
     }
     const legendCategories = slices.map((s) => s.legendCategory);
@@ -236,7 +235,7 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
       chartData: slices,
       legend: buildLegend(legendCategories),
       title: `${totalVMs}`,
-      subTitle: 'VMs',
+      subTitle: "VMs",
     };
   }, [exportAllViews, vmsPerCluster]);
 
@@ -271,10 +270,10 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
     });
     if (restSum > 0) {
       slices.push({
-        name: 'Rest of datacenters',
+        name: "Rest of datacenters",
         count: restSum,
         countDisplay: `${restSum} clusters`,
-        legendCategory: 'Rest of datacenters',
+        legendCategory: "Rest of datacenters",
       });
     }
     const legendCategories = slices.map((s) => s.legendCategory);
@@ -282,7 +281,7 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
       chartData: slices,
       legend: buildLegend(legendCategories),
       title: `${totalClusters}`,
-      subTitle: 'Clusters',
+      subTitle: "Clusters",
     };
   }, [exportAllViews, clustersPerDatacenter]);
 
@@ -291,8 +290,8 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
     const entries = clusters ? Object.entries(clusters) : [];
     const parseCpuOverCommitment = (raw: unknown): number => {
       if (raw == null) return NaN;
-      if (typeof raw === 'number') return raw;
-      if (typeof raw === 'string') {
+      if (typeof raw === "number") return raw;
+      if (typeof raw === "string") {
         const match = raw.match(/^\s*\d+\s*:\s*(\d+(?:\.\d+)?)\s*$/);
         if (match) return Number(match[1]);
         const asNum = Number(raw);
@@ -303,7 +302,7 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
     const withValue = entries
       .map(([clusterName, data]) => {
         const raw = (
-          (data as InventoryData)?.infra as unknown as {
+          data?.infra as unknown as {
             cpuOverCommitment?: unknown;
           }
         )?.cpuOverCommitment;
@@ -316,7 +315,7 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
     const top = withValue.slice(0, TOP_N);
     const formatRatio = (r: number): string => {
       const formatted = r % 1 === 0 ? r.toFixed(0) : r.toFixed(2);
-      return `${formatted.replace(/(?:\.0+|(\.\d*[1-9]))0+$/, '$1')}`;
+      return `${formatted.replace(/(?:\.0+|(\.\d*[1-9]))0+$/, "$1")}`;
     };
     const slices = top.map((item, idx) => ({
       name: formatRatio(item.value),
@@ -344,9 +343,9 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
     value: string | number | undefined,
   ): void => {
     if (
-      value === 'dataCenterDistribution' ||
-      value === 'vmByCluster' ||
-      value === 'cpuOverCommitment'
+      value === "dataCenterDistribution" ||
+      value === "vmByCluster" ||
+      value === "cpuOverCommitment"
     ) {
       setViewMode(value);
     }
@@ -355,16 +354,16 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
 
   return (
     <Card
-      className={isExportMode ? 'dashboard-card-print' : 'dashboard-card'}
+      className={isExportMode ? "dashboard-card-print" : "dashboard-card"}
       id="clusters-overview"
-      data-export-block={isExportMode ? '3.1' : undefined}
-      style={{ overflow: 'hidden' }}
+      data-export-block={isExportMode ? "3.1" : undefined}
+      style={{ overflow: "hidden" }}
     >
       <CardTitle>
         <Flex
-          justifyContent={{ default: 'justifyContentSpaceBetween' }}
-          alignItems={{ default: 'alignItemsCenter' }}
-          style={{ width: '100%' }}
+          justifyContent={{ default: "justifyContentSpaceBetween" }}
+          alignItems={{ default: "alignItemsCenter" }}
+          style={{ width: "100%" }}
         >
           <FlexItem>
             <div>
@@ -372,10 +371,10 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
                 <i className="fas fa-database" /> Clusters
               </div>
               {!isExportMode && (
-                <div style={{ color: '#6a6e73', fontSize: '0.85rem' }}>
-                  {viewMode === 'dataCenterDistribution'
-                    ? 'Top 5 datacenters'
-                    : 'Top 5 clusters'}
+                <div style={{ color: "#6a6e73", fontSize: "0.85rem" }}>
+                  {viewMode === "dataCenterDistribution"
+                    ? "Top 5 datacenters"
+                    : "Top 5 clusters"}
                 </div>
               )}
             </div>
@@ -391,7 +390,7 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
                     ref={toggleRef}
                     onClick={onDropdownToggle}
                     isExpanded={isDropdownOpen}
-                    style={{ minWidth: '250px' }}
+                    style={{ minWidth: "250px" }}
                   >
                     {VIEW_MODE_LABELS[viewMode]}
                   </MenuToggle>
@@ -423,9 +422,9 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
         {isExportMode && exportAllViews ? (
           <>
             {vmByClusterData && (
-              <div style={{ marginBottom: '24px' }}>
+              <div style={{ marginBottom: "24px" }}>
                 <div style={{ fontWeight: 600, marginBottom: 8 }}>
-                  {VIEW_MODE_LABELS['vmByCluster']}
+                  {VIEW_MODE_LABELS["vmByCluster"]}
                 </div>
                 <MigrationDonutChart
                   data={vmByClusterData.chartData}
@@ -449,7 +448,7 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
             {dataCenterDistributionData && (
               <div>
                 <div style={{ fontWeight: 600, marginBottom: 8 }}>
-                  {VIEW_MODE_LABELS['dataCenterDistribution']}
+                  {VIEW_MODE_LABELS["dataCenterDistribution"]}
                 </div>
                 <MigrationDonutChart
                   data={dataCenterDistributionData.chartData}
@@ -473,12 +472,12 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
               </div>
             )}
             {cpuOverCommitmentData && (
-              <div style={{ marginTop: '24px' }}>
+              <div style={{ marginTop: "24px" }}>
                 <div style={{ fontWeight: 600, marginBottom: 8 }}>
-                  {VIEW_MODE_LABELS['cpuOverCommitment']}
+                  {VIEW_MODE_LABELS["cpuOverCommitment"]}
                 </div>
                 {cpuOverCommitmentData.chartData.length === 0 ? (
-                  <div style={{ color: '#6a6e73', textAlign: 'center' }}>
+                  <div style={{ color: "#6a6e73", textAlign: "center" }}>
                     This inventory has no cpuOverCommitment information.
                   </div>
                 ) : (
@@ -523,10 +522,10 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
               </div>
             )}
           </>
-        ) : viewMode === 'cpuOverCommitment' ? (
+        ) : viewMode === "cpuOverCommitment" ? (
           <>
             {chartData.length === 0 ? (
-              <div style={{ color: '#6a6e73', textAlign: 'center' }}>
+              <div style={{ color: "#6a6e73", textAlign: "center" }}>
                 This inventory has no cpuOverCommitment information.
               </div>
             ) : (
@@ -573,8 +572,8 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
             subTitle={subTitle}
             subTitleColor="#9a9da0"
             itemsPerRow={Math.ceil(chartData.length / 2)}
-            labelFontSize={viewMode === 'vmByCluster' ? 18 : 17}
-            marginLeft={viewMode === 'vmByCluster' ? '12%' : '0%'}
+            labelFontSize={viewMode === "vmByCluster" ? 18 : 17}
+            marginLeft={viewMode === "vmByCluster" ? "12%" : "0%"}
             tooltipLabelFormatter={({ datum, percent }) =>
               `${datum.countDisplay}\n${percent.toFixed(1)}%`
             }

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {
   AlertGroup,
   Breadcrumb,
@@ -12,11 +10,12 @@ import {
   PageBreadcrumb,
   PageSection,
   Stack,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
 import {
   PageHeader,
   PageHeaderTitle,
-} from '@redhat-cloud-services/frontend-components/PageHeader';
+} from "@redhat-cloud-services/frontend-components/PageHeader";
+import React from "react";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AppPage {
@@ -49,12 +48,12 @@ export const AppPage: React.FC<React.PropsWithChildren<AppPage.Props>> = (
         </PageBreadcrumb>
         <PageHeader>
           <Stack>
-            <Flex justifyContent={{ default: 'justifyContentCenter' }}>
+            <Flex justifyContent={{ default: "justifyContentCenter" }}>
               <PageHeaderTitle title={title} />
               {React.Children.map(headerActions, (action, index) => (
                 <FlexItem
                   {...(index === 0
-                    ? { align: { default: 'alignRight' } }
+                    ? { align: { default: "alignRight" } }
                     : null)}
                 >
                   {action}
@@ -71,4 +70,4 @@ export const AppPage: React.FC<React.PropsWithChildren<AppPage.Props>> = (
     </div>
   );
 };
-AppPage.displayName = 'AppPage';
+AppPage.displayName = "AppPage";

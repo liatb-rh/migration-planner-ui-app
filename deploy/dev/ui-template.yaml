@@ -15,7 +15,6 @@ parameters:
     description: Host name for the route (optional, if not specified OpenShift will generate one)
     value: ""
 
-
 objects:
   - kind: Deployment
     apiVersion: apps/v1

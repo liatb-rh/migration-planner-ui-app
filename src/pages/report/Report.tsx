@@ -1,14 +1,9 @@
-import React, { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { useMount } from 'react-use';
-
 import {
   Infra,
   InventoryData,
-  Source,
-  VMResourceBreakdown,
+  Snapshot,
   VMs,
-} from '@migration-planner-ui/api-client/models';
+} from "@migration-planner-ui/api-client/models";
 import {
   Alert,
   AlertActionCloseButton,
@@ -26,22 +21,25 @@ import {
   Stack,
   StackItem,
   Tooltip,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
+import React, { useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useMount } from "react-use";
 
-import { AppPage } from '../../components/AppPage';
-import { useDiscoverySources } from '../../migration-wizard/contexts/discovery-sources/Context';
-import { Provider as DiscoverySourcesProvider } from '../../migration-wizard/contexts/discovery-sources/Provider';
-import { EnhancedDownloadButton } from '../../migration-wizard/steps/discovery/EnhancedDownloadButton';
-import { ExportError, SnapshotLike } from '../../services/report-export/types';
-import { parseLatestSnapshot } from '../assessment/utils/snapshotParser';
-import { AgentStatusView } from '../environment/sources-table/AgentStatusView';
-
+import { AppPage } from "../../components/AppPage";
+import { useDiscoverySources } from "../../migration-wizard/contexts/discovery-sources/Context";
+import { Provider as DiscoverySourcesProvider } from "../../migration-wizard/contexts/discovery-sources/Provider";
+import { EnhancedDownloadButton } from "../../migration-wizard/steps/discovery/EnhancedDownloadButton";
+import { ExportError, SnapshotLike } from "../../services/report-export/types";
+import { parseLatestSnapshot } from "../assessment/utils/snapshotParser";
+import { AgentStatusView } from "../environment/sources-table/AgentStatusView";
 import {
   buildClusterViewModel,
   ClusterOption,
-} from './assessment-report/clusterView';
-import { Dashboard } from './assessment-report/Dashboard';
-import { ClusterSizingWizard } from './cluster-sizer/ClusterSizingWizard';
+  ClusterViewModel,
+} from "./assessment-report/clusterView";
+import { Dashboard } from "./assessment-report/Dashboard";
+import { ClusterSizingWizard } from "./cluster-sizer/ClusterSizingWizard";
 
 type AssessmentLike = {
   id: string | number;
@@ -55,23 +53,27 @@ const Inner: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const discoverySourcesContext = useDiscoverySources();
   const [exportError, setExportError] = useState<ExportError | null>(null);
-  const [selectedClusterId, setSelectedClusterId] = useState<string>('all');
+  const [selectedClusterId, setSelectedClusterId] = useState<string>("all");
   const [isClusterSelectOpen, setIsClusterSelectOpen] = useState(false);
   const [isSizingWizardOpen, setIsSizingWizardOpen] = useState(false);
 
-  useMount(async () => {
-    if (
-      !discoverySourcesContext.assessments ||
-      discoverySourcesContext.assessments.length === 0
-    ) {
-      await discoverySourcesContext.listAssessments();
-    }
-    if (
-      !discoverySourcesContext.sources ||
-      discoverySourcesContext.sources.length === 0
-    ) {
-      await discoverySourcesContext.listSources();
-    }
+  useMount(() => {
+    const loadData = async () => {
+      if (
+        !discoverySourcesContext.assessments ||
+        discoverySourcesContext.assessments.length === 0
+      ) {
+        await discoverySourcesContext.listAssessments();
+      }
+      if (
+        !discoverySourcesContext.sources ||
+        discoverySourcesContext.sources.length === 0
+      ) {
+        await discoverySourcesContext.listSources();
+      }
+    };
+
+    void loadData();
   });
 
   const assessment = discoverySourcesContext.assessments.find(
@@ -92,14 +94,14 @@ const Inner: React.FC = () => {
         breadcrumbs={[
           {
             key: 1,
-            children: 'Migration assessment',
+            children: "Migration assessment",
           },
           {
             key: 2,
-            to: '/openshift/migration-assessment/assessments',
-            children: 'assessments',
+            to: "/openshift/migration-assessment/assessments",
+            children: "assessments",
           },
-          { key: 3, children: 'Assessment not found', isActive: true },
+          { key: 3, children: "Assessment not found", isActive: true },
         ]}
         title="Assessment details"
       >
@@ -124,7 +126,7 @@ const Inner: React.FC = () => {
   const snapshots = assessment.snapshots || [];
   const last =
     snapshots.length > 0
-      ? (snapshots[snapshots.length - 1] as SnapshotLike)
+      ? snapshots[snapshots.length - 1]
       : ({} as SnapshotLike);
   // At runtime, data from the API will always be the API model types (Infra, VMs).
   // The SnapshotLike union type allows flexibility for export processing,
@@ -146,22 +148,31 @@ const Inner: React.FC = () => {
     selectedClusterId,
   });
 
-  const hasClusterScopedData =
-    Boolean(clusterView.viewInfra) &&
-    Boolean(clusterView.viewVms) &&
-    Boolean(clusterView.cpuCores) &&
-    Boolean(clusterView.ramGB);
+  type ClusterScopedView = ClusterViewModel &
+    Required<
+      Pick<ClusterViewModel, "viewInfra" | "viewVms" | "cpuCores" | "ramGB">
+    >;
+  const isClusterScopedData = (
+    view: ClusterViewModel,
+  ): view is ClusterScopedView =>
+    Boolean(view.viewInfra && view.viewVms && view.cpuCores && view.ramGB);
+  const scopedClusterView = isClusterScopedData(clusterView)
+    ? clusterView
+    : undefined;
 
   const clusterSelectDisabled = clusterView.clusterOptions.length <= 1;
 
-  // Check if the selected cluster has VMs
-  const hasClusterResources = (_viewInfra?: Infra, viewVms?: VMs): boolean => {
+  // Check if the selected cluster has hosts and VMs.
+  const hasClusterResources = (viewInfra?: Infra, viewVms?: VMs): boolean => {
+    const totalHosts = viewInfra?.totalHosts ?? 0;
+    const hostsCount = viewInfra?.hosts?.length ?? 0;
+    const hasHosts = totalHosts > 0 || hostsCount > 0;
     const hasVms = (viewVms?.total ?? 0) > 0;
-    return hasVms;
+    return hasHosts && hasVms;
   };
 
   const canShowClusterRecommendations =
-    selectedClusterId !== 'all' &&
+    selectedClusterId !== "all" &&
     hasClusterResources(clusterView.viewInfra, clusterView.viewVms);
 
   // Check if export should be disabled (no VMs or hosts)
@@ -180,7 +191,7 @@ const Inner: React.FC = () => {
     _event: React.MouseEvent<Element, MouseEvent> | undefined,
     value: string | number | undefined,
   ): void => {
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       setSelectedClusterId(value);
     }
     setIsClusterSelectOpen(false);
@@ -189,11 +200,10 @@ const Inner: React.FC = () => {
   // Derive last updated text from latest snapshot
   const lastUpdatedText: string = ((): string => {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const result = parseLatestSnapshot((assessment as any).snapshots);
-      return result.lastUpdated || '-';
+      const result = parseLatestSnapshot(assessment.snapshots as Snapshot[]);
+      return result.lastUpdated || "-";
     } catch {
-      return '-';
+      return "-";
     }
   })();
 
@@ -202,12 +212,12 @@ const Inner: React.FC = () => {
       breadcrumbs={[
         {
           key: 1,
-          children: 'Migration assessment',
+          children: "Migration assessment",
         },
         {
           key: 2,
-          to: '/openshift/migration-assessment/assessments',
-          children: 'assessments',
+          to: "/openshift/migration-assessment/assessments",
+          children: "assessments",
         },
         {
           key: 3,
@@ -219,22 +229,22 @@ const Inner: React.FC = () => {
       caption={
         <Stack>
           <StackItem>
-            {assessment.sourceType === 'rvtools' ? (
-              'Source: RVTools file upload'
+            {assessment.sourceType === "rvtools" ? (
+              "Source: RVTools file upload"
             ) : (
               <Split hasGutter>
                 <SplitItem isFilled={false}>Discovery VM status:</SplitItem>
                 <SplitItem isFilled={false}>
                   <AgentStatusView
-                    status={agent ? agent.status : 'not-connected'}
+                    status={agent ? agent.status : "not-connected"}
                     statusInfo={
                       source?.onPremises && source?.inventory !== undefined
                         ? undefined
                         : agent
                           ? agent.statusInfo
-                          : 'Not connected'
+                          : "Not connected"
                     }
-                    credentialUrl={agent ? agent.credentialUrl : ''}
+                    credentialUrl={agent ? agent.credentialUrl : ""}
                     uploadedManually={Boolean(
                       source?.onPremises && source?.inventory !== undefined,
                     )}
@@ -253,29 +263,29 @@ const Inner: React.FC = () => {
           </StackItem>
 
           <StackItem>
-            {lastUpdatedText !== '-'
+            {lastUpdatedText !== "-"
               ? `Last updated: ${lastUpdatedText}`
-              : '[Last updated time stamp]'}
+              : "[Last updated time stamp]"}
           </StackItem>
           <StackItem>
             {clusterCount > 0 ? (
-              typeof vms?.total === 'number' ? (
+              typeof vms?.total === "number" ? (
                 <>
-                  Detected <strong>{vms?.total} VMS</strong> in{' '}
+                  Detected <strong>{vms?.total} VMS</strong> in{" "}
                   <strong>
-                    {clusterCount} {clusterCount === 1 ? 'cluster' : 'clusters'}
+                    {clusterCount} {clusterCount === 1 ? "cluster" : "clusters"}
                   </strong>
                 </>
               ) : (
                 <>
-                  Detected{' '}
+                  Detected{" "}
                   <strong>
-                    {clusterCount} {clusterCount === 1 ? 'cluster' : 'clusters'}
+                    {clusterCount} {clusterCount === 1 ? "cluster" : "clusters"}
                   </strong>
                 </>
               )
             ) : (
-              'No clusters detected'
+              "No clusters detected"
             )}
           </StackItem>
           <StackItem>
@@ -297,7 +307,7 @@ const Inner: React.FC = () => {
                     }
                   }}
                   isDisabled={clusterSelectDisabled}
-                  style={{ minWidth: '422px' }}
+                  style={{ minWidth: "422px" }}
                 >
                   {clusterView.selectionLabel}
                 </MenuToggle>
@@ -329,7 +339,7 @@ const Inner: React.FC = () => {
         ) : null
       }
       headerActions={
-        hasClusterScopedData ? (
+        scopedClusterView ? (
           <Split hasGutter>
             <SplitItem>
               {canExportReport ? (
@@ -338,22 +348,24 @@ const Inner: React.FC = () => {
                   elementId="discovery-report"
                   componentToRender={
                     <Dashboard
-                      infra={clusterView.viewInfra as Infra}
-                      vms={clusterView.viewVms as VMs}
-                      cpuCores={clusterView.cpuCores as VMResourceBreakdown}
-                      ramGB={clusterView.ramGB as VMResourceBreakdown}
+                      infra={scopedClusterView.viewInfra}
+                      vms={scopedClusterView.viewVms}
+                      cpuCores={scopedClusterView.cpuCores}
+                      ramGB={scopedClusterView.ramGB}
                       isExportMode={true}
                       exportAllViews={true}
-                      clusters={clusterView.viewClusters}
-                      isAggregateView={clusterView.isAggregateView}
-                      clusterFound={clusterView.clusterFound}
+                      clusters={scopedClusterView.viewClusters}
+                      isAggregateView={scopedClusterView.isAggregateView}
+                      clusterFound={scopedClusterView.clusterFound}
                     />
                   }
-                  sourceData={discoverySourcesContext.sourceSelected as Source}
+                  sourceData={
+                    discoverySourcesContext.sourceSelected ?? undefined
+                  }
                   snapshot={last}
                   documentTitle={`${assessment.name || `Assessment ${id}`} - vCenter report${
                     clusterView.isAggregateView
-                      ? ''
+                      ? ""
                       : ` - ${clusterView.selectionLabel}`
                   }`}
                   isAggregateView={clusterView.isAggregateView}
@@ -371,24 +383,24 @@ const Inner: React.FC = () => {
                     elementId="discovery-report"
                     componentToRender={
                       <Dashboard
-                        infra={clusterView.viewInfra as Infra}
-                        vms={clusterView.viewVms as VMs}
-                        cpuCores={clusterView.cpuCores as VMResourceBreakdown}
-                        ramGB={clusterView.ramGB as VMResourceBreakdown}
+                        infra={scopedClusterView.viewInfra}
+                        vms={scopedClusterView.viewVms}
+                        cpuCores={scopedClusterView.cpuCores}
+                        ramGB={scopedClusterView.ramGB}
                         isExportMode={true}
                         exportAllViews={true}
-                        clusters={clusterView.viewClusters}
-                        isAggregateView={clusterView.isAggregateView}
-                        clusterFound={clusterView.clusterFound}
+                        clusters={scopedClusterView.viewClusters}
+                        isAggregateView={scopedClusterView.isAggregateView}
+                        clusterFound={scopedClusterView.clusterFound}
                       />
                     }
                     sourceData={
-                      discoverySourcesContext.sourceSelected as Source
+                      discoverySourcesContext.sourceSelected ?? undefined
                     }
                     snapshot={last}
                     documentTitle={`${assessment.name || `Assessment ${id}`} - vCenter report${
                       clusterView.isAggregateView
-                        ? ''
+                        ? ""
                         : ` - ${clusterView.selectionLabel}`
                     }`}
                     isDisabled
@@ -397,7 +409,7 @@ const Inner: React.FC = () => {
               )}
             </SplitItem>
 
-            {selectedClusterId !== 'all' ? (
+            {selectedClusterId !== "all" ? (
               <SplitItem>
                 {canShowClusterRecommendations ? (
                   <Button
@@ -430,23 +442,23 @@ const Inner: React.FC = () => {
         ) : undefined
       }
     >
-      {hasClusterScopedData ? (
+      {scopedClusterView ? (
         <Dashboard
-          infra={clusterView.viewInfra as Infra}
-          vms={clusterView.viewVms as VMs}
-          cpuCores={clusterView.cpuCores as VMResourceBreakdown}
-          ramGB={clusterView.ramGB as VMResourceBreakdown}
-          clusters={clusterView.viewClusters}
-          isAggregateView={clusterView.isAggregateView}
-          clusterFound={clusterView.clusterFound}
+          infra={scopedClusterView.viewInfra}
+          vms={scopedClusterView.viewVms}
+          cpuCores={scopedClusterView.cpuCores}
+          ramGB={scopedClusterView.ramGB}
+          clusters={scopedClusterView.viewClusters}
+          isAggregateView={scopedClusterView.isAggregateView}
+          clusterFound={scopedClusterView.clusterFound}
         />
       ) : (
         <Bullseye>
           <Content>
             <Content component="p">
               {clusterView.isAggregateView
-                ? 'This assessment does not have report data yet.'
-                : 'No data is available for the selected cluster.'}
+                ? "This assessment does not have report data yet."
+                : "No data is available for the selected cluster."}
             </Content>
           </Content>
         </Bullseye>
@@ -457,7 +469,7 @@ const Inner: React.FC = () => {
         onClose={() => setIsSizingWizardOpen(false)}
         clusterName={clusterView.selectionLabel}
         clusterId={selectedClusterId}
-        assessmentId={id || ''}
+        assessmentId={id || ""}
       />
     </AppPage>
   );
@@ -469,6 +481,6 @@ const Report: React.FC = () => (
   </DiscoverySourcesProvider>
 );
 
-Report.displayName = 'Report';
+Report.displayName = "Report";
 
 export default Report;

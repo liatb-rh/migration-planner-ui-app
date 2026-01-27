@@ -1,9 +1,7 @@
-import React, { useMemo, useState } from 'react';
-
 import {
   Infra,
   VMResourceBreakdown,
-} from '@migration-planner-ui/api-client/models';
+} from "@migration-planner-ui/api-client/models";
 import {
   Card,
   CardBody,
@@ -15,27 +13,28 @@ import {
   FlexItem,
   MenuToggle,
   MenuToggleElement,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
+import React, { useMemo, useState } from "react";
 
-import MigrationDonutChart from '../../../components/MigrationDonutChart';
+import MigrationDonutChart from "../../../components/MigrationDonutChart";
 
 // Reuse an extended palette similar to ClustersOverview to provide stable colors
 const colorPalette = [
-  '#0066cc',
-  '#5e40be',
-  '#b6a6e9',
-  '#73c5c5',
-  '#b98412',
-  '#28a745',
-  '#f0ad4e',
-  '#d9534f',
-  '#009596',
-  '#6a6e73',
+  "#0066cc",
+  "#5e40be",
+  "#b6a6e9",
+  "#73c5c5",
+  "#b98412",
+  "#28a745",
+  "#f0ad4e",
+  "#d9534f",
+  "#009596",
+  "#6a6e73",
 ];
 
 interface NetworkOverviewProps {
   infra: Infra;
-  nicCount: VMResourceBreakdown;
+  nicCount?: VMResourceBreakdown;
   distributionByNicCount?: {
     [key: string]: number;
   };
@@ -43,11 +42,11 @@ interface NetworkOverviewProps {
   exportAllViews?: boolean;
 }
 
-type ViewMode = 'networkDistribution' | 'nicCount';
+type ViewMode = "networkDistribution" | "nicCount";
 
 const VIEW_MODE_LABELS: Record<ViewMode, string> = {
-  networkDistribution: 'VM distribution by network',
-  nicCount: 'VM distribution by NIC count',
+  networkDistribution: "VM distribution by network",
+  nicCount: "VM distribution by NIC count",
 };
 
 export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
@@ -57,7 +56,7 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
   isExportMode = false,
   exportAllViews = false,
 }) => {
-  const [viewMode, setViewMode] = useState<ViewMode>('networkDistribution');
+  const [viewMode, setViewMode] = useState<ViewMode>("networkDistribution");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const { chartData, legend, title, subTitle, legendVlanMap } = useMemo(() => {
@@ -70,14 +69,14 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
           vmsCount?: unknown;
           vlanId?: unknown;
         };
-        const countNum = Number((obj?.vmsCount as unknown) ?? NaN);
+        const countNum = Number(obj?.vmsCount ?? NaN);
         return {
-          rawName: obj?.name ?? '',
+          rawName: obj?.name ?? "",
           vmsCount: Number.isFinite(countNum) ? countNum : NaN,
           vlanId:
-            typeof obj?.vlanId === 'string' || typeof obj?.vlanId === 'number'
+            typeof obj?.vlanId === "string" || typeof obj?.vlanId === "number"
               ? String(obj?.vlanId)
-              : '',
+              : "",
         };
       })
       .filter((n) => Number.isFinite(n.vmsCount) && n.vmsCount >= 0)
@@ -95,7 +94,7 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
     const slices = top.map((item, i) => {
       const name = `Network ${i + 1}`;
       legendVlanMap[name] =
-        item.vlanId && item.vlanId.trim() !== '' ? item.vlanId : '-';
+        item.vlanId && item.vlanId.trim() !== "" ? item.vlanId : "-";
       return {
         name,
         count: item.vmsCount,
@@ -105,12 +104,12 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
     });
     if (restSum > 0) {
       slices.push({
-        name: 'Rest of networks',
+        name: "Rest of networks",
         count: restSum,
         countDisplay: `${restSum} VMs`,
-        legendCategory: 'Rest of networks',
+        legendCategory: "Rest of networks",
       });
-      legendVlanMap['Rest of networks'] = '-';
+      legendVlanMap["Rest of networks"] = "-";
     }
 
     const categories = slices.map((s) => s.legendCategory);
@@ -123,12 +122,13 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
       chartData: slices,
       legend: legendMap,
       title: `${totalVMs}`,
-      subTitle: 'VMs',
+      subTitle: "VMs",
       legendVlanMap,
     };
   }, [infra]);
 
   // Build NIC count chart data (prefer infra.vms.distributionByNicCount, fallback to deprecated histogram)
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const { nicChartData, nicLegend, nicTitle, nicSubTitle } = useMemo(() => {
     let slices: {
       name: string;
@@ -157,8 +157,8 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
 
       // Sort numeric buckets ascending and keep any "N+" buckets after numeric ones
       entries.sort((a, b) => {
-        const aPlus = a.bucket.endsWith('+');
-        const bPlus = b.bucket.endsWith('+');
+        const aPlus = a.bucket.endsWith("+");
+        const bPlus = b.bucket.endsWith("+");
         const aNum = parseInt(a.bucket, 10);
         const bNum = parseInt(b.bucket, 10);
         if (aPlus && !bPlus) return 1;
@@ -169,10 +169,10 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
 
       slices = entries.map((e) => {
         const baseNum = parseInt(e.bucket, 10);
-        const label = e.bucket.endsWith('+')
+        const label = e.bucket.endsWith("+")
           ? `${baseNum}+ NIC`
           : baseNum === 1
-            ? '1 NIC'
+            ? "1 NIC"
             : `${baseNum} NIC`;
         return {
           name: label,
@@ -187,11 +187,11 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
       // Fallback to deprecated histogram from nicCount
       const histogram = nicCount?.histogram;
       const dataArray: number[] = Array.isArray(histogram?.data)
-        ? (histogram?.data as number[])
+        ? histogram?.data
         : [];
       const minValue =
-        typeof histogram?.minValue === 'number' ? histogram?.minValue : 0;
-      const step = typeof histogram?.step === 'number' ? histogram?.step : 1;
+        typeof histogram?.minValue === "number" ? histogram?.minValue : 0;
+      const step = typeof histogram?.step === "number" ? histogram?.step : 1;
 
       const buckets = dataArray
         .map((count, idx) => {
@@ -205,7 +205,7 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
         .sort((a, b) => a.nicNum - b.nicNum);
 
       slices = buckets.map((entry) => {
-        const label = entry.nicNum === 1 ? '1 NIC' : `${entry.nicNum} NIC`;
+        const label = entry.nicNum === 1 ? "1 NIC" : `${entry.nicNum} NIC`;
         return {
           name: label,
           count: entry.count,
@@ -215,7 +215,7 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
       });
 
       total =
-        typeof nicCount?.total === 'number'
+        typeof nicCount?.total === "number"
           ? nicCount.total
           : buckets.reduce((acc, e) => acc + e.count, 0);
     }
@@ -230,7 +230,7 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
       nicChartData: slices,
       nicLegend: legendMap,
       nicTitle: `${total}`,
-      nicSubTitle: 'VMs',
+      nicSubTitle: "VMs",
     };
   }, [distributionByNicCount, nicCount?.histogram, nicCount?.total]);
 
@@ -242,7 +242,7 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
     _event: React.MouseEvent<Element, MouseEvent> | undefined,
     value: string | number | undefined,
   ): void => {
-    if (value === 'networkDistribution' || value === 'nicCount') {
+    if (value === "networkDistribution" || value === "nicCount") {
       setViewMode(value);
     }
     setIsDropdownOpen(false);
@@ -250,23 +250,23 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
 
   return (
     <Card
-      className={isExportMode ? 'dashboard-card-print' : 'dashboard-card'}
+      className={isExportMode ? "dashboard-card-print" : "dashboard-card"}
       id="network-overview"
-      style={{ overflow: 'hidden' }}
+      style={{ overflow: "hidden" }}
     >
       <CardTitle>
         <Flex
-          justifyContent={{ default: 'justifyContentSpaceBetween' }}
-          alignItems={{ default: 'alignItemsCenter' }}
-          style={{ width: '100%' }}
+          justifyContent={{ default: "justifyContentSpaceBetween" }}
+          alignItems={{ default: "alignItemsCenter" }}
+          style={{ width: "100%" }}
         >
           <FlexItem>
             <div>
               <div>
                 <i className="fas fa-network-wired" /> Networks
               </div>
-              {!isExportMode && viewMode === 'networkDistribution' && (
-                <div style={{ color: '#6a6e73', fontSize: '0.85rem' }}>
+              {!isExportMode && viewMode === "networkDistribution" && (
+                <div style={{ color: "#6a6e73", fontSize: "0.85rem" }}>
                   Top 5 networks
                 </div>
               )}
@@ -283,7 +283,7 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
                     ref={toggleRef}
                     onClick={onDropdownToggle}
                     isExpanded={isDropdownOpen}
-                    style={{ minWidth: '250px' }}
+                    style={{ minWidth: "250px" }}
                   >
                     {VIEW_MODE_LABELS[viewMode]}
                   </MenuToggle>
@@ -308,9 +308,9 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
       <CardBody>
         {isExportMode && exportAllViews ? (
           <>
-            <div style={{ marginBottom: '24px' }}>
+            <div style={{ marginBottom: "24px" }}>
               <div style={{ fontWeight: 600, marginBottom: 8 }}>
-                {VIEW_MODE_LABELS['networkDistribution']}
+                {VIEW_MODE_LABELS["networkDistribution"]}
               </div>
               <MigrationDonutChart
                 data={chartData}
@@ -326,13 +326,13 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
                 labelFontSize={18}
                 marginLeft="12%"
                 tooltipLabelFormatter={({ datum, percent }) =>
-                  `${datum.countDisplay}\n${percent.toFixed(1)}%\nVLAN: ${legendVlanMap[datum.legendCategory] ?? '-'}`
+                  `${datum.countDisplay}\n${percent.toFixed(1)}%\nVLAN: ${legendVlanMap[datum.legendCategory] ?? "-"}`
                 }
               />
             </div>
             <div>
               <div style={{ fontWeight: 600, marginBottom: 8 }}>
-                {VIEW_MODE_LABELS['nicCount']}
+                {VIEW_MODE_LABELS["nicCount"]}
               </div>
               <MigrationDonutChart
                 data={nicChartData}
@@ -355,7 +355,7 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
           </>
         ) : (
           <>
-            {viewMode === 'networkDistribution' && (
+            {viewMode === "networkDistribution" && (
               <MigrationDonutChart
                 data={chartData}
                 height={300}
@@ -370,11 +370,11 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
                 labelFontSize={18}
                 marginLeft="12%"
                 tooltipLabelFormatter={({ datum, percent }) =>
-                  `${datum.countDisplay}\n${percent.toFixed(1)}%\nVLAN: ${legendVlanMap[datum.legendCategory] ?? '-'}`
+                  `${datum.countDisplay}\n${percent.toFixed(1)}%\nVLAN: ${legendVlanMap[datum.legendCategory] ?? "-"}`
                 }
               />
             )}
-            {viewMode === 'nicCount' && (
+            {viewMode === "nicCount" && (
               <MigrationDonutChart
                 data={nicChartData}
                 height={300}

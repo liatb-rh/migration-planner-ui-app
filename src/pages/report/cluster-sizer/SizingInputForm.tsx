@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {
   Checkbox,
   Form,
@@ -11,11 +9,12 @@ import {
   Stack,
   StackItem,
   Title,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
+import React from "react";
 
-import { CPU_OPTIONS, MEMORY_OPTIONS, OVERCOMMIT_OPTIONS } from './constants';
-import PopoverIcon from './PopoverIcon';
-import type { OvercommitRatio, SizingFormValues } from './types';
+import { CPU_OPTIONS, MEMORY_OPTIONS, OVERCOMMIT_OPTIONS } from "./constants";
+import PopoverIcon from "./PopoverIcon";
+import type { OvercommitRatio, SizingFormValues } from "./types";
 
 interface SizingInputFormProps {
   values: SizingFormValues;
@@ -39,7 +38,7 @@ export const SizingInputForm: React.FC<SizingInputFormProps> = ({
   ): void => {
     onChange({
       ...values,
-      workerNodePreset: 'custom',
+      workerNodePreset: "custom",
       customCpu: parseInt(cpu, 10),
     });
   };
@@ -50,7 +49,7 @@ export const SizingInputForm: React.FC<SizingInputFormProps> = ({
   ): void => {
     onChange({
       ...values,
-      workerNodePreset: 'custom',
+      workerNodePreset: "custom",
       customMemoryGb: parseInt(memory, 10),
     });
   };
@@ -68,27 +67,17 @@ export const SizingInputForm: React.FC<SizingInputFormProps> = ({
   return (
     <Form>
       <Grid>
-        <GridItem span={8}>
+        <GridItem span={12}>
           <Stack hasGutter>
             <StackItem>
               <Title headingLevel="h2">Migration preferences</Title>
             </StackItem>
 
-            {/* Run workloads on control plane nodes - checkbox */}
             <StackItem>
               <Checkbox
+                isLabelWrapped
                 id="control-plane-scheduling"
-                label={
-                  <>
-                    {'Run workloads on control plane nodes'}{' '}
-                    <PopoverIcon
-                      noVerticalAlign
-                      bodyContent={
-                        'Enable this to use spare capacity on control plane nodes for your workloads. This reduces the total number of nodes needed but may impact cluster management stability.'
-                      }
-                    />
-                  </>
-                }
+                label="Run workloads on control plane nodes"
                 isChecked={values.scheduleOnControlPlane}
                 onChange={handleControlPlaneChange}
               />
@@ -193,6 +182,6 @@ export const SizingInputForm: React.FC<SizingInputFormProps> = ({
   );
 };
 
-SizingInputForm.displayName = 'SizingInputForm';
+SizingInputForm.displayName = "SizingInputForm";
 
 export default SizingInputForm;

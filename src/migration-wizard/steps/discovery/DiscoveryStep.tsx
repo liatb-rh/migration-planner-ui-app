@@ -1,12 +1,8 @@
-import Humanize from 'humanize-plus';
-import React from 'react';
-
 import type {
   Datastore,
   MigrationIssue,
   Network,
-  Source,
-} from '@migration-planner-ui/api-client/models';
+} from "@migration-planner-ui/api-client/models";
 import {
   Badge,
   Content,
@@ -17,7 +13,7 @@ import {
   Stack,
   StackItem,
   TreeViewDataItem,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
 import {
   CogsIcon,
   DatabaseIcon,
@@ -28,97 +24,113 @@ import {
   MicrochipIcon,
   NetworkIcon,
   VirtualMachineIcon,
-} from '@patternfly/react-icons';
-import { t_global_icon_color_status_danger_default as globalDangerColor100 } from '@patternfly/react-tokens/dist/js/t_global_icon_color_status_danger_default';
-import { t_global_icon_color_status_warning_default as globalWarningColor100 } from '@patternfly/react-tokens/dist/js/t_global_icon_color_status_warning_default';
+} from "@patternfly/react-icons";
+import { t_global_icon_color_status_danger_default as globalDangerColor100 } from "@patternfly/react-tokens/dist/js/t_global_icon_color_status_danger_default";
+import { t_global_icon_color_status_warning_default as globalWarningColor100 } from "@patternfly/react-tokens/dist/js/t_global_icon_color_status_warning_default";
+import Humanize from "humanize-plus";
+import React from "react";
 
-import { Dashboard } from '../../../pages/report/assessment-report/Dashboard';
-import { ReportPieChart } from '../../../pages/report/ReportPieChart';
-import { ReportTable } from '../../../pages/report/ReportTable';
-import { useDiscoverySources } from '../../contexts/discovery-sources/Context';
-
-import { EnhancedDownloadButton } from './EnhancedDownloadButton';
+import { Dashboard } from "../../../pages/report/assessment-report/Dashboard";
+import { ReportPieChart } from "../../../pages/report/ReportPieChart";
+import { ReportTable } from "../../../pages/report/ReportTable";
+import { useDiscoverySources } from "../../contexts/discovery-sources/Context";
+import { EnhancedDownloadButton } from "./EnhancedDownloadButton";
 
 export const DiscoveryStep: React.FC = () => {
   const discoverSourcesContext = useDiscoverySources();
-  const { inventory } = discoverSourcesContext.sourceSelected as Source;
-  const { infra, vms } = inventory!.vcenter!;
-  const { datastores, networks } = infra;
-  const clusters = inventory!.clusters || {};
-  const totalClusters = Object.keys(clusters).length;
-  const { cpuCores, ramGB, diskCount, diskGB, os } = vms;
-
   // Create assessment when DiscoveryStep is accessed (only if source is not "Example")
   React.useEffect(() => {
     const sourceId = discoverSourcesContext.sourceSelected?.id;
     const sourceName = discoverSourcesContext.sourceSelected?.name;
     const sourceType = discoverSourcesContext.sourceSelected?.agent
-      ? 'agent'
-      : 'inventory';
-    const assessmentName = `Assessment for ${sourceName || 'source'}`.replace(
+      ? "agent"
+      : "inventory";
+    const assessmentName = `Assessment for ${sourceName || "source"}`.replace(
       /\s+/g,
-      '_',
+      "_",
     );
     if (
       sourceId &&
-      sourceName !== 'Example' &&
+      sourceName !== "Example" &&
       discoverSourcesContext.createAssessment
     ) {
-      discoverSourcesContext.createAssessment(
+      void discoverSourcesContext.createAssessment(
         sourceId,
         sourceType,
         assessmentName,
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     discoverSourcesContext.sourceSelected?.id,
     discoverSourcesContext.sourceSelected?.name,
     discoverSourcesContext.createAssessment,
   ]);
 
-  const operatingSystems = Object.entries(os).map(([name, count]) => ({
+  const inventory = discoverSourcesContext.sourceSelected?.inventory;
+  const vcenter = inventory?.vcenter;
+  if (!inventory || !vcenter || !vcenter.infra || !vcenter.vms) {
+    return (
+      <Content>
+        <Content component="p">
+          Inventory data is not available for this environment yet.
+        </Content>
+      </Content>
+    );
+  }
+  const { infra, vms } = vcenter;
+  const datastores = infra.datastores ?? [];
+  const networks = infra.networks ?? [];
+  const clusters = inventory.clusters ?? {};
+  const totalClusters = Object.keys(clusters).length;
+  const { cpuCores, ramGB, diskCount, diskGB, os } = vms;
+  const emptyHistogram = { data: [], minValue: 0, step: 1 };
+  const migrationWarnings = vms.migrationWarnings ?? [];
+  const notMigratableReasons = vms.notMigratableReasons ?? [];
+
+  const operatingSystems = Object.entries(os ?? {}).map(([name, count]) => ({
     name,
-    count: count as number,
+    count: count,
   }));
 
   const infrastructureViewData: TreeViewDataItem = {
-    title: 'Infrastructure',
+    title: "Infrastructure",
     icon: <InfrastructureIcon />,
     name: (
       <>
-        We found {totalClusters} {Humanize.pluralize(totalClusters, 'cluster')}{' '}
-        with {infra.totalHosts} {Humanize.pluralize(infra.totalHosts, 'host')}.
-        The hosts have a total of {cpuCores.total} CPU cores and{' '}
+        We found {totalClusters} {Humanize.pluralize(totalClusters, "cluster")}{" "}
+        with {infra.totalHosts} {Humanize.pluralize(infra.totalHosts, "host")}.
+        The hosts have a total of {cpuCores.total} CPU cores and{" "}
         {Humanize.fileSize(ramGB.total * 1024 ** 3, 0)} of memory.
       </>
     ),
-    id: 'infra',
+    id: "infra",
   };
 
   const computeStatsViewData: TreeViewDataItem = {
-    title: 'Compute per VM',
+    title: "Compute per VM",
     icon: <MicrochipIcon />,
-    id: 'compute',
-    name: '',
+    id: "compute",
+    name: "",
     children: [
       {
-        title: 'Details',
-        id: 'compute-details',
+        title: "Details",
+        id: "compute-details",
         name: (
           <Flex
-            fullWidth={{ default: 'fullWidth' }}
-            spaceItems={{ default: 'spaceItems4xl' }}
+            fullWidth={{ default: "fullWidth" }}
+            spaceItems={{ default: "spaceItems4xl" }}
           >
             <FlexItem>
               <ReportPieChart
-                histogram={cpuCores.histogram}
+                histogram={cpuCores.histogram ?? emptyHistogram}
                 title="CPU Cores"
                 legendLabel="CPU Cores"
               />
             </FlexItem>
             <FlexItem>
               <ReportPieChart
-                histogram={ramGB.histogram}
+                histogram={ramGB.histogram ?? emptyHistogram}
                 title="Memory"
                 legendLabel="GB"
               />
@@ -130,7 +142,7 @@ export const DiscoveryStep: React.FC = () => {
   };
 
   const diskStatsViewData: TreeViewDataItem = {
-    title: 'Disk size per VM',
+    title: "Disk size per VM",
     icon: <HddIcon />,
     name: (
       <>
@@ -139,26 +151,26 @@ export const DiscoveryStep: React.FC = () => {
         OpenShift cluster and the time needed for disk format conversion.
       </>
     ),
-    id: 'disk-size',
+    id: "disk-size",
     children: [
       {
-        title: 'Details',
-        id: 'infra-details',
+        title: "Details",
+        id: "infra-details",
         name: (
           <Flex
-            fullWidth={{ default: 'fullWidth' }}
-            spaceItems={{ default: 'spaceItems4xl' }}
+            fullWidth={{ default: "fullWidth" }}
+            spaceItems={{ default: "spaceItems4xl" }}
           >
             <FlexItem>
               <ReportPieChart
-                histogram={diskGB.histogram}
+                histogram={diskGB.histogram ?? emptyHistogram}
                 title="Disk capacity"
                 legendLabel="GB"
               />
             </FlexItem>
             <FlexItem>
               <ReportPieChart
-                histogram={diskCount.histogram}
+                histogram={diskCount.histogram ?? emptyHistogram}
                 title="Number of disks"
                 legendLabel="Disks"
               />
@@ -170,26 +182,26 @@ export const DiscoveryStep: React.FC = () => {
   };
 
   const virtualMachinesViewData: TreeViewDataItem = {
-    title: 'Virtual machines',
+    title: "Virtual machines",
     icon: <VirtualMachineIcon />,
     name: (
       <>
         This environment consists of {vms.totalMigratableWithWarnings} virtual
-        machines,{' '}
+        machines,{" "}
         {vms.total === (vms.totalMigratableWithWarnings ?? 0)
-          ? 'All'
-          : vms.totalMigratableWithWarnings}{' '}
+          ? "All"
+          : vms.totalMigratableWithWarnings}{" "}
         of them are potentially migratable to a new OpenShift cluster.
       </>
     ),
-    id: 'vms',
+    id: "vms",
     children: [
       {
         name: (
           <Content>
-            Warnings{' '}
+            Warnings{" "}
             <Badge isRead>
-              {vms.migrationWarnings
+              {migrationWarnings
                 .map(({ count }) => count)
                 .reduce((sum, n) => sum + n, 0)}
             </Badge>
@@ -200,27 +212,27 @@ export const DiscoveryStep: React.FC = () => {
             <ExclamationTriangleIcon />
           </Icon>
         ),
-        id: 'migration-warnings',
+        id: "migration-warnings",
         children: [
           {
             name: (
               <ReportTable<MigrationIssue>
-                data={vms.migrationWarnings}
-                columns={['Total', 'Description']}
-                fields={['count', 'assessment']}
+                data={migrationWarnings}
+                columns={["Total", "Description"]}
+                fields={["count", "assessment"]}
               />
             ),
-            id: 'migration-warnings-details',
+            id: "migration-warnings-details",
           },
         ],
       },
-      vms.notMigratableReasons.length > 0
+      notMigratableReasons.length > 0
         ? {
             name: (
               <Content>
-                Not migratable reasons{' '}
+                Not migratable reasons{" "}
                 <Badge isRead>
-                  {vms.notMigratableReasons
+                  {notMigratableReasons
                     .map(({ count }) => count)
                     .reduce((sum, n) => sum + n, 0)}
                 </Badge>
@@ -231,17 +243,17 @@ export const DiscoveryStep: React.FC = () => {
                 <ExclamationCircleIcon />
               </Icon>
             ),
-            id: 'not-migratable',
+            id: "not-migratable",
             children: [
               {
                 name: (
                   <ReportTable<MigrationIssue>
-                    data={vms.notMigratableReasons}
-                    columns={['Total', 'Description']}
-                    fields={['count', 'assessment']}
+                    data={notMigratableReasons}
+                    columns={["Total", "Description"]}
+                    fields={["count", "assessment"]}
                   />
                 ),
-                id: 'not-migratable-details',
+                id: "not-migratable-details",
               },
             ],
           }
@@ -252,48 +264,48 @@ export const DiscoveryStep: React.FC = () => {
   };
 
   const distributedSwitchNetworks = networks.filter(
-    (n) => n.type === 'distributed',
+    (n) => n.type === "distributed",
   );
-  const standardNetworks = networks.filter((n) => n.type === 'standard');
+  const standardNetworks = networks.filter((n) => n.type === "standard");
 
   const uniqueDistributedSwitches = new Set(
     distributedSwitchNetworks.map((n) => n.dvswitch).filter(Boolean), // Remove empty values
   ).size;
 
   const networksViewData: TreeViewDataItem = {
-    title: 'Networks',
+    title: "Networks",
     icon: <NetworkIcon />,
     name: (
       <>
-        We found {networks.length} networks: {distributedSwitchNetworks.length}{' '}
-        connected to {uniqueDistributedSwitches} distributed switches, and{' '}
+        We found {networks.length} networks: {distributedSwitchNetworks.length}{" "}
+        connected to {uniqueDistributedSwitches} distributed switches, and{" "}
         {standardNetworks.length} standard network
-        {standardNetworks.length !== 1 ? 's' : ''}.
+        {standardNetworks.length !== 1 ? "s" : ""}.
       </>
     ),
-    id: 'networks',
+    id: "networks",
     children: [
       {
-        title: 'Details',
+        title: "Details",
         name: (
           <ReportTable<Network>
             data={networks}
-            columns={['Name', 'Type', 'VlanId']}
-            fields={['name', 'type', 'vlanId']}
+            columns={["Name", "Type", "VlanId"]}
+            fields={["name", "type", "vlanId"]}
           />
         ),
-        id: 'networks-details',
+        id: "networks-details",
       },
     ],
   };
 
   const storageViewData: TreeViewDataItem = {
-    title: 'Storage',
+    title: "Storage",
     icon: <DatabaseIcon />,
     name: (
       <>
         The environment consists of {datastores.length} datastores with a total
-        capacity of{' '}
+        capacity of{" "}
         {Humanize.fileSize(
           datastores
             .map((ds) => ds.totalCapacityGB)
@@ -303,10 +315,10 @@ export const DiscoveryStep: React.FC = () => {
         .
       </>
     ),
-    id: 'storage',
+    id: "storage",
     children: [
       {
-        title: 'Datastores',
+        title: "Datastores",
         name: (
           <ReportTable<
             Datastore & {
@@ -316,7 +328,7 @@ export const DiscoveryStep: React.FC = () => {
             data={datastores.map((ds) => ({
               ...ds,
               usage: (
-                <div style={{ minWidth: '10rem', flexGrow: 1 }}>
+                <div style={{ minWidth: "10rem", flexGrow: 1 }}>
                   <Progress
                     value={(ds.freeCapacityGB / ds.totalCapacityGB) * 100}
                     size="sm"
@@ -326,50 +338,50 @@ export const DiscoveryStep: React.FC = () => {
               ),
             }))}
             columns={[
-              'Type',
-              'Vendor',
-              'Storage offload support',
-              'Protocol type',
-              'Model',
-              'Total capacity',
-              'Usage %',
+              "Type",
+              "Vendor",
+              "Storage offload support",
+              "Protocol type",
+              "Model",
+              "Total capacity",
+              "Usage %",
             ]}
             fields={[
-              'type',
-              'vendor',
-              'hardwareAcceleratedMove',
-              'protocolType',
-              'model',
-              'totalCapacityGB',
-              'usage',
+              "type",
+              "vendor",
+              "hardwareAcceleratedMove",
+              "protocolType",
+              "model",
+              "totalCapacityGB",
+              "usage",
             ]}
-            style={{ width: '55rem' }}
+            style={{ width: "55rem" }}
           />
         ),
-        id: 'datastores',
+        id: "datastores",
       },
     ],
   };
 
   const operatingSystemsViewData: TreeViewDataItem = {
-    title: 'Operating systems',
+    title: "Operating systems",
     icon: <CogsIcon />,
     name: (
       <>These are the operating systems running on your virtual machines.</>
     ),
-    id: 'os',
+    id: "os",
     children: [
       {
-        title: 'Details',
+        title: "Details",
         name: (
           <ReportTable<{ name: string; count: number }>
             data={operatingSystems}
-            columns={['Count', 'Name']}
-            fields={['count', 'name']}
-            style={{ width: '25rem' }}
+            columns={["Count", "Name"]}
+            fields={["count", "name"]}
+            style={{ width: "25rem" }}
           />
         ),
-        id: 'os-details',
+        id: "os-details",
       },
     ],
   };
@@ -387,13 +399,13 @@ export const DiscoveryStep: React.FC = () => {
       <StackItem>
         <Content>
           <Flex
-            alignItems={{ default: 'alignItemsCenter' }}
-            justifyContent={{ default: 'justifyContentSpaceBetween' }}
+            alignItems={{ default: "alignItemsCenter" }}
+            justifyContent={{ default: "justifyContentSpaceBetween" }}
           >
             <FlexItem>
               <Content component="h2">Discovery report</Content>
             </FlexItem>
-            <FlexItem spacer={{ default: 'spacerMd' }}>
+            <FlexItem spacer={{ default: "spacerMd" }}>
               <EnhancedDownloadButton
                 elementId="discovery-report"
                 componentToRender={
@@ -406,7 +418,7 @@ export const DiscoveryStep: React.FC = () => {
                     clusters={clusters}
                   />
                 }
-                sourceData={discoverSourcesContext.sourceSelected as Source}
+                sourceData={discoverSourcesContext.sourceSelected ?? undefined}
               />
             </FlexItem>
           </Flex>
@@ -428,4 +440,4 @@ export const DiscoveryStep: React.FC = () => {
   );
 };
 
-DiscoveryStep.displayName = 'DiscoveryStep';
+DiscoveryStep.displayName = "DiscoveryStep";

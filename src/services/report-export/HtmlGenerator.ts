@@ -2,10 +2,10 @@
  * Generates HTML reports from inventory data
  */
 
-import { ChartDataTransformer } from './ChartDataTransformer';
-import { DEFAULT_DOCUMENT_TITLE, EXPORT_CONFIG } from './constants';
-import { HtmlTemplateBuilder } from './HtmlTemplateBuilder';
-import type { InventoryData, SnapshotLike } from './types';
+import { ChartDataTransformer } from "./ChartDataTransformer";
+import { DEFAULT_DOCUMENT_TITLE, EXPORT_CONFIG } from "./constants";
+import { HtmlTemplateBuilder } from "./HtmlTemplateBuilder";
+import type { InventoryData, SnapshotLike } from "./types";
 
 export interface HtmlGeneratorOptions {
   documentTitle?: string;
@@ -24,7 +24,7 @@ export class HtmlGenerator {
     options: HtmlGeneratorOptions = {},
   ): Promise<void> {
     if (!inventory) {
-      throw new Error('No inventory data available for export');
+      throw new Error("No inventory data available for export");
     }
 
     const chartData = this.chartTransformer.transform(inventory);
@@ -44,10 +44,10 @@ export class HtmlGenerator {
    * Download HTML content as a file
    */
   private downloadHtml(content: string, filename: string): Promise<void> {
-    const blob = new Blob([content], { type: 'text/html;charset=utf-8;' });
+    const blob = new Blob([content], { type: "text/html;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
 
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
     link.download = filename;
     document.body.appendChild(link);

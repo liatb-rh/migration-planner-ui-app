@@ -1,4 +1,4 @@
-import { Time } from '../../../common/Time';
+import { Time } from "../../../common/Time";
 
-export const VALUE_NOT_AVAILABLE = '-';
+export const VALUE_NOT_AVAILABLE = "-";
 export const DEFAULT_POLLING_DELAY = 60 * Time.Second;

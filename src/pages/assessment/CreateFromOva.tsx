@@ -1,6 +1,3 @@
-import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-
 import {
   ActionGroup,
   Alert,
@@ -18,24 +15,31 @@ import {
   InputGroupItem,
   Spinner,
   TextInput,
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { AppPage } from '../../components/AppPage';
-import { useDiscoverySources } from '../../migration-wizard/contexts/discovery-sources/Context';
-import { DiscoverySourceSetupModal } from '../environment/sources-table/empty-state/DiscoverySourceSetupModal';
-import { SourcesTable } from '../environment/sources-table/SourcesTable';
+import { AppPage } from "../../components/AppPage";
+import { useDiscoverySources } from "../../migration-wizard/contexts/discovery-sources/Context";
+import { DiscoverySourceSetupModal } from "../environment/sources-table/empty-state/DiscoverySourceSetupModal";
+import { SourcesTable } from "../environment/sources-table/SourcesTable";
 
 const CreateFromOva: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const location = useLocation() as {
+    state?: { reset?: boolean };
+    pathname: string;
+    search: string;
+    hash?: string;
+  };
   const discoverySourcesContext = useDiscoverySources();
-  const DRAFT_KEY = 'migration-assessment:create-from-ova-draft';
+  const DRAFT_KEY = "migration-assessment:create-from-ova-draft";
   const hasInitializedRef = React.useRef<boolean>(false);
 
-  const [name, setName] = React.useState<string>('');
+  const [name, setName] = React.useState<string>("");
   const [useExisting, setUseExisting] = React.useState<boolean>(false);
   const [selectedEnvironmentId, setSelectedEnvironmentId] =
-    React.useState<string>('');
+    React.useState<string>("");
   const [isSetupModalOpen, setIsSetupModalOpen] =
     React.useState<boolean>(false);
   const [isCreatingAssessment, setIsCreatingAssessment] =
@@ -48,10 +52,10 @@ const CreateFromOva: React.FC = () => {
 
   const isDuplicateNameError = (error: Error | null): boolean =>
     !!error &&
-    (/assessment with name '.*' already exists/i.test(error.message || '') ||
-      /already exists/i.test(error.message || ''));
+    (/assessment with name '.*' already exists/i.test(error.message || "") ||
+      /already exists/i.test(error.message || ""));
 
-  const createdSourceId = discoverySourcesContext.sourceCreatedId || '';
+  const createdSourceId = discoverySourcesContext.sourceCreatedId || "";
   const createdSource = createdSourceId
     ? discoverySourcesContext.getSourceById?.(createdSourceId)
     : undefined;
@@ -60,28 +64,25 @@ const CreateFromOva: React.FC = () => {
   React.useEffect(() => {
     if (hasInitializedRef.current) return;
     hasInitializedRef.current = true;
-    const shouldReset = Boolean(
-      (location as typeof location & { state?: { reset?: boolean } })?.state
-        ?.reset,
-    );
+    const shouldReset = Boolean(location.state?.reset);
     if (shouldReset) {
-      setName('');
+      setName("");
       setUseExisting(false);
-      setSelectedEnvironmentId('');
+      setSelectedEnvironmentId("");
       try {
         sessionStorage.removeItem(DRAFT_KEY);
-      } catch (e) {
+      } catch {
         // ignore
       }
       // Clear the reset flag from history so future visits don't re-reset
       try {
         navigate(
-          `${location.pathname}${location.search}${location.hash || ''}`,
+          `${location.pathname}${location.search}${location.hash || ""}`,
           {
             replace: true,
           },
         );
-      } catch (e) {
+      } catch {
         // ignore navigation issues
       }
       return;
@@ -94,12 +95,12 @@ const CreateFromOva: React.FC = () => {
         useExisting?: boolean;
         selectedEnvironmentId?: string;
       };
-      if (typeof draft.name === 'string') setName(draft.name);
-      if (typeof draft.useExisting === 'boolean')
+      if (typeof draft.name === "string") setName(draft.name);
+      if (typeof draft.useExisting === "boolean")
         setUseExisting(draft.useExisting);
-      if (typeof draft.selectedEnvironmentId === 'string')
+      if (typeof draft.selectedEnvironmentId === "string")
         setSelectedEnvironmentId(draft.selectedEnvironmentId);
-    } catch (e) {
+    } catch {
       // ignore invalid storage contents
     }
   }, [location, navigate]);
@@ -140,9 +141,9 @@ const CreateFromOva: React.FC = () => {
   const availableEnvironments = React.useMemo(
     () =>
       (discoverySourcesContext.sources || [])
-        .filter((source) => source.name !== 'Example')
+        .filter((source) => source.name !== "Example")
         .slice()
-        .sort((a, b) => (a.name || '').localeCompare(b.name || '')),
+        .sort((a, b) => (a.name || "").localeCompare(b.name || "")),
     [discoverySourcesContext.sources],
   );
 
@@ -158,7 +159,7 @@ const CreateFromOva: React.FC = () => {
     useExisting &&
     selectedEnv &&
     !(
-      selectedEnv.agent?.status === 'up-to-date' ||
+      selectedEnv.agent?.status === "up-to-date" ||
       (selectedEnv?.onPremises && selectedEnv.inventory !== undefined)
     ),
   );
@@ -175,21 +176,21 @@ const CreateFromOva: React.FC = () => {
 
       const assessment = await discoverySourcesContext.createAssessment(
         name,
-        'agent',
+        "agent",
         undefined,
         sourceIdToUse,
       );
       // Guard: if provider returns an error-like value instead of throwing, surface it
       if (
         !assessment ||
-        typeof assessment !== 'object' ||
+        typeof assessment !== "object" ||
         !(assessment as { id?: unknown }).id
       ) {
         const message =
           assessment instanceof Error
             ? assessment.message
             : (assessment as { message?: string })?.message ||
-              'Unexpected response while creating assessment.';
+              "Unexpected response while creating assessment.";
         throw new Error(message);
       }
       await discoverySourcesContext.listAssessments();
@@ -198,7 +199,7 @@ const CreateFromOva: React.FC = () => {
       );
       try {
         sessionStorage.removeItem(DRAFT_KEY);
-      } catch (e) {
+      } catch {
         // ignore
       }
     } catch (e) {
@@ -215,7 +216,7 @@ const CreateFromOva: React.FC = () => {
   const handleCancel = React.useCallback(() => {
     try {
       sessionStorage.removeItem(DRAFT_KEY);
-    } catch (e) {
+    } catch {
       // ignore
     }
     navigate(-1);
@@ -231,19 +232,19 @@ const CreateFromOva: React.FC = () => {
       breadcrumbs={[
         {
           key: 1,
-          to: '/openshift/migration-assessment/',
-          children: 'Migration assessment',
+          to: "/openshift/migration-assessment/",
+          children: "Migration assessment",
         },
         {
           key: 2,
-          to: '/openshift/migration-assessment/',
-          children: 'assessments',
+          to: "/openshift/migration-assessment/",
+          children: "assessments",
         },
-        { key: 3, isActive: true, children: 'create new assessment' },
+        { key: 3, isActive: true, children: "create new assessment" },
       ]}
       title="Create new migration assessment"
     >
-      <div style={{ maxWidth: '900px' }}>
+      <div style={{ maxWidth: "900px" }}>
         <Form isWidthLimited>
           <FormGroup
             label="Assessment Name"
@@ -261,27 +262,27 @@ const CreateFromOva: React.FC = () => {
                     setName(v);
                     if (apiError) setApiError(null);
                   }}
-                  validated={hasDuplicateNameError ? 'error' : 'default'}
+                  validated={hasDuplicateNameError ? "error" : "default"}
                 />
               </InputGroupItem>
             </InputGroup>
             <HelperText>
               <HelperTextItem
-                variant={hasDuplicateNameError ? 'error' : 'default'}
+                variant={hasDuplicateNameError ? "error" : "default"}
               >
                 {hasDuplicateNameError
                   ? apiError?.message
-                  : 'Name your migration assessment'}
+                  : "Name your migration assessment"}
               </HelperTextItem>
             </HelperText>
           </FormGroup>
 
-          <Content style={{ marginTop: '16px' }}>
+          <Content style={{ marginTop: "16px" }}>
             <Content component="p" style={{ fontWeight: 600 }}>
               follow these steps to connect your environment and create the
               assessment report
             </Content>
-            <ol style={{ paddingLeft: '1.2rem', lineHeight: 1.6 }}>
+            <ol style={{ paddingLeft: "1.2rem", lineHeight: 1.6 }}>
               <li>
                 To create a migration assessment for an existing environment,
                 select the already created environment from the list and click
@@ -351,8 +352,8 @@ const CreateFromOva: React.FC = () => {
                   setUploadMessage(message ?? null);
                   setIsUploadError(Boolean(isError));
                 }}
-                onUploadSuccess={async () => {
-                  await discoverySourcesContext.listSources();
+                onUploadSuccess={() => {
+                  void discoverySourcesContext.listSources();
                 }}
               />
             </div>
@@ -361,8 +362,8 @@ const CreateFromOva: React.FC = () => {
             <div className="pf-v6-u-mt-md">
               <Alert
                 isInline
-                variant={isUploadError ? 'danger' : 'success'}
-                title={isUploadError ? 'Upload error' : 'Upload success'}
+                variant={isUploadError ? "danger" : "success"}
+                title={isUploadError ? "Upload error" : "Upload success"}
               >
                 {uploadMessage}
               </Alert>
@@ -383,7 +384,7 @@ const CreateFromOva: React.FC = () => {
                 title="Failed to create assessment"
               >
                 {apiError?.message ||
-                  'An error occurred while creating the assessment'}
+                  "An error occurred while creating the assessment"}
               </Alert>
             </div>
           )}
@@ -398,7 +399,7 @@ const CreateFromOva: React.FC = () => {
               </Button>
             </div>
           )}
-          {createdSource?.agent?.status === 'waiting-for-credentials' && (
+          {createdSource?.agent?.status === "waiting-for-credentials" && (
             <div className="pf-v6-u-mt-md">
               <Alert
                 isInline
@@ -434,7 +435,9 @@ const CreateFromOva: React.FC = () => {
                 isSubmitDisabled || isCreatingAssessment || isSelectedNotReady
               }
               isLoading={isCreatingAssessment}
-              onClick={handleSubmit}
+              onClick={() => {
+                void handleSubmit();
+              }}
             >
               Create assessment report
             </Button>
@@ -447,21 +450,25 @@ const CreateFromOva: React.FC = () => {
         {isSetupModalOpen && (
           <DiscoverySourceSetupModal
             isOpen={isSetupModalOpen}
-            onClose={async () => {
+            onClose={() => {
               // Close immediately to avoid flashing the empty form while async work runs
               setIsSetupModalOpen(false);
               setIsCreatingSource(true);
               const newId = discoverySourcesContext.sourceCreatedId;
-              await discoverySourcesContext.listSources();
-              if (newId) {
-                setUseExisting(true);
-                setSelectedEnvironmentId(newId);
-              }
-              setIsCreatingSource(false);
-              discoverySourcesContext.listSources();
+              void (async () => {
+                try {
+                  await discoverySourcesContext.listSources();
+                  if (newId) {
+                    setUseExisting(true);
+                    setSelectedEnvironmentId(newId);
+                  }
+                } finally {
+                  setIsCreatingSource(false);
+                }
+              })();
             }}
             isDisabled={discoverySourcesContext.isDownloadingSource}
-            onStartDownload={() => discoverySourcesContext.setDownloadUrl?.('')}
+            onStartDownload={() => discoverySourcesContext.setDownloadUrl?.("")}
             onAfterDownload={async () => {
               const newId = discoverySourcesContext.sourceCreatedId;
               await discoverySourcesContext.listSources();
@@ -477,6 +484,6 @@ const CreateFromOva: React.FC = () => {
   );
 };
 
-CreateFromOva.displayName = 'CreateFromOva';
+CreateFromOva.displayName = "CreateFromOva";
 
 export default CreateFromOva;

@@ -7,39 +7,39 @@
 // IMPORTANT: This must be set BEFORE importing App, so useChrome() can access it
 if (process.env.STANDALONE_MODE) {
   // Use direct assignment to avoid TypeScript conflicts
-  (window as Record<string, unknown>).insights = {
+  (window as unknown as Record<string, unknown>).insights = {
     chrome: {
       auth: {
         getUser: (): Promise<Record<string, unknown>> =>
           Promise.resolve({
             identity: {
-              account_number: '000000',
-              type: 'User',
-              org_id: 'standalone-org-id',
+              account_number: "000000",
+              type: "User",
+              org_id: "standalone-org-id",
               user: {
-                email: 'standalone@example.com',
-                first_name: 'Standalone',
-                last_name: 'User',
+                email: "standalone@example.com",
+                first_name: "Standalone",
+                last_name: "User",
                 is_active: true,
                 is_org_admin: true,
-                username: 'standalone-dev',
+                username: "standalone-dev",
                 is_internal: false,
-                locale: 'en-US',
+                locale: "en-US",
               },
             },
             entitlements: {
-              'migration-assessment': { is_entitled: true, is_trial: false },
+              "migration-assessment": { is_entitled: true, is_trial: false },
             },
             entitled: {
-              'migration-assessment': true,
+              "migration-assessment": true,
             },
           }),
         getToken: (): Promise<string> =>
-          Promise.resolve('mock-standalone-token'),
+          Promise.resolve("mock-standalone-token"),
         getOfflineToken: (): Promise<string> =>
-          Promise.resolve('mock-offline-token'),
+          Promise.resolve("mock-offline-token"),
         getRefreshToken: (): Promise<string> =>
-          Promise.resolve('mock-refresh-token'),
+          Promise.resolve("mock-refresh-token"),
         login: (): Promise<void> => Promise.resolve(),
         logout: (): void => {},
         qe: {},
@@ -64,29 +64,25 @@ if (process.env.STANDALONE_MODE) {
         console.log(
           `[Standalone Mock] Event listener for "${event}" registered.`,
         );
-        return (): void =>
-          console.log(
-            `[Standalone Mock] Event listener for "${event}" unregistered.`,
-          );
       },
       init: (): void => {
-        console.log('[Standalone Mock] insights.chrome.init() called.');
+        console.log("[Standalone Mock] insights.chrome.init() called.");
       },
       getUserPermissions: (): Promise<Record<string, unknown>[]> =>
         Promise.resolve([
-          { permission: 'app:read', resource: '*', resourceDefinitions: [] },
+          { permission: "app:read", resource: "*", resourceDefinitions: [] },
         ]),
     },
   };
 
-  console.warn('Running in STANDALONE_MODE. Global insights.chrome is mocked.');
+  console.warn("Running in STANDALONE_MODE. Global insights.chrome is mocked.");
 }
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 
-import App from './App'; // Make sure this path is correct relative to standalone-entry.tsx
+import App from "./App"; // Make sure this path is correct relative to standalone-entry.tsx
 
 // --- Mock/Standalone Shell Components ---
 const StandaloneHeader: React.FC = () => (
@@ -123,7 +119,7 @@ const StandaloneAppWrapper: React.FC = () => {
 };
 
 // --- DOM Rendering ---
-const rootElement = document.getElementById('root');
+const rootElement = document.getElementById("root");
 if (rootElement) {
   ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>

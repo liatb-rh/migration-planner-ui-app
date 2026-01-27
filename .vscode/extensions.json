@@ -1,7 +1,9 @@
 {
-    "recommendations": [
-        "dbaeumer.vscode-eslint",
-        "prettier.prettier-vscode",
-        "coderabbit.coderabbit-vscode"
-    ]
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "styled-components.vscode-styled-components",
+    "redhat.vscode-yaml",
+    "vitest.explorer"
+  ]
 }

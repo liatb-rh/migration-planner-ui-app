@@ -1,7 +1,7 @@
-import React from 'react';
+import React from "react";
 
-import { AppPage } from '../components/AppPage';
-import { MigrationWizard } from '../migration-wizard/MigrationWizard';
+import { AppPage } from "../components/AppPage";
+import { MigrationWizard } from "../migration-wizard/MigrationWizard";
 
 const MigrationWizardPage: React.FC = () => {
   return (
@@ -9,10 +9,10 @@ const MigrationWizardPage: React.FC = () => {
       breadcrumbs={[
         {
           key: 1,
-          to: '/openshift/migration-assessment',
-          children: 'Migration assessment',
+          to: "/openshift/migration-assessment",
+          children: "Migration assessment",
         },
-        { key: 2, children: 'Guide', isActive: true },
+        { key: 2, children: "Guide", isActive: true },
       ]}
       title="Welcome, let's start your migration journey from VMware to OpenShift."
     >
@@ -21,6 +21,6 @@ const MigrationWizardPage: React.FC = () => {
   );
 };
 
-MigrationWizardPage.displayName = 'MigrationWizardPage';
+MigrationWizardPage.displayName = "MigrationWizardPage";
 
 export default MigrationWizardPage;

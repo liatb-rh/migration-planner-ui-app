@@ -1,7 +1,0 @@
-node_modules/*
-static/*
-dist/*
-src/standalone-mocks/*
-src/standalone-alone.tsx
-src/migration-wizard/*
-

@@ -2,6 +2,7 @@ import { Job, JobStatus } from "@migration-planner-ui/api-client/models";
 import {
   Alert,
   Button,
+  Checkbox,
   type DropEvent,
   FileUpload,
   Form,
@@ -84,6 +85,9 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
   const [filename, setFilename] = useState("");
   const [isFileLoading, _setIsFileLoading] = useState(false);
   const [selectedEnvironmentId, setSelectedEnvironmentId] = useState("");
+
+  // Consent to share aggregated data (RVTools only)
+  const [rvtoolsConsentChecked, setRvtoolsConsentChecked] = useState(false);
 
   const [nameValidationError, setNameValidationError] = useState("");
   const [fileValidationError, setFileValidationError] = useState("");
@@ -277,6 +281,7 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
     setSelectedEnvironmentId("");
     setNameErrorDismissed(true);
     setFileErrorDismissed(true);
+    setRvtoolsConsentChecked(false);
     onClose();
   };
 
@@ -286,6 +291,7 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
 
   const isButtonDisabled =
     !isFormValid ||
+    (mode === "rvtools" && !rvtoolsConsentChecked) ||
     isLoading ||
     !!nameErrorToDisplay ||
     !!fileValidationError ||
@@ -448,6 +454,18 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
                     </HelperTextItem>
                   </HelperText>
                 </FormHelperText>
+              )}
+              {mode === "rvtools" && (
+                <div style={{ marginTop: "8px" }}>
+                  <Checkbox
+                    id="rvtools-data-share-consent"
+                    label="I agree to share aggregated data about my environment with Red Hat."
+                    isChecked={rvtoolsConsentChecked}
+                    onChange={(_event, checked) => {
+                      setRvtoolsConsentChecked(Boolean(checked));
+                    }}
+                  />
+                </div>
               )}
             </FormGroup>
           )}

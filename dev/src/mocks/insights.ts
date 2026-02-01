@@ -83,5 +83,5 @@ const chromeApiMock: Partial<ChromeAPI> = {
     ]),
 };
 
-console.warn("Running in STANDALONE_MODE. Global insights.chrome is mocked.");
+console.warn("Running in STANDALONE mode. Global insights.chrome is mocked.");
 window.insights = window.insights ?? { chrome: chromeApiMock };

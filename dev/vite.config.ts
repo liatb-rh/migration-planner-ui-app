@@ -8,10 +8,10 @@ export default defineConfig(() => {
   const config: UserConfig = {
     plugins: [react()],
     define: {
-      "process.env.STANDALONE_MODE": "true",
-      "process.env.PLANNER_API_BASE_URL": JSON.stringify(
+      "process.env.MIGRATION_PLANNER_API_BASE_URL": JSON.stringify(
         process.env.USE_MIGRATION_PLANNER_API
-          ? process.env.PLANNER_API_BASE_URL || "/api/migration-assessment"
+          ? process.env.MIGRATION_PLANNER_API_BASE_URL ||
+              "/api/migration-assessment"
           : "/planner",
       ),
       "process.env.MIGRATION_PLANNER_UI_GIT_COMMIT": JSON.stringify(

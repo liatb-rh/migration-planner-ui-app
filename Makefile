@@ -90,9 +90,9 @@ run-standalone: install
 
 # Preview standalone build
 .PHONY: preview-standalone
-preview-standalone: install
+preview-standalone: build-standalone
 	@echo "👀 Previewing standalone build..."
-	@npx vite preview ./dev -c ./dev/vite.config.ts --mode dev --open http://localhost:3000/openshift/migration-assessment
+	@npx vite preview ./dev -c ./dev/vite.config.ts --port 3000 --mode dev --open http://localhost:3000/openshift/migration-assessment
 	@echo "✅ Standalone preview started!"
 
 # Patch /etc/hosts for local development

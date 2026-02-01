@@ -25,8 +25,7 @@ const App: React.FC = () => {
       const authFetch = createAuthFetch(chrome); // pasamos chrome
 
       const plannerApiConfig = new Configuration({
-        basePath:
-          process.env.PLANNER_API_BASE_URL || "/api/migration-assessment",
+        basePath: process.env.MIGRATION_PLANNER_API_BASE_URL,
         fetchApi: authFetch,
       });
 

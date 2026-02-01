@@ -5,7 +5,6 @@ interface ViteTypeOptions {
 }
 
 interface ImportMetaEnv {
-  readonly MIGRATION_PLANNER_STANDALONE_MODE: string;
   readonly MIGRATION_PLANNER_API_BASE_URL: string;
   readonly MIGRATION_PLANNER_UI_VERSION: string;
   readonly MIGRATION_PLANNER_UI_GIT_COMMIT: string;
@@ -19,8 +18,7 @@ interface ImportMeta {
 interface globalThis {
   readonly process: {
     readonly env: {
-      readonly STANDALONE_MODE: string;
-      readonly PLANNER_API_BASE_URL: string;
+      readonly MIGRATION_PLANNER_API_BASE_URL: string;
       readonly MIGRATION_PLANNER_UI_VERSION: string;
       readonly MIGRATION_PLANNER_UI_GIT_COMMIT: string;
     };

@@ -17,7 +17,7 @@ Run all validation checks on the codebase.
    - `make security-scan` - Security vulnerability scan
    - `make test` - Runs unit tests using Vitest
 2. If the user requests to report test coverage, run: `make coverage`
-3. If any checks fail, but report shows some issues are fixable, always attempt the automatic fix befor applying fixes yourself.
+3. If any checks fail, but report shows some issues are fixable, always attempt the automatic fix before applying fixes yourself.
    - For lint errors: Run `make lint FIX=1`
    - For format errors: Run `make format FIX=1`
    - For security issues ONLY with non-breaking changes: Run `make security-fix` to review and address vulnerabilities in the same run.

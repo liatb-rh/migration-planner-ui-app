@@ -24,9 +24,9 @@ A Jira issue ID matching the pattern: `ECOPROJECT-\d+`
 
 - Use the issue ID to name the plan file (e.g.: ECOPROJECT-1234.plan.md).
 
-5. Create a git branch, use the issue ID as branch name (e.g.: ECOPROJECT-1234).
-6. Wait for user approval or refinement.
-7. After refactor is done:
+6. Create a git branch, use the issue ID as branch name (e.g.: ECOPROJECT-1234).
+7. Wait for user approval or refinement.
+8. After refactor is done:
 
 - Validate code quality using the `/validate` skill. Fix any outstanding issues.
 - Create a pull request using the `/create-pull-request` skill.

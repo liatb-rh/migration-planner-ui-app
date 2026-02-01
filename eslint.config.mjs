@@ -1,8 +1,7 @@
+import { readFileSync } from "node:fs";
 import path from "node:path";
 
 import js from "@eslint/js";
-// eslint-disable-next-line rulesdir/disallow-fec-relative-imports
-import fecConfigs from "@redhat-cloud-services/eslint-config-redhat-cloud-services";
 import tsParser from "@typescript-eslint/parser";
 import { defineConfig, globalIgnores } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
@@ -14,76 +13,76 @@ import simpleImportSort from "eslint-plugin-simple-import-sort";
 import globals from "globals";
 import tsEslintPlugin from "typescript-eslint";
 
+const require = (await import("node:module")).createRequire(import.meta.url);
+
 // IMPORTANT:
-// The only reason worth extending the Red Hat shared config is to be notified of API changes in their SDKs.
-// We pull their custom rulesdir rules without the rest of its opinionated rule set to keep future
-// rulesdir additions automatically applied while allowing us to maintain our own linting rules.
+// We pull the custom rulesdir rules from the Red Hat shared config without importing it directly.
+// This avoids the @babel/core peer dependency that their config requires (via @babel/eslint-parser).
+// By parsing the source file, we keep future rulesdir additions automatically applied while
+// maintaining our own linting rules and avoiding unnecessary dependencies.
+
+const FEC_PACKAGE_NAME =
+  "@redhat-cloud-services/eslint-config-redhat-cloud-services";
 
 // Setup the rulesdir plugin
 rulesdir.RULES_DIR = path.resolve(
   process.cwd(),
-  "node_modules/@redhat-cloud-services/eslint-config-redhat-cloud-services/lib/rules",
+  `node_modules/${FEC_PACKAGE_NAME}/lib/rules`,
 );
 
 /**
- * @typedef {Object} FecConfig
- * @property {import('eslint').Linter.RulesRecord} [rules]
- * @property {import('eslint').Linter.ParserOptions} [parserOptions]
- */
-
-/**
- * Extracts rules that start with "rulesdir/" from the provided
- * Red Hat ESLint config object. This enables inheriting only
- * the custom "rulesdir" rules without adopting the entire rule set.
+ * Extracts rulesdir rules by parsing the FEC config source file textually.
+ * This avoids executing the config (which would require @babel/core).
  *
- * @param {FecConfig} config - The Red Hat ESLint config object, expected to have a `rules` property.
- * @returns {import('eslint').Linter.RulesRecord} An object mapping "rulesdir/" rule names to their configs.
+ * @returns {import('eslint').Linter.RulesRecord} An object mapping "rulesdir/" rule names to their severity.
  */
-const getFecConfigRulesdirRules = (config) => {
-  return Object.entries(config.rules)
-    .filter(([ruleName]) => ruleName.startsWith("rulesdir/"))
-    .reduce((acc, [ruleName, ruleConfig]) => {
-      acc[ruleName] = ruleConfig;
-      return acc;
-    }, /** @type {import('eslint').Linter.RulesRecord} */ ({}));
-};
+const extractFecRulesdirRules = () => {
+  /** @type {import('eslint').Linter.RulesRecord} */
+  const rules = {};
 
-/**
- * @param {unknown} config
- * @returns {config is FecConfig}
- */
-const isFecConfig = (config) => {
-  return (
-    config &&
-    typeof config === "object" &&
-    "rules" in config &&
-    typeof config.rules === "object" &&
-    Object.keys(config.rules).some((ruleName) =>
-      ruleName.startsWith("rulesdir/"),
-    ) &&
-    "languageOptions" in config &&
-    "globals" in config.languageOptions &&
-    typeof config.languageOptions.globals === "object" &&
-    Object.keys(config.languageOptions.globals).some(
-      (globalName) => globalName === "CRC_APP_NAME",
-    )
-  );
-};
+  try {
+    // Resolve the package.json path to locate the package directory
+    const fecPackageJsonPath = require.resolve(
+      `${FEC_PACKAGE_NAME}/package.json`,
+    );
+    const fecPackageDir = path.dirname(fecPackageJsonPath);
 
-const fecConfig = fecConfigs.find((c) =>
-  Boolean(c.languageOptions?.globals?.CRC_APP_NAME),
-);
-// Validate the FEC config assuming the last entry in the list will be the one the package maintainers
-// define to override another settings.
-if (!isFecConfig(fecConfig)) {
-  throw new Error(
-    "eslint.config.mjs: Unxpected object shape exposed by '@redhat-cloud-services/eslint-config-redhat-cloud-services'. The package's structure may have changed.",
-    { cause: fecConfig },
-  );
-}
+    // Read package.json to get the main entry point
+    const packageJson = JSON.parse(readFileSync(fecPackageJsonPath, "utf-8"));
+    const mainFile = packageJson.main || "index.js";
+    const configFilePath = path.join(fecPackageDir, mainFile);
+
+    // Read the config file as text (without executing it)
+    const configSource = readFileSync(configFilePath, "utf-8");
+
+    // Extract rulesdir rules using regex
+    // Matches patterns like: 'rulesdir/rule-name': 1 or 'rulesdir/rule-name': 2
+    const rulesdirRegex = /['"]?(rulesdir\/[^'"]+)['"]?:\s*(\d+)/g;
+    let match;
+
+    while ((match = rulesdirRegex.exec(configSource)) !== null) {
+      const ruleName = match[1];
+      const severity = parseInt(match[2], 10);
+      rules[ruleName] = severity;
+    }
+
+    if (Object.keys(rules).length === 0) {
+      throw new Error("No rulesdir rules found in the config source.");
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `Failed to extract rulesdir rules from '${FEC_PACKAGE_NAME}'. ` +
+        `The package's structure may have changed. ` +
+        `Original error: ${message}`,
+    );
+  }
+
+  return rules;
+};
 
 /** @type {import('eslint').Linter.RulesRecord} */
-const fecConfigRulesdirRules = getFecConfigRulesdirRules(fecConfig);
+const fecConfigRulesdirRules = extractFecRulesdirRules();
 
 /** @type {import('eslint').Linter.Config} */
 const allFilesConfig = {
@@ -163,9 +162,27 @@ const srcTestsConfig = {
 };
 
 /** @type {import('eslint').Linter.Config} */
+const devNodeConfig = {
+  name: "devNodeConfig",
+  files: ["dev/vite.config.ts"],
+  extends: [js.configs.recommended, tsEslintPlugin.configs.recommended],
+  languageOptions: {
+    ecmaVersion: 2020,
+    sourceType: "module",
+    globals: {
+      ...globals.node,
+    },
+    parser: tsParser,
+    parserOptions: {
+      projectService: true,
+    },
+  },
+};
+
+/** @type {import('eslint').Linter.Config} */
 const devConfig = {
   name: "devConfig",
-  files: ["dev/**/*.{ts,tsx}"],
+  files: ["dev/src/**/*.{ts,tsx}"],
   extends: [
     js.configs.recommended,
     tsEslintPlugin.configs.recommended,
@@ -184,6 +201,7 @@ export default defineConfig(
   globalIgnores(["node_modules", "**/dist/**", "build-tools"]),
   tsEslintPlugin.configs.recommended,
   allFilesConfig,
+  devNodeConfig,
   devConfig,
   srcConfig,
   srcTestsConfig,

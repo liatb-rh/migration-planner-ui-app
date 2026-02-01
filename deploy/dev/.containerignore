@@ -87,4 +87,4 @@ Jenkinsfile
 
 # Container related files (for cache optimization in layer: 'COPY . .')
 deploy/dev/Containerfile
-deploy/dev/.containerignore 
+deploy/dev/.containerignore

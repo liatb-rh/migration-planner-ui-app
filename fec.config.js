@@ -10,8 +10,9 @@ module.exports = {
   interceptChromeConfig: false,
   plugins: [
     new webpack.DefinePlugin({
-      "process.env.PLANNER_API_BASE_URL": JSON.stringify(
-        process.env.PLANNER_API_BASE_URL || "/api/migration-assessment",
+      "process.env.MIGRATION_PLANNER_API_BASE_URL": JSON.stringify(
+        process.env.MIGRATION_PLANNER_API_BASE_URL ||
+          "/api/migration-assessment",
       ),
       "process.env.MIGRATION_PLANNER_UI_GIT_COMMIT": JSON.stringify(
         process.env.MIGRATION_PLANNER_UI_GIT_COMMIT,

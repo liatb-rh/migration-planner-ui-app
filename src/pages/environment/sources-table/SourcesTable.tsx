@@ -364,6 +364,7 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
                       whiteSpace: "normal",
                       minWidth: "120px",
                       maxWidth: "200px",
+                      textAlign: "right",
                     }}
                     screenReaderText="Actions"
                   >
@@ -432,7 +433,10 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
                           "-"
                         )}
                       </Td>
-                      <Td dataLabel={Columns.Actions}>
+                      <Td
+                        dataLabel={Columns.Actions}
+                        style={{ textAlign: "right" }}
+                      >
                         {uploadOnly ? (
                           <>
                             {isUploadAllowed && source.name !== "Example" && (

@@ -155,6 +155,7 @@ export const SourcesTable: React.FC<{
                       whiteSpace: "normal",
                       minWidth: "120px",
                       maxWidth: "200px",
+                      textAlign: "right",
                     }}
                   >
                     {Columns.Actions}
@@ -224,7 +225,14 @@ export const SourcesTable: React.FC<{
                           VALUE_NOT_AVAILABLE}
                       </Td>
                       <Td dataLabel={Columns.Actions}>
-                        <>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            alignItems: "center",
+                            gap: "8px",
+                          }}
+                        >
                           {source.name !== "Example" && (
                             <RemoveSourceAction
                               sourceId={source.id}
@@ -268,7 +276,7 @@ export const SourcesTable: React.FC<{
                               sourceName={source.name}
                             />
                           )}
-                        </>
+                        </div>
                       </Td>
                     </Tr>
                   );

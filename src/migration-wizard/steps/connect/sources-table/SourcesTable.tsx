@@ -155,7 +155,6 @@ export const SourcesTable: React.FC<{
                       whiteSpace: "normal",
                       minWidth: "120px",
                       maxWidth: "200px",
-                      textAlign: "right",
                     }}
                   >
                     {Columns.Actions}
@@ -170,7 +169,10 @@ export const SourcesTable: React.FC<{
                   const agent = source.agent;
                   return (
                     <Tr key={source.id}>
-                      <Td dataLabel={Columns.Name}>
+                      <Td
+                        dataLabel={Columns.Name}
+                        style={{ verticalAlign: "top" }}
+                      >
                         <Radio
                           id={source.id}
                           name="source-selection"
@@ -186,7 +188,10 @@ export const SourcesTable: React.FC<{
                           }
                         />
                       </Td>
-                      <Td dataLabel={Columns.CredentialsUrl}>
+                      <Td
+                        dataLabel={Columns.CredentialsUrl}
+                        style={{ verticalAlign: "top" }}
+                      >
                         {agent !== undefined && !source.onPremises ? (
                           <Link to={agent.credentialUrl} target="_blank">
                             {agent.credentialUrl}
@@ -195,7 +200,10 @@ export const SourcesTable: React.FC<{
                           "-"
                         )}
                       </Td>
-                      <Td dataLabel={Columns.Status}>
+                      <Td
+                        dataLabel={Columns.Status}
+                        style={{ verticalAlign: "top" }}
+                      >
                         <AgentStatusView
                           status={agent ? agent.status : "not-connected"}
                           statusInfo={
@@ -208,31 +216,39 @@ export const SourcesTable: React.FC<{
                           }
                         />
                       </Td>
-                      <Td dataLabel={Columns.Hosts}>
+                      <Td
+                        dataLabel={Columns.Hosts}
+                        style={{ verticalAlign: "top" }}
+                      >
                         {source?.inventory?.vcenter?.infra.totalHosts ??
                           VALUE_NOT_AVAILABLE}
                       </Td>
-                      <Td dataLabel={Columns.VMs}>
+                      <Td
+                        dataLabel={Columns.VMs}
+                        style={{ verticalAlign: "top" }}
+                      >
                         {source?.inventory?.vcenter?.vms.total ??
                           VALUE_NOT_AVAILABLE}
                       </Td>
-                      <Td dataLabel={Columns.Networks}>
+                      <Td
+                        dataLabel={Columns.Networks}
+                        style={{ verticalAlign: "top" }}
+                      >
                         {source?.inventory?.vcenter?.infra.networks?.length ??
                           VALUE_NOT_AVAILABLE}
                       </Td>
-                      <Td dataLabel={Columns.Datastores}>
+                      <Td
+                        dataLabel={Columns.Datastores}
+                        style={{ verticalAlign: "top" }}
+                      >
                         {source?.inventory?.vcenter?.infra.datastores?.length ??
                           VALUE_NOT_AVAILABLE}
                       </Td>
-                      <Td dataLabel={Columns.Actions}>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "flex-end",
-                            alignItems: "center",
-                            gap: "8px",
-                          }}
-                        >
+                      <Td
+                        dataLabel={Columns.Actions}
+                        style={{ verticalAlign: "top" }}
+                      >
+                        <div className="pf-v6-u-display-flex pf-v6-u-justify-content-flex-end pf-v6-u-align-items-center pf-v6-u-gap-sm">
                           {source.name !== "Example" && (
                             <RemoveSourceAction
                               sourceId={source.id}

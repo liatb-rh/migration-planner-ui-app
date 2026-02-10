@@ -1,5 +1,6 @@
 import {
   Alert,
+  AlertActionCloseButton,
   AlertActionLink,
   Button,
   Content,
@@ -78,14 +79,15 @@ export const Environment: React.FC = () => {
   ];
 
   useEffect(() => {
-    if (uploadMessage) {
+    if (uploadMessage && !isUploadError) {
+      // Only auto-dismiss success messages, keep error messages persistent
       const timeout = setTimeout(() => {
         setUploadMessage(null);
       }, 5000); // dissapears after 5 seconds
 
       return () => clearTimeout(timeout);
     }
-  }, [uploadMessage]);
+  }, [uploadMessage, isUploadError]);
 
   useEffect(() => {
     if (isOvaDownloading) {
@@ -115,6 +117,43 @@ export const Environment: React.FC = () => {
           marginBottom: "10px",
         }}
       >
+        {/* Critical error alerts at the top for visibility */}
+        {uploadMessage && isUploadError && (
+          <div style={{ marginBottom: "16px" }}>
+            <Alert
+              isInline
+              variant="danger"
+              title="Upload error"
+              actionClose={
+                <AlertActionCloseButton
+                  onClose={() => setUploadMessage(null)}
+                />
+              }
+            >
+              {uploadMessage}
+            </Alert>
+          </div>
+        )}
+
+        {discoverySourcesContext.errorDownloadingSource && (
+          <div style={{ marginBottom: "16px" }}>
+            <Alert
+              isInline
+              variant="danger"
+              title="Download Environment error"
+              actionClose={
+                <AlertActionCloseButton
+                  onClose={() => {
+                    discoverySourcesContext.clearErrors({ downloading: true });
+                  }}
+                />
+              }
+            >
+              {discoverySourcesContext.errorDownloadingSource.message}
+            </Alert>
+          </div>
+        )}
+
         <Toolbar inset={{ default: "insetNone" }}>
           <ToolbarContent>
             <ToolbarItem>
@@ -301,14 +340,6 @@ export const Environment: React.FC = () => {
         </StackItem>
       )}
 
-      {discoverySourcesContext.errorDownloadingSource && (
-        <StackItem>
-          <Alert isInline variant="danger" title="Download Environment error">
-            {discoverySourcesContext.errorDownloadingSource.message}
-          </Alert>
-        </StackItem>
-      )}
-
       {sourceSelected?.agent &&
         sourceSelected?.agent.status === "waiting-for-credentials" && (
           <StackItem>
@@ -337,13 +368,9 @@ export const Environment: React.FC = () => {
           </StackItem>
         )}
 
-      {uploadMessage && (
+      {uploadMessage && !isUploadError && (
         <StackItem>
-          <Alert
-            isInline
-            variant={isUploadError ? "danger" : "success"}
-            title={isUploadError ? "Upload error" : "Upload success"}
-          >
+          <Alert isInline variant="success" title="Upload success">
             {uploadMessage}
           </Alert>
         </StackItem>

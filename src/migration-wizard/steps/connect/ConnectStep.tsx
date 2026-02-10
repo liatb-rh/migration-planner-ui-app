@@ -1,6 +1,7 @@
 import { Source } from "@migration-planner-ui/api-client/models";
 import {
   Alert,
+  AlertActionCloseButton,
   AlertActionLink,
   Button,
   Content,
@@ -68,14 +69,15 @@ export const ConnectStep: React.FC = () => {
   ]);
 
   useEffect(() => {
-    if (uploadMessage) {
+    if (uploadMessage && !isUploadError) {
+      // Only auto-dismiss success messages, keep error messages persistent
       const timeout = setTimeout(() => {
         setUploadMessage(null);
       }, 5000); // dissapears after 5 seconds
 
       return () => clearTimeout(timeout);
     }
-  }, [uploadMessage]);
+  }, [uploadMessage, isUploadError]);
 
   useEffect(() => {
     if (isOvaDownloading) {
@@ -90,6 +92,41 @@ export const ConnectStep: React.FC = () => {
   return (
     <>
       <Stack hasGutter>
+        {/* Critical error alerts at the top for visibility */}
+        {uploadMessage && isUploadError && (
+          <StackItem>
+            <Alert
+              isInline
+              variant="danger"
+              title={uploadMessage}
+              actionClose={
+                <AlertActionCloseButton
+                  onClose={() => setUploadMessage(null)}
+                />
+              }
+            />
+          </StackItem>
+        )}
+
+        {discoverySourcesContext.errorDownloadingSource && (
+          <StackItem>
+            <Alert
+              isInline
+              variant="danger"
+              title="Download Environment error"
+              actionClose={
+                <AlertActionCloseButton
+                  onClose={() => {
+                    discoverySourcesContext.clearErrors({ downloading: true });
+                  }}
+                />
+              }
+            >
+              {discoverySourcesContext.errorDownloadingSource.message}
+            </Alert>
+          </StackItem>
+        )}
+
         <StackItem>
           <Content component="h2">Connect your VMware environment</Content>
         </StackItem>
@@ -169,14 +206,6 @@ export const ConnectStep: React.FC = () => {
           </StackItem>
         )}
 
-        {discoverySourcesContext.errorDownloadingSource && (
-          <StackItem>
-            <Alert isInline variant="danger" title="Download Environment error">
-              {discoverySourcesContext.errorDownloadingSource.message}
-            </Alert>
-          </StackItem>
-        )}
-
         {sourceSelected?.agent &&
           sourceSelected?.agent.status === "waiting-for-credentials" && (
             <StackItem>
@@ -229,13 +258,9 @@ export const ConnectStep: React.FC = () => {
             </StackItem>
           )}
 
-        {uploadMessage && (
+        {uploadMessage && !isUploadError && (
           <StackItem>
-            <Alert
-              isInline
-              variant={isUploadError ? "danger" : "success"}
-              title={uploadMessage}
-            />
+            <Alert isInline variant="success" title={uploadMessage} />
           </StackItem>
         )}
       </Stack>

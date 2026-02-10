@@ -364,7 +364,6 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
                       whiteSpace: "normal",
                       minWidth: "120px",
                       maxWidth: "200px",
-                      textAlign: "right",
                     }}
                     screenReaderText="Actions"
                   >
@@ -384,8 +383,16 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
                   const isUploadAllowed = !source?.agent || source?.onPremises;
                   return (
                     <Tr key={source.id}>
-                      <Td dataLabel={Columns.Name}>{source.name}</Td>
-                      <Td dataLabel={Columns.Status}>
+                      <Td
+                        dataLabel={Columns.Name}
+                        style={{ verticalAlign: "top" }}
+                      >
+                        {source.name}
+                      </Td>
+                      <Td
+                        dataLabel={Columns.Status}
+                        style={{ verticalAlign: "top" }}
+                      >
                         <AgentStatusView
                           status={agent ? agent.status : "not-connected"}
                           statusInfo={
@@ -404,23 +411,38 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
                           updatedAt={source?.updatedAt}
                         />
                       </Td>
-                      <Td dataLabel={Columns.Hosts}>
+                      <Td
+                        dataLabel={Columns.Hosts}
+                        style={{ verticalAlign: "top" }}
+                      >
                         {source?.inventory?.vcenter?.infra.totalHosts ??
                           VALUE_NOT_AVAILABLE}
                       </Td>
-                      <Td dataLabel={Columns.VMs}>
+                      <Td
+                        dataLabel={Columns.VMs}
+                        style={{ verticalAlign: "top" }}
+                      >
                         {source?.inventory?.vcenter?.vms.total ??
                           VALUE_NOT_AVAILABLE}
                       </Td>
-                      <Td dataLabel={Columns.Networks}>
+                      <Td
+                        dataLabel={Columns.Networks}
+                        style={{ verticalAlign: "top" }}
+                      >
                         {source?.inventory?.vcenter?.infra.networks?.length ??
                           VALUE_NOT_AVAILABLE}
                       </Td>
-                      <Td dataLabel={Columns.Datastores}>
+                      <Td
+                        dataLabel={Columns.Datastores}
+                        style={{ verticalAlign: "top" }}
+                      >
                         {source?.inventory?.vcenter?.infra.datastores?.length ??
                           VALUE_NOT_AVAILABLE}
                       </Td>
-                      <Td dataLabel={Columns.LastSeen}>
+                      <Td
+                        dataLabel={Columns.LastSeen}
+                        style={{ verticalAlign: "top" }}
+                      >
                         {source?.updatedAt ? (
                           <Tooltip
                             content={new Date(
@@ -435,7 +457,7 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
                       </Td>
                       <Td
                         dataLabel={Columns.Actions}
-                        style={{ textAlign: "right" }}
+                        style={{ verticalAlign: "top" }}
                       >
                         {uploadOnly ? (
                           <>

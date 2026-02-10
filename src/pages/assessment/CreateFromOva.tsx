@@ -16,6 +16,7 @@ import {
   Spinner,
   TextInput,
 } from "@patternfly/react-core";
+import { OutlinedQuestionCircleIcon } from "@patternfly/react-icons";
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -23,6 +24,7 @@ import { AppPage } from "../../components/AppPage";
 import { useDiscoverySources } from "../../migration-wizard/contexts/discovery-sources/Context";
 import { DiscoverySourceSetupModal } from "../environment/sources-table/empty-state/DiscoverySourceSetupModal";
 import { SourcesTable } from "../environment/sources-table/SourcesTable";
+import { MigrationAssessmentStepsModal } from "./MigrationAssessmentStepsModal";
 
 const CreateFromOva: React.FC = () => {
   const navigate = useNavigate();
@@ -41,6 +43,8 @@ const CreateFromOva: React.FC = () => {
   const [selectedEnvironmentId, setSelectedEnvironmentId] =
     React.useState<string>("");
   const [isSetupModalOpen, setIsSetupModalOpen] =
+    React.useState<boolean>(false);
+  const [isStepsModalOpen, setIsStepsModalOpen] =
     React.useState<boolean>(false);
   const [isCreatingAssessment, setIsCreatingAssessment] =
     React.useState<boolean>(false);
@@ -277,32 +281,16 @@ const CreateFromOva: React.FC = () => {
             </HelperText>
           </FormGroup>
 
-          <Content style={{ marginTop: "16px" }}>
-            <Content component="p" style={{ fontWeight: 600 }}>
-              follow these steps to connect your environment and create the
-              assessment report
-            </Content>
-            <ol style={{ paddingLeft: "1.2rem", lineHeight: 1.6 }}>
-              <li>
-                To create a migration assessment for an existing environment,
-                select the already created environment from the list and click
-                the “Create assessment report” button
-              </li>
-              <li>
-                To connect to a new environment, click the “Add environment”
-                button then download and import the Discovery OVA Image to your
-                VMware environment
-              </li>
-              <li>
-                When the VM is running, a link will appear below. Use this link
-                to input credentials and connect to your environment
-              </li>
-              <li>
-                After the connection is established, you’ll be able to proceed
-                and view the discovery report
-              </li>
-            </ol>
-          </Content>
+          <div style={{ marginTop: "16px" }}>
+            <Button
+              variant="link"
+              icon={<OutlinedQuestionCircleIcon />}
+              onClick={() => setIsStepsModalOpen(true)}
+              style={{ paddingLeft: 0 }}
+            >
+              Migration assessment steps
+            </Button>
+          </div>
 
           <div className="pf-v6-u-mt-md">
             <Checkbox
@@ -479,6 +467,11 @@ const CreateFromOva: React.FC = () => {
             }}
           />
         )}
+
+        <MigrationAssessmentStepsModal
+          isOpen={isStepsModalOpen}
+          onClose={() => setIsStepsModalOpen(false)}
+        />
       </div>
     </AppPage>
   );

@@ -8,6 +8,40 @@ import {
   TERMINAL_JOB_STATUSES,
 } from "../utils/rvToolsJobUtils";
 
+// Type guard to check if error has a response property
+type ApiErrorWithResponse = { response: Response };
+
+const hasResponse = (error: unknown): error is ApiErrorWithResponse => {
+  return typeof error === "object" && error !== null && "response" in error;
+};
+
+// Extract error message from API response
+const extractResponseErrorMessage = async (
+  response: Response,
+): Promise<string> => {
+  try {
+    const clonedResponse = response.clone();
+    const errorText = await clonedResponse.text();
+    try {
+      const errorData = JSON.parse(errorText) as unknown;
+      if (errorData && typeof errorData === "object") {
+        const typedError = errorData as { message?: unknown; error?: unknown };
+        if (typeof typedError.message === "string") {
+          return typedError.message;
+        }
+        if (typeof typedError.error === "string") {
+          return typedError.error;
+        }
+      }
+      return errorText;
+    } catch {
+      return errorText || "Failed to parse API error response.";
+    }
+  } catch {
+    return "Error response could not be read.";
+  }
+};
+
 interface UseRVToolsJobProps {
   jobApi: JobApi;
   /** Called only when job completes successfully WITHOUT being cancelled */
@@ -118,9 +152,26 @@ export const useRVToolsJob = ({
         if (abortController.signal.aborted) {
           return undefined;
         }
-        setCreateError(err as Error);
+
+        // Extract error message from API response if available
+        let errorMessage = "An error occurred while creating the assessment";
+        if (hasResponse(err)) {
+          try {
+            errorMessage = await extractResponseErrorMessage(err.response);
+          } catch {
+            // Fall back to default error message if extraction fails
+            if (err instanceof Error) {
+              errorMessage = err.message || "Failed to create assessment";
+            }
+          }
+        } else if (err instanceof Error) {
+          errorMessage = err.message;
+        }
+
+        const enhancedError = new Error(errorMessage);
+        setCreateError(enhancedError);
         setIsCreating(false);
-        throw err;
+        throw enhancedError;
       }
     },
     [jobApi],

@@ -100,10 +100,6 @@ const extractResponseErrorMessage = async (
   }
 };
 
-const isSource = (value: unknown): value is Source => {
-  return typeof value === "object" && value !== null && "id" in value;
-};
-
 export const Provider: React.FC<PropsWithChildren> = (props) => {
   const { children } = props;
   const [sourceSelected, setSourceSelected] = useState<Source | null>(null);
@@ -426,13 +422,16 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
         dns,
       );
 
-      if (!isSource(newSource)) {
+      // useAsyncFnResetError returns the error object as a value instead of throwing
+      // Check if newSource is actually an Error object
+      if (newSource instanceof Error) {
+        throw newSource;
+      }
+
+      // Validate that we got a valid source before proceeding
+      if (!newSource || !newSource.id) {
         throw new Error(
-          `Failed to create source. Response: ${JSON.stringify(
-            newSource,
-            null,
-            2,
-          )}`,
+          "Failed to create source: invalid response from server",
         );
       }
 

@@ -160,7 +160,10 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                                 type="button"
                                 aria-label="Open operating system upgrade information"
                                 variant="plain"
-                                style={{ padding: "0", verticalAlign: "middle" }}
+                                style={{
+                                  padding: "0",
+                                  verticalAlign: "middle",
+                                }}
                               >
                                 <InfoCircleIcon color="#6a6ec8" />
                               </Button>

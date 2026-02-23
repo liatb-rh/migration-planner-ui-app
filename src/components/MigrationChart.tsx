@@ -128,7 +128,8 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                     <Td width={dataLength} style={{ paddingLeft: "0px" }}>
                       <Flex
                         alignItems={{ default: "alignItemsCenter" }}
-                        spaceItems={{ default: "spaceItemsSm" }}
+                        spaceItems={{ default: "spaceItemsXs" }}
+                        flexWrap={{ default: "nowrap" }}
                       >
                         <FlexItem>
                           <Content
@@ -148,7 +149,7 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                           </Content>
                         </FlexItem>
                         {item.infoText ? (
-                          <FlexItem>
+                          <FlexItem shrink={{ default: "shrink" }}>
                             <Popover
                               className="upgrade-recommendation-popover"
                               position="bottom"
@@ -159,6 +160,7 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                                 type="button"
                                 aria-label="Open operating system upgrade information"
                                 variant="plain"
+                                style={{ padding: "0", verticalAlign: "middle" }}
                               >
                                 <InfoCircleIcon color="#6a6ec8" />
                               </Button>

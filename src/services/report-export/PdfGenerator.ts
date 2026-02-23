@@ -307,7 +307,10 @@ export class PdfGenerator {
         : "VMware Infrastructure Assessment Report";
 
     const titleLineHeight = 8;
-    const titleLines = pdf.splitTextToSize(headerTitle, contentWidth);
+    const titleLines = pdf.splitTextToSize(
+      headerTitle,
+      contentWidth,
+    ) as string[];
     let titleY = margin + 8;
     for (const line of titleLines) {
       pdf.text(line, pageWidth / 2, titleY, { align: "center" });

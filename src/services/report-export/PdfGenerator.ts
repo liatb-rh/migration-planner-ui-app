@@ -299,27 +299,36 @@ export class PdfGenerator {
     pdf.setFillColor(255, 255, 255);
     pdf.rect(0, 0, pageWidth, pageHeight, "F");
 
+    const contentWidth = pageWidth - margin * 2;
     pdf.setFontSize(18);
     const headerTitle =
       documentTitle && documentTitle.trim().length > 0
         ? documentTitle
         : "VMware Infrastructure Assessment Report";
-    pdf.text(headerTitle, pageWidth / 2, margin + 8, { align: "center" });
+
+    const titleLineHeight = 8;
+    const titleLines = pdf.splitTextToSize(headerTitle, contentWidth);
+    let titleY = margin + 8;
+    for (const line of titleLines) {
+      pdf.text(line, pageWidth / 2, titleY, { align: "center" });
+      titleY += titleLineHeight;
+    }
 
     pdf.setFontSize(11);
     const d = new Date();
     pdf.text(
       `Generated: ${d.toLocaleDateString()} ${d.toLocaleTimeString()}`,
       pageWidth / 2,
-      margin + 18,
+      titleY + 4,
       { align: "center" },
     );
 
+    const tocStartY = titleY + 16;
     pdf.setFontSize(14);
-    pdf.text("Table of contents", margin, margin + 32);
+    pdf.text("Table of contents", margin, tocStartY);
 
     pdf.setFontSize(11);
-    let tocY = margin + 42;
+    let tocY = tocStartY + 10;
     TOC_ITEMS.forEach((line) => {
       if (tocY > pageHeight - margin - 10) {
         pdf.addPage();

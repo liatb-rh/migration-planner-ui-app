@@ -564,7 +564,6 @@ const Assessment: React.FC<Props> = ({
         isDisabled={discoverySourcesContext.isDeletingAssessment}
         title="Delete Assessment"
         titleIconVariant="warning"
-        primaryButtonVariant="danger"
       >
         Are you sure you want to delete{" "}
         {(selectedAssessment as AssessmentModel)?.name}?

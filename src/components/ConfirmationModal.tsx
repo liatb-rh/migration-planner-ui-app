@@ -8,6 +8,8 @@ import {
 } from "@patternfly/react-core";
 import React from "react";
 
+import "./ConfirmationModal.css";
+
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace ConfirmationModal {
   export type Props = {
@@ -52,16 +54,19 @@ export const ConfirmationModal: React.FC<
       width="44rem"
       isOpen={isOpen}
       variant={variant}
+      className="confirmation-modal"
       aria-describedby="modal-title-icon-description"
       aria-labelledby="title-icon-modal-title"
       onClose={onClose}
     >
-      <ModalHeader
-        title={title}
-        titleIconVariant={titleIconVariant}
-        labelId="title-icon-modal-title"
-      />
-      <ModalBody>{children}</ModalBody>
+      <div style={{ width: "100%" }}>
+        <ModalHeader
+          title={title}
+          titleIconVariant={titleIconVariant}
+          labelId="title-icon-modal-title"
+        />
+      </div>
+      <ModalBody className="confirmation-modal-body">{children}</ModalBody>
       <ModalFooter>
         <Flex justifyContent={{ default: "justifyContentFlexStart" }}>
           <Button

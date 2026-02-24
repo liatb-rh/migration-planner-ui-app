@@ -121,11 +121,17 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
           spaceItems={{ default: "spaceItemsMd" }}
         >
           <div style={{ maxHeight: maxHeight, overflowY: "auto" }}>
-            <Table variant="compact" borders={false}>
+            <Table variant="compact" borders={true}>
               <Tbody>
                 {data.map((item, index) => (
                   <Tr key={index}>
-                    <Td width={dataLength} style={{ paddingLeft: "0px" }}>
+                    <Td
+                      width={dataLength}
+                      style={{
+                        paddingLeft: "0px",
+                        verticalAlign: "middle",
+                      }}
+                    >
                       <Flex
                         alignItems={{ default: "alignItemsCenter" }}
                         spaceItems={{ default: "spaceItemsSm" }}
@@ -159,6 +165,11 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                                 type="button"
                                 aria-label="Open operating system upgrade information"
                                 variant="plain"
+                                style={{
+                                  padding: 0,
+                                  minWidth: 0,
+                                  verticalAlign: "middle",
+                                }}
                               >
                                 <InfoCircleIcon color="#6a6ec8" />
                               </Button>
@@ -167,7 +178,7 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                         ) : null}
                       </Flex>
                     </Td>
-                    <Td>
+                    <Td style={{ verticalAlign: "middle" }}>
                       {/* Visual Bar */}
                       <div>
                         <div
@@ -203,7 +214,11 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                     </Td>
                     <Td
                       width={10}
-                      style={{ paddingRight: "0px", textAlign: "center" }}
+                      style={{
+                        paddingRight: "0px",
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                      }}
                     >
                       <Content
                         component="p"

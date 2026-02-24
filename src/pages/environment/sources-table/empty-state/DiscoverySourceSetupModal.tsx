@@ -846,7 +846,7 @@ export const DiscoverySourceSetupModal: React.FC<
                 <Alert
                   isInline
                   variant="info"
-                  title="Never share your downloaded ISO with anyone else. Forwarding it might put your credentials and personal data at risk."
+                  title="Never share your downloaded OVA with anyone else. Forwarding it might put your credentials and personal data at risk."
                 />
               </StackItem>
             </Stack>

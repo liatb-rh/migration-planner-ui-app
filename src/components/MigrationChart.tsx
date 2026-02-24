@@ -134,7 +134,8 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                     >
                       <Flex
                         alignItems={{ default: "alignItemsCenter" }}
-                        spaceItems={{ default: "spaceItemsSm" }}
+                        spaceItems={{ default: "spaceItemsXs" }}
+                        flexWrap={{ default: "nowrap" }}
                       >
                         <FlexItem>
                           <Content
@@ -154,7 +155,7 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                           </Content>
                         </FlexItem>
                         {item.infoText ? (
-                          <FlexItem>
+                          <FlexItem shrink={{ default: "shrink" }}>
                             <Popover
                               className="upgrade-recommendation-popover"
                               position="bottom"

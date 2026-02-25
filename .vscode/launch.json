@@ -52,7 +52,7 @@
       "name": "Debug (stage)",
       "request": "launch",
       "type": "node",
-      "envFile": "${workspaceFolder}/.envrc",
+      "envFile": "${workspaceFolder}/.env",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run-script", "start"],
       "skipFiles": ["<node_internals>/**"]

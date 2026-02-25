@@ -16,6 +16,7 @@ import {
   MonitoringIcon,
 } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+import { css } from "@emotion/css";
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -36,6 +37,63 @@ const openAssistedInstaller = (): void => {
     );
   }
 };
+
+const tableWrapperClass = css({
+  width: "100%",
+  maxHeight: "450px",
+  overflowY: "auto",
+  overflowX: "auto",
+});
+
+const tableClass = css({
+  tableLayout: "auto",
+  width: "100%",
+  fontSize: "14px",
+});
+
+const thNameClass = css({ width: "20%" });
+const thNowrapClass = css({ whiteSpace: "nowrap" });
+const thOwnerClass = css({ minWidth: "60px" });
+const thNumericClass = css({ maxWidth: "100px" });
+
+const nameCellClass = css({ overflow: "hidden", maxWidth: 0 });
+const nameCellFlexClass = css({
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  minWidth: 0,
+});
+const nameButtonClass = css({
+  padding: 0,
+  minWidth: 0,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+  maxWidth: "100%",
+  display: "block",
+  textAlign: "left",
+});
+
+const warningIconClass = css({ color: "#f0ab00", cursor: "help" });
+const cellFlexClass = css({
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+});
+const actionsCellClass = css({
+  verticalAlign: "middle",
+  paddingTop: 0,
+  paddingBottom: 0,
+});
+const actionsFlexClass = css({
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  height: "100%",
+});
+const reportIconLinkClass = css({ color: "#0066cc" });
+const reportIconMutedClass = css({ color: "#6a6e73" });
+const buttonPlainPaddingClass = css({ padding: 0 });
 
 type Props = {
   assessments: AssessmentModel[];
@@ -399,78 +457,63 @@ export const AssessmentsTable: React.FC<Props> = ({
     );
   }
   return (
-    <div
-      style={{
-        width: "100%",
-        maxHeight: "450px",
-        overflowY: "auto",
-        overflowX: "auto",
-      }}
-    >
+    <div className={tableWrapperClass}>
       <Table
         aria-label="Assessments table"
         variant="compact"
         borders={false}
-        style={{ tableLayout: "auto", width: "100%", fontSize: "14px" }}
+        className={tableClass}
       >
         <Thead>
           <Tr>
-            <Th sort={nameSortParams} modifier="wrap" style={{ width: "20%" }}>
+            <Th sort={nameSortParams} modifier="wrap" className={thNameClass}>
               {Columns.Name}
             </Th>
             <Th
               sort={sourceTypeSortParams}
               modifier="wrap"
-              style={{ whiteSpace: "nowrap" }}
+              className={thNowrapClass}
             >
               {Columns.SourceType}
             </Th>
             <Th
               sort={lastUpdatedSortParams}
               modifier="wrap"
-              style={{ whiteSpace: "nowrap" }}
+              className={thNowrapClass}
             >
               {Columns.LastUpdated}
             </Th>
-            <Th
-              sort={ownerSortParams}
-              modifier="wrap"
-              style={{ minWidth: "60px" }}
-            >
+            <Th sort={ownerSortParams} modifier="wrap" className={thOwnerClass}>
               {Columns.Owner}
             </Th>
             <Th
               sort={hostsSortParams}
               modifier="wrap"
-              style={{ maxWidth: "100px" }}
+              className={thNumericClass}
             >
               {Columns.Hosts}
             </Th>
-            <Th
-              sort={vmsSortParams}
-              modifier="wrap"
-              style={{ maxWidth: "100px" }}
-            >
+            <Th sort={vmsSortParams} modifier="wrap" className={thNumericClass}>
               {Columns.VMs}
             </Th>
             <Th
               sort={networksSortParams}
               modifier="wrap"
-              style={{ maxWidth: "100px" }}
+              className={thNumericClass}
             >
               {Columns.Networks}
             </Th>
             <Th
               sort={datastoresSortParams}
               modifier="wrap"
-              style={{ maxWidth: "100px" }}
+              className={thNumericClass}
             >
               {Columns.Datastores}
             </Th>
             <Th
               modifier="fitContent"
               screenReaderText="Actions"
-              style={{ whiteSpace: "nowrap" }}
+              className={thNowrapClass}
             >
               {Columns.Actions}
             </Th>
@@ -479,31 +522,12 @@ export const AssessmentsTable: React.FC<Props> = ({
         <Tbody>
           {rows.map((row) => (
             <Tr key={row.key}>
-              <Td
-                dataLabel={Columns.Name}
-                style={{ overflow: "hidden", maxWidth: 0 }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    minWidth: 0,
-                  }}
-                >
+              <Td dataLabel={Columns.Name} className={nameCellClass}>
+                <div className={nameCellFlexClass}>
                   <Tooltip content={row.name || ""}>
                     <Button
                       variant={row.hasData ? "link" : "plain"}
-                      style={{
-                        padding: 0,
-                        minWidth: 0,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        maxWidth: "100%",
-                        display: "block",
-                        textAlign: "left",
-                      }}
+                      className={nameButtonClass}
                       isDisabled={!row.hasData}
                       onClick={
                         row.hasData
@@ -522,21 +546,13 @@ export const AssessmentsTable: React.FC<Props> = ({
                           : "No inventory data yet. Data collection may be in progress or the source connection failed."
                       }
                     >
-                      <ExclamationTriangleIcon
-                        style={{ color: "#f0ab00", cursor: "help" }}
-                      />
+                      <ExclamationTriangleIcon className={warningIconClass} />
                     </Tooltip>
                   )}
                 </div>
               </Td>
               <Td dataLabel={Columns.SourceType}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                  }}
-                >
+                <div className={cellFlexClass}>
                   {row.sourceType.toLowerCase() === "rvtools" ? (
                     <FileIcon />
                   ) : (
@@ -553,22 +569,8 @@ export const AssessmentsTable: React.FC<Props> = ({
               <Td dataLabel={Columns.VMs}>{row.vms}</Td>
               <Td dataLabel={Columns.Networks}>{row.networks}</Td>
               <Td dataLabel={Columns.Datastores}>{row.datastores}</Td>
-              <Td
-                dataLabel={Columns.Actions}
-                style={{
-                  verticalAlign: "middle",
-                  paddingTop: 0,
-                  paddingBottom: 0,
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    height: "100%",
-                  }}
-                >
+              <Td dataLabel={Columns.Actions} className={actionsCellClass}>
+                <div className={actionsFlexClass}>
                   <Tooltip
                     content={
                       row.hasData
@@ -583,10 +585,14 @@ export const AssessmentsTable: React.FC<Props> = ({
                       aria-label="Open assessment"
                       icon={
                         <MonitoringIcon
-                          style={{ color: row.hasData ? "#0066cc" : "#6a6e73" }}
+                          className={
+                            row.hasData
+                              ? reportIconLinkClass
+                              : reportIconMutedClass
+                          }
                         />
                       }
-                      style={{ padding: 0 }}
+                      className={buttonPlainPaddingClass}
                       isAriaDisabled={!row.hasData}
                       onClick={() => navigate(routes.assessmentReport(row.id))}
                     />
@@ -610,7 +616,7 @@ export const AssessmentsTable: React.FC<Props> = ({
                         variant="plain"
                         onClick={() => toggleDropdown(row.id)}
                         icon={<EllipsisVIcon />}
-                        style={{ padding: 0 }}
+                        className={buttonPlainPaddingClass}
                       ></MenuToggle>
                     )}
                   >

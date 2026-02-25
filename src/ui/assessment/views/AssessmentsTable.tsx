@@ -404,39 +404,67 @@ export const AssessmentsTable: React.FC<Props> = ({
         width: "100%",
         maxHeight: "450px",
         overflowY: "auto",
-        overflowX: "visible",
+        overflowX: "auto",
       }}
     >
       <Table
         aria-label="Assessments table"
         variant="compact"
         borders={false}
-        style={{ tableLayout: "auto", width: "100%", fontSize: "16px" }}
+        style={{ tableLayout: "auto", width: "100%", fontSize: "14px" }}
       >
         <Thead>
           <Tr>
-            <Th sort={nameSortParams} modifier="wrap">
+            <Th sort={nameSortParams} modifier="wrap" style={{ width: "20%" }}>
               {Columns.Name}
             </Th>
-            <Th sort={sourceTypeSortParams} modifier="wrap">
+            <Th
+              sort={sourceTypeSortParams}
+              modifier="wrap"
+              style={{ whiteSpace: "nowrap" }}
+            >
               {Columns.SourceType}
             </Th>
-            <Th sort={lastUpdatedSortParams} modifier="wrap">
+            <Th
+              sort={lastUpdatedSortParams}
+              modifier="wrap"
+              style={{ whiteSpace: "nowrap" }}
+            >
               {Columns.LastUpdated}
             </Th>
-            <Th sort={ownerSortParams} modifier="wrap">
+            <Th
+              sort={ownerSortParams}
+              modifier="wrap"
+              style={{ minWidth: "60px" }}
+            >
               {Columns.Owner}
             </Th>
-            <Th sort={hostsSortParams} modifier="wrap">
+            <Th
+              sort={hostsSortParams}
+              modifier="wrap"
+              style={{ maxWidth: "100px" }}
+            >
               {Columns.Hosts}
             </Th>
-            <Th sort={vmsSortParams} modifier="wrap">
+            <Th
+              sort={vmsSortParams}
+              modifier="wrap"
+              style={{ maxWidth: "100px" }}
+            >
               {Columns.VMs}
             </Th>
-            <Th sort={networksSortParams} modifier="wrap">
+            <Th
+              sort={networksSortParams}
+              modifier="wrap"
+              style={{ maxWidth: "100px" }}
+            >
               {Columns.Networks}
             </Th>
-            <Th sort={datastoresSortParams} modifier="wrap">
+            <Th
+              sort={datastoresSortParams}
+              modifier="wrap"
+              style={{ maxWidth: "100px" }}
+            >
               {Columns.Datastores}
             </Th>
             <Th
@@ -451,26 +479,41 @@ export const AssessmentsTable: React.FC<Props> = ({
         <Tbody>
           {rows.map((row) => (
             <Tr key={row.key}>
-              <Td dataLabel={Columns.Name}>
+              <Td
+                dataLabel={Columns.Name}
+                style={{ overflow: "hidden", maxWidth: 0 }}
+              >
                 <div
                   style={{
                     display: "flex",
                     alignItems: "center",
                     gap: "8px",
+                    minWidth: 0,
                   }}
                 >
-                  <Button
-                    variant={row.hasData ? "link" : "plain"}
-                    style={{ padding: 0 }}
-                    isDisabled={!row.hasData}
-                    onClick={
-                      row.hasData
-                        ? (): void => navigate(routes.assessmentById(row.id))
-                        : undefined
-                    }
-                  >
-                    {row.name}
-                  </Button>
+                  <Tooltip content={row.name || ""}>
+                    <Button
+                      variant={row.hasData ? "link" : "plain"}
+                      style={{
+                        padding: 0,
+                        minWidth: 0,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        maxWidth: "100%",
+                        display: "block",
+                        textAlign: "left",
+                      }}
+                      isDisabled={!row.hasData}
+                      onClick={
+                        row.hasData
+                          ? (): void => navigate(routes.assessmentById(row.id))
+                          : undefined
+                      }
+                    >
+                      {row.name}
+                    </Button>
+                  </Tooltip>
                   {!row.hasData && (
                     <Tooltip
                       content={

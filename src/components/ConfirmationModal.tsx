@@ -6,9 +6,25 @@ import {
   ModalFooter /* data-codemods */,
   ModalHeader /* data-codemods */,
 } from "@patternfly/react-core";
+import { css } from "@emotion/css";
 import React from "react";
 
-import "./ConfirmationModal.css";
+const confirmationModalClass = css({
+  "& .pf-v5-c-modal-box__close, & .pf-v6-c-modal-box__close": {
+    insetBlockStart: 0,
+    top: "1rem",
+  },
+  "& .pf-v5-c-modal-box__header, & .pf-v6-c-modal-box__header": {
+    alignItems: "flex-start",
+    textAlign: "left",
+  },
+});
+
+const confirmationModalBodyClass = css({
+  paddingTop: "3rem",
+  paddingBottom: "3rem",
+  paddingLeft: "2rem",
+});
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace ConfirmationModal {
@@ -54,7 +70,7 @@ export const ConfirmationModal: React.FC<
       width="44rem"
       isOpen={isOpen}
       variant={variant}
-      className="confirmation-modal"
+      className={confirmationModalClass}
       aria-describedby="modal-title-icon-description"
       aria-labelledby="title-icon-modal-title"
       onClose={onClose}
@@ -66,7 +82,7 @@ export const ConfirmationModal: React.FC<
           labelId="title-icon-modal-title"
         />
       </div>
-      <ModalBody className="confirmation-modal-body">{children}</ModalBody>
+      <ModalBody className={confirmationModalBodyClass}>{children}</ModalBody>
       <ModalFooter>
         <Flex justifyContent={{ default: "justifyContentFlexStart" }}>
           <Button

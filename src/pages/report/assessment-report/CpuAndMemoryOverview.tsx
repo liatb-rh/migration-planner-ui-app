@@ -165,7 +165,7 @@ export const CpuAndMemoryOverview: React.FC<CpuAndMemoryOverviewProps> = ({
         >
           <FlexItem>
             <div>
-              <div>
+              <div style={{ paddingTop: "0.32rem" }}>
                 <i className="fas fa-microchip" /> CPU &amp; memory
               </div>
               {!isExportMode && (

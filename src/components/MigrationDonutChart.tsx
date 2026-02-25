@@ -189,6 +189,7 @@ const MigrationDonutChart: React.FC<MigrationDonutChartProps> = ({
         subTitleComponent={
           subTitle ? (
             <ChartLabel
+              dy={7}
               style={[
                 {
                   fill: subTitleColor,

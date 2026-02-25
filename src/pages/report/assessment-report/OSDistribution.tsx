@@ -90,15 +90,15 @@ export const OSBarChart: React.FC<OSBarChartProps> = ({
     name: os,
     count: osInfo.count,
     legendCategory: osInfo.supported
-      ? "Supported by Red Hat"
-      : "Not supported by Red Hat",
+      ? "Supported by MTV"
+      : "Not supported by MTV",
     infoText: osInfo.upgradeRecommendation,
   }));
 
   // Define custom colors: green for supported, red for not supported
   const customLegend = {
-    "Supported by Red Hat": "#28a745", // Green
-    "Not supported by Red Hat": "#d9534f", // Red
+    "Supported by MTV": "#28a745", // Green
+    "Not supported by MTV": "#f0ad4e", // Yellow
   };
 
   const tableHeight = isExportMode ? "auto !important" : "350px";

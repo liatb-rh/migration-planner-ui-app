@@ -1,4 +1,4 @@
-import type { Snapshot as SnapshotApi } from "@migration-planner-ui/api-client/models";
+import type { Snapshot as SnapshotApi } from "@openshift-migration-advisor/planner-sdk";
 import { useInjection } from "@y0n1/react-ioc";
 import { useMemo, useSyncExternalStore } from "react";
 import { useParams } from "react-router-dom";

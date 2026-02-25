@@ -1,4 +1,4 @@
-import { ResponseError } from "@migration-planner-ui/api-client/runtime";
+import { ResponseError } from "@openshift-migration-advisor/planner-sdk";
 import { useInjection } from "@y0n1/react-ioc";
 import { useCallback, useState, useSyncExternalStore } from "react";
 import { useAsyncFn } from "react-use";

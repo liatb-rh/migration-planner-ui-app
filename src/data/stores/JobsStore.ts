@@ -1,6 +1,6 @@
-import type { JobApi } from "@migration-planner-ui/api-client/apis";
-import type { Job } from "@migration-planner-ui/api-client/models";
-import { JobStatus } from "@migration-planner-ui/api-client/models";
+import type { JobApi } from "@openshift-migration-advisor/planner-sdk";
+import type { Job } from "@openshift-migration-advisor/planner-sdk";
+import { JobStatus } from "@openshift-migration-advisor/planner-sdk";
 
 import { PollableStoreBase } from "../../lib/mvvm/PollableStore";
 import type { IJobsStore } from "./interfaces/IJobsStore";

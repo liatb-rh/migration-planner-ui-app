@@ -174,13 +174,13 @@ patch-hosts: install
 # Start federated dev server (HOT mode)
 start: install
 	@echo "🚀 Starting federated dev server..."
-	@@$(BUILD_ENV) HOT=true npx fec dev --clouddotEnv=stage --uiEnv=stable
+	@$(BUILD_ENV) HOT=true npx fec dev --clouddotEnv=stage --uiEnv=stable
 	@echo "✅ Federated dev server started!"
 
 # Start dev proxy server
 start-dev-proxy: install
 	@echo "🚀 Starting dev proxy server..."
-	@npx fec dev-proxy --clouddotEnv=stage --uiEnv=stable
+	@$(BUILD_ENV) npx fec dev-proxy --clouddotEnv=stage --uiEnv=stable
 	@echo "✅ Dev proxy server started!"
 
 # Start federated static server

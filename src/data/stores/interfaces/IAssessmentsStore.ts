@@ -1,6 +1,6 @@
-import type { CalculateAssessmentClusterRequirementsRequest } from "@migration-planner-ui/api-client/apis";
-import type { ClusterRequirementsResponse } from "@migration-planner-ui/api-client/models";
-import type { InitOverrideFunction } from "@migration-planner-ui/api-client/runtime";
+import type { CalculateAssessmentClusterRequirementsRequest } from "@openshift-migration-advisor/planner-sdk";
+import type { ClusterRequirementsResponse } from "@openshift-migration-advisor/planner-sdk";
+import type { InitOverrideFunction } from "@openshift-migration-advisor/planner-sdk";
 
 import type { ExternalStore } from "../../../lib/mvvm/ExternalStore";
 import type { AssessmentModel } from "../../../models/AssessmentModel";

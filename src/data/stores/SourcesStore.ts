@@ -1,5 +1,5 @@
-import type { SourceApiInterface } from "@migration-planner-ui/api-client/apis";
-import { UpdateInventoryFromJSON } from "@migration-planner-ui/api-client/models";
+import type { SourceApiInterface } from "@openshift-migration-advisor/planner-sdk";
+import { UpdateInventoryFromJSON } from "@openshift-migration-advisor/planner-sdk";
 
 import { PollableStoreBase } from "../../lib/mvvm/PollableStore";
 import { createSourceModel, type SourceModel } from "../../models/SourceModel";

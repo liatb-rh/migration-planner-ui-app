@@ -7,15 +7,12 @@ import { createContainer, Symbols } from "../Dependencies";
 // Mocks — API clients (stateless, so we just need constructable stubs)
 // ---------------------------------------------------------------------------
 
-vi.mock("@migration-planner-ui/api-client/apis", () => ({
+vi.mock("@openshift-migration-advisor/planner-sdk", () => ({
   AssessmentApi: vi.fn(),
   ImageApi: vi.fn(),
   InfoApi: vi.fn(),
   JobApi: vi.fn(),
   SourceApi: vi.fn(),
-}));
-
-vi.mock("@migration-planner-ui/api-client/runtime", () => ({
   Configuration: vi.fn(),
 }));
 

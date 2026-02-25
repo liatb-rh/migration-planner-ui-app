@@ -1,4 +1,4 @@
-import type { Assessment } from "@migration-planner-ui/api-client/models";
+import type { Assessment } from "@openshift-migration-advisor/planner-sdk";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { useEffect } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";

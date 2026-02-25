@@ -4,8 +4,8 @@ import {
   InfoApi,
   JobApi,
   SourceApi,
-} from "@migration-planner-ui/api-client/apis";
-import { Configuration } from "@migration-planner-ui/api-client/runtime";
+} from "@openshift-migration-advisor/planner-sdk";
+import { Configuration } from "@openshift-migration-advisor/planner-sdk";
 import type { ChromeAPI } from "@redhat-cloud-services/types";
 import { Container } from "@y0n1/react-ioc";
 

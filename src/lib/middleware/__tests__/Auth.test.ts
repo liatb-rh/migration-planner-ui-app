@@ -1,4 +1,4 @@
-import type { FetchParams } from "@migration-planner-ui/api-client/runtime";
+import type { FetchParams } from "@openshift-migration-advisor/planner-sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createAuthMiddleware } from "../Auth";

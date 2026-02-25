@@ -1,9 +1,9 @@
 import {
   type AssessmentApiInterface,
   type CalculateAssessmentClusterRequirementsRequest,
-} from "@migration-planner-ui/api-client/apis";
-import { type Assessment } from "@migration-planner-ui/api-client/models";
-import { type InitOverrideFunction } from "@migration-planner-ui/api-client/runtime";
+} from "@openshift-migration-advisor/planner-sdk";
+import { type Assessment } from "@openshift-migration-advisor/planner-sdk";
+import { type InitOverrideFunction } from "@openshift-migration-advisor/planner-sdk";
 
 import { PollableStoreBase } from "../../lib/mvvm/PollableStore";
 import {

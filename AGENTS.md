@@ -16,7 +16,7 @@ Testing: Vitest + @testing-library/react + jsdom
 - Views (`src/ui/\*/views/`) render only. No business logic. Call vm hook at top.
 - View models (`src/ui/*/view-models/use*ViewModel.ts`) are custom hooks. One per view. Return typed interface.
 - Stores (`src/data/stores/`) extend PollableStoreBase or ExternalStoreBase. One per API resource. No React imports. No UI callbacks.
-- API clients (`@migration-planner-ui/api-client`) are stateless generated code. Never modify.
+- API clients (`@openshift-migration-advisor/planner-sdk`) are stateless generated code. Never modify.
 - Polling belongs in stores (`startPolling`/`stopPolling`). View models control lifecycle via useMount/useUnmount.
 - Cross-store orchestration belongs in view models (e.g. cancel a job → delete the created assessment).
 - DI: define symbol in `Symbols.ts`, register in `createContainer()`, consume via `useInjection<IXxxStore>(Symbols.X)` using the interface type.

@@ -1,4 +1,4 @@
-import type { InfoApiInterface } from "@migration-planner-ui/api-client/apis";
+import type { InfoApiInterface } from "@openshift-migration-advisor/planner-sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { VersionsStore } from "../VersionsStore";

@@ -1,5 +1,5 @@
-import type { SourceApiInterface } from "@migration-planner-ui/api-client/apis";
-import type { Source } from "@migration-planner-ui/api-client/models";
+import type { SourceApiInterface } from "@openshift-migration-advisor/planner-sdk";
+import type { Source } from "@openshift-migration-advisor/planner-sdk";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SourcesStore } from "../SourcesStore";

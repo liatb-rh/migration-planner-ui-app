@@ -38,7 +38,7 @@ adapted for React + TypeScript.
 | **Views**       | Pure rendering. Receive data from the view model and render PatternFly components. No business logic.                                                                                                                                                                        |
 | **View Models** | Custom hooks (`use<Feature>ViewModel`). Combine store data with local UI state. Control store polling lifecycle.                                                                                                                                                             |
 | **Stores**      | Source of truth for server data. Extend `ExternalStoreBase` or `PollableStoreBase`. Encapsulate API calls, caching, polling, error handling. **All model mapping happens here** — stores transform API models (data-models) into models suitable for the UI, and vice-versa. |
-| **API Clients** | Auto-generated OpenAPI clients from `@migration-planner-ui/api-client`. Stateless.                                                                                                                                                                                           |
+| **API Clients** | Auto-generated OpenAPI clients from `@openshift-migration-advisor/planner-sdk`. Stateless.                                                                                                                                                                                   |
 
 ---
 
@@ -513,7 +513,7 @@ are defined in `src/data/stores/interfaces/IReportStore.ts`.
 
 ## Models
 
-- Domain models come from `@migration-planner-ui/api-client/models`.
+- Domain models come from `@openshift-migration-advisor/planner-sdk`.
 - App-specific models live in `src/models/` (e.g. `VersionInfo`).
 
 ---

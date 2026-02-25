@@ -2,7 +2,7 @@ import type {
   Assessment,
   Snapshot,
   Source,
-} from "@migration-planner-ui/api-client/models";
+} from "@openshift-migration-advisor/planner-sdk";
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 

@@ -80,15 +80,11 @@
   },
   "overrides": {
     "@redhat-cloud-services/frontend-components-config": {
-      "webpack-dev-server": ">=5.2.1",
-      "axios": ">=1.7.4",
-      "minimatch": ">=10.2.1"
+      "webpack-dev-server": ">=5.2.1"
     },
     "@redhat-cloud-services/tsc-transform-imports": {
       "glob": ">=10.4.6"
-    },
-    "axios": ">=1.7.4",
-    "minimatch": ">=10.2.1"
+    }
   },
   "insights": {
     "appname": "assisted-migration-app"

@@ -1,3 +1,5 @@
+import { css } from "@emotion/css";
+
 import "./MigrationChart.css";
 
 import {
@@ -44,6 +46,17 @@ type DLength =
   | 100;
 
 const legendColors = ["#28a745", "#f0ad4e", "#d9534f", "#C9190B"];
+
+const chartRowClasses = {
+  tdLabel: css({ paddingLeft: "0px", verticalAlign: "middle" }),
+  infoButton: css({ padding: 0, minWidth: 0, verticalAlign: "middle" }),
+  tdBar: css({ verticalAlign: "middle" }),
+  tdCount: css({
+    paddingRight: "0px",
+    textAlign: "center",
+    verticalAlign: "middle",
+  }),
+};
 
 const MigrationChart: React.FC<MigrationChartProps> = ({
   data,
@@ -125,13 +138,7 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
               <Tbody>
                 {data.map((item, index) => (
                   <Tr key={index}>
-                    <Td
-                      width={dataLength}
-                      style={{
-                        paddingLeft: "0px",
-                        verticalAlign: "middle",
-                      }}
-                    >
+                    <Td width={dataLength} className={chartRowClasses.tdLabel}>
                       <Flex
                         alignItems={{ default: "alignItemsCenter" }}
                         spaceItems={{ default: "spaceItemsXs" }}
@@ -166,11 +173,7 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                                 type="button"
                                 aria-label="Open operating system upgrade information"
                                 variant="plain"
-                                style={{
-                                  padding: 0,
-                                  minWidth: 0,
-                                  verticalAlign: "middle",
-                                }}
+                                className={chartRowClasses.infoButton}
                               >
                                 <InfoCircleIcon color="#6a6ec8" />
                               </Button>
@@ -179,7 +182,7 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                         ) : null}
                       </Flex>
                     </Td>
-                    <Td style={{ verticalAlign: "middle" }}>
+                    <Td className={chartRowClasses.tdBar}>
                       {/* Visual Bar */}
                       <div>
                         <div
@@ -213,14 +216,7 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                         </div>
                       </div>
                     </Td>
-                    <Td
-                      width={10}
-                      style={{
-                        paddingRight: "0px",
-                        textAlign: "center",
-                        verticalAlign: "middle",
-                      }}
-                    >
+                    <Td width={10} className={chartRowClasses.tdCount}>
                       <Content
                         component="p"
                         style={{ fontSize: "clamp(0.4rem, 0.7vw, 1.1rem)" }}

@@ -1,4 +1,5 @@
 import { ChartDonut, ChartLabel, ChartLegend } from "@patternfly/react-charts";
+import { Flex, FlexItem } from "@patternfly/react-core";
 import React, { useCallback, useMemo } from "react";
 
 interface OSData {
@@ -60,7 +61,6 @@ const MigrationDonutChart: React.FC<MigrationDonutChartProps> = ({
   titleColor = "#000000",
   subTitleColor = "#000000",
   itemsPerRow = 1,
-  marginLeft = "0%",
   labelFontSize = 25,
   titleFontSize = 28,
   subTitleFontSize = 14,
@@ -111,6 +111,26 @@ const MigrationDonutChart: React.FC<MigrationDonutChartProps> = ({
     }));
   }, [chartData, getColor]);
 
+  const legendWidthValue = legendWidth ?? 800;
+  const legendX = useMemo(() => {
+    const symbolAndGap = 34;
+    const charWidth = labelFontSize * 0.55;
+    const itemWidths = legendData.map(
+      (d) => symbolAndGap + d.name.length * charWidth,
+    );
+    const numCols = Math.min(legendData.length, itemsPerRow);
+    const gutter = 16;
+    let contentWidth = (numCols - 1) * gutter;
+    for (let c = 0; c < numCols; c++) {
+      let maxW = 0;
+      for (let i = c; i < itemWidths.length; i += itemsPerRow) {
+        maxW = Math.max(maxW, itemWidths[i] ?? 0);
+      }
+      contentWidth += maxW;
+    }
+    return Math.max(0, (legendWidthValue - contentWidth) / 2);
+  }, [legendData, itemsPerRow, legendWidthValue, labelFontSize]);
+
   const innerRadius = useMemo(() => {
     const outerApprox = Math.min(width, height) / 2;
     const computed = outerApprox - donutThickness;
@@ -130,98 +150,97 @@ const MigrationDonutChart: React.FC<MigrationDonutChartProps> = ({
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
+    <Flex
+      direction={{ default: "column" }}
+      alignItems={{ default: "alignItemsCenter" }}
     >
-      <ChartDonut
-        ariaDesc="Migration data donut chart"
-        data={chartData}
-        labels={({ datum }) => {
-          const safeDatum = datum as ChartDatum;
-          const percent = totalY > 0 ? (Number(safeDatum.y) / totalY) * 100 : 0;
-          return tooltipLabelFormatter
-            ? tooltipLabelFormatter({
-                datum: {
-                  x: safeDatum.x,
-                  y: Number(safeDatum.y),
-                  countDisplay:
-                    typeof safeDatum.countDisplay === "number"
-                      ? String(safeDatum.countDisplay)
-                      : safeDatum.countDisplay,
-                  legendCategory: safeDatum.legendCategory,
-                },
-                percent,
-                total: totalY,
-              })
-            : `${safeDatum.x}: ${safeDatum.countDisplay ?? safeDatum.y}`;
-        }}
-        colorScale={colorScale}
-        constrainToVisibleArea
-        innerRadius={innerRadius}
-        padAngle={padAngle}
-        title={title}
-        subTitle={subTitle}
-        height={height}
-        width={width}
-        padding={{
-          bottom: 5,
-          left: 20,
-          right: 20,
-          top: 0,
-        }}
-        titleComponent={
-          title ? (
-            <ChartLabel
-              style={[
-                {
-                  fill: titleColor,
-                  fontSize: titleFontSize,
-                  fontWeight: "bold",
-                },
-              ]}
-            />
-          ) : undefined
-        }
-        subTitleComponent={
-          subTitle ? (
-            <ChartLabel
-              dy={7}
-              style={[
-                {
-                  fill: subTitleColor,
-                  fontSize: subTitleFontSize,
-                },
-              ]}
-            />
-          ) : undefined
-        }
-      />
-      <div
-        style={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          marginLeft: marginLeft,
-          overflowX: "hidden",
-          overflowY: "hidden",
-        }}
-      >
-        <ChartLegend
-          data={legendData}
-          orientation="horizontal"
-          height={200}
-          width={legendWidth ?? 800}
-          itemsPerRow={itemsPerRow}
-          style={{
-            labels: { fontSize: labelFontSize },
+      <FlexItem>
+        <ChartDonut
+          ariaDesc="Migration data donut chart"
+          data={chartData}
+          labels={({ datum }) => {
+            const safeDatum = datum as ChartDatum;
+            const percent =
+              totalY > 0 ? (Number(safeDatum.y) / totalY) * 100 : 0;
+            return tooltipLabelFormatter
+              ? tooltipLabelFormatter({
+                  datum: {
+                    x: safeDatum.x,
+                    y: Number(safeDatum.y),
+                    countDisplay:
+                      typeof safeDatum.countDisplay === "number"
+                        ? String(safeDatum.countDisplay)
+                        : safeDatum.countDisplay,
+                    legendCategory: safeDatum.legendCategory,
+                  },
+                  percent,
+                  total: totalY,
+                })
+              : `${safeDatum.x}: ${safeDatum.countDisplay ?? safeDatum.y}`;
           }}
+          colorScale={colorScale}
+          constrainToVisibleArea
+          innerRadius={innerRadius}
+          padAngle={padAngle}
+          title={title}
+          subTitle={subTitle}
+          height={height}
+          width={width}
+          padding={{
+            bottom: 5,
+            left: 20,
+            right: 20,
+            top: 0,
+          }}
+          titleComponent={
+            title ? (
+              <ChartLabel
+                style={[
+                  {
+                    fill: titleColor,
+                    fontSize: titleFontSize,
+                    fontWeight: "bold",
+                  },
+                ]}
+              />
+            ) : undefined
+          }
+          subTitleComponent={
+            subTitle ? (
+              <ChartLabel
+                dy={7}
+                style={[
+                  {
+                    fill: subTitleColor,
+                    fontSize: subTitleFontSize,
+                  },
+                ]}
+              />
+            ) : undefined
+          }
         />
-      </div>
-    </div>
+      </FlexItem>
+      <FlexItem flex={{ default: "flex_1" }}>
+        <Flex
+          justifyContent={{ default: "justifyContentCenter" }}
+          alignItems={{ default: "alignItemsCenter" }}
+        >
+          <FlexItem>
+            <ChartLegend
+              data={legendData}
+              orientation="horizontal"
+              height={200}
+              width={legendWidthValue}
+              x={legendX}
+              itemsPerRow={itemsPerRow}
+              style={{
+                labels: { fontSize: labelFontSize },
+              }}
+            />
+          </FlexItem>
+        </Flex>
+      </FlexItem>
+    </Flex>
   );
 };
 

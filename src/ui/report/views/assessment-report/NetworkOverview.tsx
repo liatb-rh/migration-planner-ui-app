@@ -325,7 +325,6 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
                 subTitleColor="#9a9da0"
                 itemsPerRow={Math.ceil(chartData.length / 2)}
                 labelFontSize={18}
-                marginLeft="12%"
                 tooltipLabelFormatter={({ datum, percent }) =>
                   `${datum.countDisplay}\n${percent.toFixed(1)}%\nVLAN: ${legendVlanMap[datum.legendCategory] ?? "-"}`
                 }
@@ -347,7 +346,6 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
                 subTitleColor="#9a9da0"
                 itemsPerRow={Math.ceil((nicChartData?.length ?? 0) / 2)}
                 labelFontSize={18}
-                marginLeft="42%"
                 tooltipLabelFormatter={({ datum, percent }) =>
                   `${datum.countDisplay}\n${percent.toFixed(1)}%`
                 }
@@ -369,7 +367,6 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
                 subTitleColor="#9a9da0"
                 itemsPerRow={Math.ceil(chartData.length / 2)}
                 labelFontSize={18}
-                marginLeft="12%"
                 tooltipLabelFormatter={({ datum, percent }) =>
                   `${datum.countDisplay}\n${percent.toFixed(1)}%\nVLAN: ${legendVlanMap[datum.legendCategory] ?? "-"}`
                 }
@@ -388,7 +385,6 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
                 subTitleColor="#9a9da0"
                 itemsPerRow={Math.ceil((nicChartData?.length ?? 0) / 2)}
                 labelFontSize={18}
-                marginLeft="42%"
                 tooltipLabelFormatter={({ datum, percent }) =>
                   `${datum.countDisplay}\n${percent.toFixed(1)}%`
                 }

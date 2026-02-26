@@ -530,7 +530,7 @@ const Assessment: React.FC<Props> = ({
         isDisabled={isDeletingAssessment}
         title="Delete Assessment"
         titleIconVariant="warning"
-        primaryButtonVariant="danger"
+        primaryButtonVariant="primary"
       >
         Are you sure you want to delete{" "}
         {(selectedAssessment as AssessmentModel)?.name}?

@@ -15,7 +15,7 @@ interface VmMigrationStatusProps {
 
 export const VMMigrationStatus: React.FC<VmMigrationStatusProps> = ({
   data,
-  isExportMode: _isExportMode = false,
+  isExportMode = false,
 }) => {
   const donutData = [
     {
@@ -41,7 +41,10 @@ export const VMMigrationStatus: React.FC<VmMigrationStatusProps> = ({
     <Card
       className={dashboardCard}
       id="vm-migration-status"
-      style={{ height: "340px !important", overflow: "hidden" }}
+      style={{
+        height: isExportMode ? "auto" : "340px !important",
+        overflow: isExportMode ? "visible" : "hidden",
+      }}
     >
       <CardTitle>
         <VirtualMachineIcon /> VM Migration Status

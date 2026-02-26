@@ -29,6 +29,8 @@ const offScreenContainer = css`
     box-shadow: none !important;
     color: black !important;
     border: 1px solid rgba(3, 3, 3, 0.25);
+    max-height: none !important;
+    overflow: visible !important;
   }
 
   .dashboard-card-print,
@@ -41,6 +43,13 @@ const offScreenContainer = css`
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .pf-v6-c-card__body {
+    overflow: visible !important;
+    max-height: none !important;
   }
 `;
 

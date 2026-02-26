@@ -156,7 +156,7 @@ export const CpuAndMemoryOverview: React.FC<CpuAndMemoryOverviewProps> = ({
     <Card
       className={dashboardCard}
       id="cpu-memory-overview"
-      style={{ overflow: "hidden" }}
+      style={{ overflow: isExportMode ? "visible" : "hidden" }}
     >
       <CardTitle>
         <Flex

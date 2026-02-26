@@ -98,7 +98,7 @@ export const HostsOverview: React.FC<HostsOverviewProps> = ({
     <Card
       className={dashboardCard}
       id="hosts-overview"
-      style={{ overflow: "hidden" }}
+      style={{ overflow: isExportMode ? "visible" : "hidden" }}
     >
       <CardTitle>
         <Flex

@@ -27,7 +27,18 @@ import {
 import React, { useMemo, useState } from "react";
 
 import MigrationDonutChart from "../../../core/components/MigrationDonutChart";
-import { dashboardCard } from "./styles";
+import {
+  dashboardCard,
+  storageCardOverflowHidden,
+  storageCardOverflowVisible,
+  storageChartWrapper,
+  storageExportSectionMargin,
+  storageExportSectionTitle,
+  storageFlexFullWidth,
+  storageMenuToggleMinWidth,
+  storageNoDataContainer,
+  storageTotalsNote,
+} from "./styles";
 
 interface StorageOverviewProps {
   DiskSizeTierSummary: { [key: string]: DiskSizeTierSummary };
@@ -242,15 +253,14 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
 
   return (
     <Card
-      className={dashboardCard}
+      className={`${dashboardCard} ${isExportMode ? storageCardOverflowVisible : storageCardOverflowHidden}`}
       id="storage-overview"
-      style={{ overflow: isExportMode ? "visible" : "hidden" }}
     >
       <CardTitle>
         <Flex
           justifyContent={{ default: "justifyContentSpaceBetween" }}
           alignItems={{ default: "alignItemsCenter" }}
-          style={{ width: "100%" }}
+          className={storageFlexFullWidth}
         >
           <FlexItem>
             <i className="fas fa-database" /> Disks
@@ -266,7 +276,7 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                     ref={toggleRef}
                     onClick={onDropdownToggle}
                     isExpanded={isDropdownOpen}
-                    style={{ minWidth: "250px" }}
+                    className={storageMenuToggleMinWidth}
                   >
                     {VIEW_MODE_LABELS[viewMode]}
                   </MenuToggle>
@@ -295,17 +305,10 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
         {!isExportMode || !exportAllViews ? (
           viewMode === "vmCountByDiskType" ? (
             diskTypeChartData.length === 0 ? (
-              <div style={{ padding: "20px", textAlign: "center" }}>
-                No Data Available
-              </div>
+              <div className={storageNoDataContainer}>No Data Available</div>
             ) : (
               <>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                  }}
-                >
+                <div className={storageChartWrapper}>
                   <div style={{ width: `${barChartWidth + 200}px` }}>
                     <Chart
                       ariaTitle="VM count by disk type"
@@ -329,7 +332,7 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                       }}
                       domainPadding={{ x: domainPaddingX }}
                       padding={{ top: 10, bottom: 36, left: 20, right: 20 }}
-                      height={isExportMode ? 180 : 400}
+                      height={isExportMode ? 180 : 250}
                       width={barChartWidth}
                     >
                       <ChartAxis />
@@ -364,10 +367,7 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                 {!isExportMode && (
                   <Content
                     component="small"
-                    style={{
-                      color: "#6a6e73",
-                      marginLeft: "20px",
-                    }}
+                    className={storageTotalsNote}
                   >
                     Totals may exceed the unique VM count because individual VMs
                     can have multiple disk types
@@ -403,16 +403,11 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
           )
         ) : (
           <>
-            <div style={{ marginBottom: "24px" }}>
-              <div style={{ fontWeight: 600, marginBottom: 8 }}>
+            <div className={storageExportSectionMargin}>
+              <div className={storageExportSectionTitle}>
                 {VIEW_MODE_LABELS["vmCountByDiskType"]}
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
+              <div className={storageChartWrapper}>
                 <div style={{ width: `${barChartWidth + 200}px` }}>
                   <Chart
                     ariaTitle="VM count by disk type"
@@ -436,7 +431,7 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                     }}
                     domainPadding={{ x: domainPaddingX }}
                     padding={{ top: 10, bottom: 36, left: 20, right: 20 }}
-                    height={180}
+                    height={isExportMode ? 20: 20}
                     width={barChartWidth}
                   >
                     <ChartAxis />
@@ -476,8 +471,8 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                 </div>
               </div>
             </div>
-            <div style={{ marginBottom: "24px" }}>
-              <div style={{ fontWeight: 600, marginBottom: 8 }}>
+            <div className={storageExportSectionMargin}>
+              <div className={storageExportSectionTitle}>
                 {VIEW_MODE_LABELS["vmCount"]}
               </div>
               <MigrationDonutChart
@@ -498,7 +493,7 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
               />
             </div>
             <div>
-              <div style={{ fontWeight: 600, marginBottom: 8 }}>
+              <div className={storageExportSectionTitle}>
                 {VIEW_MODE_LABELS["totalSize"]}
               </div>
               <MigrationDonutChart

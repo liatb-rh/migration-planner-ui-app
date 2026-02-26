@@ -63,3 +63,47 @@ export const dashboardEqualHeight = css`
   flex: 1 1 0;
   height: 100%;
 `;
+
+// ---------------------------------------------------------------------------
+// StorageOverview-specific styles
+// ---------------------------------------------------------------------------
+
+export const storageCardOverflowHidden = css`
+  overflow: hidden;
+`;
+
+export const storageCardOverflowVisible = css`
+  overflow: visible;
+`;
+
+export const storageFlexFullWidth = css`
+  width: 100%;
+`;
+
+export const storageMenuToggleMinWidth = css`
+  min-width: 250px;
+`;
+
+export const storageNoDataContainer = css`
+  padding: 20px;
+  text-align: center;
+`;
+
+export const storageChartWrapper = css`
+  display: flex;
+  justify-content: center;
+`;
+
+export const storageTotalsNote = css`
+  color: #6a6e73;
+  margin-left: 20px;
+`;
+
+export const storageExportSectionMargin = css`
+  margin-bottom: 24px;
+`;
+
+export const storageExportSectionTitle = css`
+  font-weight: 600;
+  margin-bottom: 8px;
+`;

@@ -1,5 +1,5 @@
-import type { Job } from "@migration-planner-ui/api-client/models";
-import { JobStatus } from "@migration-planner-ui/api-client/models";
+import type { Job } from "@openshift-migration-advisor/planner-sdk";
+import { JobStatus } from "@openshift-migration-advisor/planner-sdk";
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -38,7 +38,7 @@ let mockJobsStore: {
 let jobsStoreState: JobsStoreState;
 let jobsListeners: Set<() => void>;
 
-vi.mock("@migration-planner-ui/ioc", () => ({
+vi.mock("@y0n1/react-ioc", () => ({
   useInjection: (symbol: symbol) => {
     const key = symbol.description;
     if (key === "AssessmentsStore") return mockAssessmentsStore;

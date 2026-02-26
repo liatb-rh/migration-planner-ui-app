@@ -71,6 +71,7 @@ export const generateMockClusterRequirements = (
   return {
     clusterSizing: {
       controlPlaneNodes,
+      failoverNodes: 0,
       totalCPU,
       totalMemory,
       totalNodes,

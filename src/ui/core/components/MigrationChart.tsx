@@ -132,7 +132,12 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
           direction={{ default: "column" }}
           spaceItems={{ default: "spaceItemsMd" }}
         >
-          <div style={{ maxHeight: maxHeight, overflowY: "auto" }}>
+          <div
+            style={{
+              maxHeight: maxHeight.includes("auto") ? "none" : maxHeight,
+              overflowY: maxHeight.includes("auto") ? "visible" : "auto",
+            }}
+          >
             <Table variant="compact" borders={false}>
               <Tbody>
                 {data.map((item, index) => (

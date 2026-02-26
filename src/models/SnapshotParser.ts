@@ -1,4 +1,4 @@
-import type { Snapshot } from "@migration-planner-ui/api-client/models";
+import type { Snapshot } from "@openshift-migration-advisor/planner-sdk";
 
 // ---------------------------------------------------------------------------
 // Shared sorting helper

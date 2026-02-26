@@ -1,4 +1,4 @@
-import type { ImageApiInterface } from "@migration-planner-ui/api-client/apis";
+import type { ImageApiInterface } from "@openshift-migration-advisor/planner-sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ImagesStore } from "../ImagesStore";

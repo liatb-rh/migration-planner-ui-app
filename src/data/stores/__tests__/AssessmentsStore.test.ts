@@ -1,5 +1,5 @@
-import type { AssessmentApiInterface } from "@migration-planner-ui/api-client/apis";
-import type { Assessment } from "@migration-planner-ui/api-client/models";
+import type { AssessmentApiInterface } from "@openshift-migration-advisor/planner-sdk";
+import type { Assessment } from "@openshift-migration-advisor/planner-sdk";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AssessmentsStore } from "../AssessmentsStore";

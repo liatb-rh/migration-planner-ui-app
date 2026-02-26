@@ -1,7 +1,7 @@
 import type {
   DiskSizeTierSummary,
   DiskTypeSummary,
-} from "@migration-planner-ui/api-client/models";
+} from "@openshift-migration-advisor/planner-sdk";
 import {
   Chart,
   ChartAxis,
@@ -244,7 +244,7 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
     <Card
       className={dashboardCard}
       id="storage-overview"
-      style={{ overflow: "hidden" }}
+      style={{ overflow: isExportMode ? "visible" : "hidden" }}
     >
       <CardTitle>
         <Flex

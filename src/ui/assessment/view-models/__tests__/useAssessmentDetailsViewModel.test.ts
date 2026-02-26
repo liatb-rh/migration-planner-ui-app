@@ -2,7 +2,7 @@ import type {
   Assessment,
   Snapshot,
   Source,
-} from "@migration-planner-ui/api-client/models";
+} from "@openshift-migration-advisor/planner-sdk";
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -46,7 +46,7 @@ vi.mock("react-use", () => ({
   useMount: (fn: () => void) => fn(),
 }));
 
-vi.mock("@migration-planner-ui/ioc", () => ({
+vi.mock("@y0n1/react-ioc", () => ({
   useInjection: (symbol: symbol) => {
     const key = symbol.description;
     if (key === "AssessmentsStore") return mockAssessmentsStore;

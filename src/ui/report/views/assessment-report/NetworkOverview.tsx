@@ -1,7 +1,7 @@
 import type {
   Infra,
   VMResourceBreakdown,
-} from "@migration-planner-ui/api-client/models";
+} from "@openshift-migration-advisor/planner-sdk";
 import {
   Card,
   CardBody,
@@ -253,7 +253,7 @@ export const NetworkOverview: React.FC<NetworkOverviewProps> = ({
     <Card
       className={dashboardCard}
       id="network-overview"
-      style={{ overflow: "hidden" }}
+      style={{ overflow: isExportMode ? "visible" : "hidden" }}
     >
       <CardTitle>
         <Flex

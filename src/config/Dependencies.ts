@@ -4,10 +4,10 @@ import {
   InfoApi,
   JobApi,
   SourceApi,
-} from "@migration-planner-ui/api-client/apis";
-import { Configuration } from "@migration-planner-ui/api-client/runtime";
-import { Container } from "@migration-planner-ui/ioc";
+} from "@openshift-migration-advisor/planner-sdk";
+import { Configuration } from "@openshift-migration-advisor/planner-sdk";
 import type { ChromeAPI } from "@redhat-cloud-services/types";
+import { Container } from "@y0n1/react-ioc";
 
 import { AssessmentsStore } from "../data/stores/AssessmentsStore";
 import { ImagesStore } from "../data/stores/ImagesStore";

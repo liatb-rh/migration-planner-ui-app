@@ -3,7 +3,7 @@ import type {
   InventoryData,
   VMResourceBreakdown,
   VMs,
-} from "@migration-planner-ui/api-client/models";
+} from "@openshift-migration-advisor/planner-sdk";
 import {
   Gallery,
   GalleryItem,

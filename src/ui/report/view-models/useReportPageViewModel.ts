@@ -2,8 +2,8 @@ import type {
   Infra,
   InventoryData,
   VMs,
-} from "@migration-planner-ui/api-client/models";
-import { useInjection } from "@migration-planner-ui/ioc";
+} from "@openshift-migration-advisor/planner-sdk";
+import { useInjection } from "@y0n1/react-ioc";
 import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import { useParams } from "react-router-dom";
 import { useAsyncFn, useMount } from "react-use";

@@ -1,4 +1,4 @@
-import type { Agent, Source } from "@migration-planner-ui/api-client/models";
+import type { Agent, Source } from "@openshift-migration-advisor/planner-sdk";
 
 // ---------------------------------------------------------------------------
 // Public type

@@ -1,4 +1,4 @@
-import type { Assessment } from "@migration-planner-ui/api-client/models";
+import type { Assessment } from "@openshift-migration-advisor/planner-sdk";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { useEffect } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -52,7 +52,7 @@ let mockAssessmentsStore: {
 let assessmentsData: AssessmentModel[];
 let assessmentsListeners: Set<() => void>;
 
-vi.mock("@migration-planner-ui/ioc", () => ({
+vi.mock("@y0n1/react-ioc", () => ({
   useInjection: (symbol: symbol) => {
     const key = symbol.description;
     if (key === "AssessmentsStore") return mockAssessmentsStore;

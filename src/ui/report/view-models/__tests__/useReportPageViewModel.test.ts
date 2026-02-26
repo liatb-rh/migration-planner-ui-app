@@ -6,7 +6,7 @@ import type {
   Source,
   VMResourceBreakdown,
   VMs,
-} from "@migration-planner-ui/api-client/models";
+} from "@openshift-migration-advisor/planner-sdk";
 import { act, renderHook } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -76,7 +76,7 @@ const mockReportStore = {
   clearError: vi.fn(),
 };
 
-vi.mock("@migration-planner-ui/ioc", () => ({
+vi.mock("@y0n1/react-ioc", () => ({
   useInjection: vi.fn((symbol: symbol) => {
     const key = symbol.description;
     if (key === "AssessmentsStore") return mockAssessmentsStore;

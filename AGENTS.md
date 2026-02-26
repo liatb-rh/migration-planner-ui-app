@@ -6,7 +6,7 @@ for any task in this codebase. Read the referenced files before generating code.
 ## Architecture (read docs/app-architecture.md for full details)
 
 Pattern: MVVM (Model-View-ViewModel) adapted for React + TypeScript
-DI: @migration-planner-ui/ioc with Symbol-based container (src/config/Di.ts)
+DI: @y0n1/react-ioc with Symbol-based container (src/config/Di.ts)
 UI library: PatternFly 6 (@patternfly/react-core)
 Routing: react-router-dom v6
 Testing: Vitest + @testing-library/react + jsdom
@@ -16,7 +16,7 @@ Testing: Vitest + @testing-library/react + jsdom
 - Views (`src/ui/\*/views/`) render only. No business logic. Call vm hook at top.
 - View models (`src/ui/*/view-models/use*ViewModel.ts`) are custom hooks. One per view. Return typed interface.
 - Stores (`src/data/stores/`) extend PollableStoreBase or ExternalStoreBase. One per API resource. No React imports. No UI callbacks.
-- API clients (`@migration-planner-ui/api-client`) are stateless generated code. Never modify.
+- API clients (`@openshift-migration-advisor/planner-sdk`) are stateless generated code. Never modify.
 - Polling belongs in stores (`startPolling`/`stopPolling`). View models control lifecycle via useMount/useUnmount.
 - Cross-store orchestration belongs in view models (e.g. cancel a job → delete the created assessment).
 - DI: define symbol in `Symbols.ts`, register in `createContainer()`, consume via `useInjection<IXxxStore>(Symbols.X)` using the interface type.

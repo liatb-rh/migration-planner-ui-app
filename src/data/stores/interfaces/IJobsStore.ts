@@ -1,4 +1,4 @@
-import type { Job } from "@migration-planner-ui/api-client/models";
+import type { Job } from "@openshift-migration-advisor/planner-sdk";
 
 import type { ExternalStore } from "../../../lib/mvvm/ExternalStore";
 import type { JobsStoreState } from "../JobsStore";

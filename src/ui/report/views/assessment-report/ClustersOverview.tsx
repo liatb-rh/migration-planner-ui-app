@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import type { InventoryData } from "@migration-planner-ui/api-client/models";
+import type { InventoryData } from "@openshift-migration-advisor/planner-sdk";
 import {
   Card,
   CardBody,
@@ -452,7 +452,7 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
       className={dashboardCard}
       id="clusters-overview"
       data-export-block={isExportMode ? "3.1" : undefined}
-      style={{ overflow: "hidden" }}
+      style={{ overflow: isExportMode ? "visible" : "hidden" }}
     >
       <CardTitle>
         <Flex

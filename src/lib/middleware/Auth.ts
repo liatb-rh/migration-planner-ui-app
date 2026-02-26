@@ -1,4 +1,4 @@
-import type { Middleware } from "@migration-planner-ui/api-client/runtime";
+import type { Middleware } from "@openshift-migration-advisor/planner-sdk";
 import type { ChromeAPI } from "@redhat-cloud-services/types";
 
 export const createAuthMiddleware = (auth: ChromeAPI["auth"]): Middleware => ({

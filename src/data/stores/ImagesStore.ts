@@ -1,4 +1,4 @@
-import type { ImageApiInterface } from "@migration-planner-ui/api-client/apis";
+import type { ImageApiInterface } from "@openshift-migration-advisor/planner-sdk";
 
 import { ExternalStoreBase } from "../../lib/mvvm/ExternalStore";
 import type { IImagesStore } from "./interfaces/IImagesStore";

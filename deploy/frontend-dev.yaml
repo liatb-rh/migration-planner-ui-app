@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/RedHatInsights/frontend-components/refs/heads/master/packages/config-utils/src/feo/spec/frontend-crd.schema.json
+apiVersion: v1
+kind: Template
+metadata:
+  name: migration-advisor-dev
+objects:
+  - apiVersion: cloud.redhat.com/v1alpha1
+    kind: Frontend
+    metadata:
+      name: migration-advisor-dev
+    spec:
+      API:
+        versions:
+          - v1
+      envName: ${ENV_NAME}
+      title: Migration Advisor (Dev)
+      deploymentRepo: https://gitlab.cee.redhat.com/assisted-migration/migration-assessment-app
+      frontend:
+        paths:
+          - /apps/migration-advisor-app-dev
+      image: ${IMAGE}:${IMAGE_TAG}
+      module:
+        manifestLocation: "/apps/assisted-migration-app/fed-mods.json"
+        modules:
+          - id: "migration-assessment"
+            module: "./RootApp"
+            routes:
+              - pathname: /openshift/migration-advisor-dev
+
+parameters:
+  - name: ENV_NAME
+    required: true
+  - name: IMAGE_TAG
+  - name: IMAGE
+    required: true

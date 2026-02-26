@@ -1,4 +1,4 @@
-import type { Host } from "@migration-planner-ui/api-client/models";
+import type { Host } from "@openshift-migration-advisor/planner-sdk";
 import {
   Card,
   CardBody,
@@ -98,7 +98,7 @@ export const HostsOverview: React.FC<HostsOverviewProps> = ({
     <Card
       className={dashboardCard}
       id="hosts-overview"
-      style={{ overflow: "hidden" }}
+      style={{ overflow: isExportMode ? "visible" : "hidden" }}
     >
       <CardTitle>
         <Flex

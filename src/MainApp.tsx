@@ -1,6 +1,6 @@
-import { Provider } from "@migration-planner-ui/ioc";
 import { Bullseye, Spinner } from "@patternfly/react-core";
 import { useChrome } from "@redhat-cloud-services/frontend-components/useChrome";
+import { Provider } from "@y0n1/react-ioc";
 import { Suspense, useMemo } from "react";
 
 import { createContainer } from "./config/Dependencies";

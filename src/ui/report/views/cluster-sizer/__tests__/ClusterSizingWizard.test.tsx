@@ -23,7 +23,7 @@ const mockStore = {
   subscribe: (_cb: () => void): (() => void) => noop,
   getSnapshot: (): unknown[] => EMPTY,
 };
-vi.mock("@migration-planner-ui/ioc", () => ({
+vi.mock("@y0n1/react-ioc", () => ({
   useInjection: vi.fn(() => mockStore),
 }));
 

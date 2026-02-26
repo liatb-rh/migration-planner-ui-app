@@ -45,7 +45,7 @@ adapted for React + TypeScript.
 ## Dependency Injection
 
 All singletons are registered in `src/config/di.ts` using the
-`@migration-planner-ui/ioc` container with Symbol-based keys.
+`@y0n1/react-ioc` container with Symbol-based keys.
 
 ```typescript
 // Register
@@ -536,7 +536,7 @@ are defined in `src/data/stores/interfaces/IReportStore.ts`.
 
 ### View-model tests
 
-- Mock `@migration-planner-ui/ioc` — `useInjection` dispatches on
+- Mock `@y0n1/react-ioc` — `useInjection` dispatches on
   `symbol.description`.
 - Mock `react-router-dom` (`useNavigate`, `useParams`, `useLocation`,
   `useOutletContext`) as needed.

@@ -1,5 +1,5 @@
 import { ResponseError } from "@migration-planner-ui/api-client/runtime";
-import { useInjection } from "@migration-planner-ui/ioc";
+import { useInjection } from "@y0n1/react-ioc";
 import { useCallback, useState, useSyncExternalStore } from "react";
 import { useAsyncFn } from "react-use";
 

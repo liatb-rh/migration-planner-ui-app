@@ -55,7 +55,13 @@
       "envFile": "${workspaceFolder}/.env",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run-script", "start"],
-      "skipFiles": ["<node_internals>/**"]
+      "skipFiles": ["<node_internals>/**"],
+      "serverReadyAction": {
+        "action": "debugWithChrome",
+        "pattern": "- (https://stage\\.foo\\.redhat\\.com:\\d+\/.*)",
+        "uriFormat": "%s",
+        "webRoot": "${workspaceFolder}"
+      }
     }
   ],
   "compounds": [

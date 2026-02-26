@@ -1,4 +1,4 @@
-import { useInjection } from "@migration-planner-ui/ioc";
+import { useInjection } from "@y0n1/react-ioc";
 import { useCallback, useState, useSyncExternalStore } from "react";
 import { useAsyncFn, useMount, useUnmount } from "react-use";
 

@@ -76,7 +76,7 @@ const mockReportStore = {
   clearError: vi.fn(),
 };
 
-vi.mock("@migration-planner-ui/ioc", () => ({
+vi.mock("@y0n1/react-ioc", () => ({
   useInjection: vi.fn((symbol: symbol) => {
     const key = symbol.description;
     if (key === "AssessmentsStore") return mockAssessmentsStore;

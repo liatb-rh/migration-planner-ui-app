@@ -3,7 +3,7 @@ import type {
   InventoryData,
   VMs,
 } from "@migration-planner-ui/api-client/models";
-import { useInjection } from "@migration-planner-ui/ioc";
+import { useInjection } from "@y0n1/react-ioc";
 import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import { useParams } from "react-router-dom";
 import { useAsyncFn, useMount } from "react-use";

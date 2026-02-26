@@ -46,7 +46,7 @@ vi.mock("../../../environment/view-models/EnvironmentPageContext", () => ({
   useEnvironmentPage: () => mockEnvVm,
 }));
 
-vi.mock("@migration-planner-ui/ioc", () => ({
+vi.mock("@y0n1/react-ioc", () => ({
   useInjection: (symbol: symbol) => {
     const key = symbol.description;
     if (key === "AssessmentsStore") return mockAssessmentsStore;

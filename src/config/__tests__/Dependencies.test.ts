@@ -1,4 +1,4 @@
-import { Container } from "@migration-planner-ui/ioc";
+import { Container } from "@y0n1/react-ioc";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createContainer, Symbols } from "../Dependencies";

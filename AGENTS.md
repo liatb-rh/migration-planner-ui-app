@@ -6,7 +6,7 @@ for any task in this codebase. Read the referenced files before generating code.
 ## Architecture (read docs/app-architecture.md for full details)
 
 Pattern: MVVM (Model-View-ViewModel) adapted for React + TypeScript
-DI: @migration-planner-ui/ioc with Symbol-based container (src/config/Di.ts)
+DI: @y0n1/react-ioc with Symbol-based container (src/config/Di.ts)
 UI library: PatternFly 6 (@patternfly/react-core)
 Routing: react-router-dom v6
 Testing: Vitest + @testing-library/react + jsdom

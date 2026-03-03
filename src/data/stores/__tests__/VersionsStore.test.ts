@@ -25,9 +25,9 @@ describe("VersionsStore", () => {
     store = new VersionsStore(api);
   });
 
-  it("initial snapshot has ui.name = migration-planner-ui-app", () => {
+  it("initial snapshot has ui.name = assisted-migration-app", () => {
     const snap = store.getSnapshot();
-    expect(snap.ui.name).toBe("migration-planner-ui-app");
+    expect(snap.ui.name).toBe("assisted-migration-app");
   });
 
   it("initial snapshot has api.name = migration-planner", () => {

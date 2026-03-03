@@ -18,8 +18,9 @@ import type { SourceModel } from "../../../models/SourceModel";
 import type { SnapshotLike } from "../../../services/html-export/types";
 import {
   buildClusterViewModel,
+  compareClustersByVmCount,
   type ClusterViewModel,
-} from "../views/assessment-report/ClusterView";
+} from "../helpers/clusterViewModel";
 
 // ---------------------------------------------------------------------------
 // Public interface
@@ -196,12 +197,33 @@ export const useReportPageViewModel = (): ReportPageViewModel => {
 
   const selectedClusterId = useMemo(() => {
     if (userSelectedClusterId !== null) {
-      return userSelectedClusterId;
+      const isValidSelection =
+        userSelectedClusterId === "all" ||
+        Boolean(
+          assessmentClusters &&
+          Object.prototype.hasOwnProperty.call(
+            assessmentClusters,
+            userSelectedClusterId,
+          ),
+        );
+      if (isValidSelection) {
+        return userSelectedClusterId;
+      }
     }
+
     const clusterKeys = assessmentClusters
       ? Object.keys(assessmentClusters)
       : [];
-    return clusterKeys.length > 0 ? clusterKeys[0] : "all";
+
+    if (clusterKeys.length === 0) {
+      return "all";
+    }
+
+    const sortedKeys = [...clusterKeys].sort((a, b) =>
+      compareClustersByVmCount(a, b, assessmentClusters),
+    );
+
+    return sortedKeys[0];
   }, [userSelectedClusterId, assessmentClusters]);
 
   const selectCluster = useCallback((clusterId: string) => {

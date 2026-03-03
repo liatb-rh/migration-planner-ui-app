@@ -6,9 +6,6 @@ import {
   FormSelectOption,
   Grid,
   GridItem,
-  Stack,
-  StackItem,
-  Title,
 } from "@patternfly/react-core";
 import React from "react";
 
@@ -85,147 +82,139 @@ export const SizingInputForm: React.FC<SizingInputFormProps> = ({
 
   return (
     <Form>
-      <Grid>
+      <Grid hasGutter>
         <GridItem span={12}>
-          <Stack hasGutter>
-            <StackItem>
-              <Title headingLevel="h2">Migration preferences</Title>
-            </StackItem>
+          <Checkbox
+            isLabelWrapped
+            id="control-plane-scheduling"
+            label="Run workloads on control plane nodes"
+            isChecked={values.scheduleOnControlPlane}
+            onChange={handleControlPlaneChange}
+          />
+        </GridItem>
 
-            <StackItem>
-              <Checkbox
-                isLabelWrapped
-                id="control-plane-scheduling"
-                label="Run workloads on control plane nodes"
-                isChecked={values.scheduleOnControlPlane}
-                onChange={handleControlPlaneChange}
+        {/* Worker node CPU cores */}
+        <GridItem span={6}>
+          <FormGroup
+            label="Worker node CPU cores"
+            isRequired
+            fieldId="worker-cpu"
+            labelHelp={
+              <PopoverIcon
+                noVerticalAlign
+                headerContent="Worker node CPU cores"
+                bodyContent="The number of CPU cores allocated to each worker node. Choose based on your workload requirements."
               />
-            </StackItem>
+            }
+          >
+            <FormSelect
+              id="worker-cpu"
+              value={String(values.customCpu)}
+              onChange={handleCpuChange}
+              aria-label="Worker node CPU cores"
+            >
+              {CPU_OPTIONS.map((option) => (
+                <FormSelectOption
+                  key={option.value}
+                  value={String(option.value)}
+                  label={option.label}
+                />
+              ))}
+            </FormSelect>
+          </FormGroup>
+        </GridItem>
 
-            {/* Worker node CPU cores */}
-            <StackItem>
-              <FormGroup
-                label="Worker node CPU cores"
-                isRequired
-                fieldId="worker-cpu"
-                labelHelp={
-                  <PopoverIcon
-                    noVerticalAlign
-                    headerContent="Worker node CPU cores"
-                    bodyContent="The number of CPU cores allocated to each worker node. Choose based on your workload requirements."
-                  />
-                }
-              >
-                <FormSelect
-                  id="worker-cpu"
-                  value={String(values.customCpu)}
-                  onChange={handleCpuChange}
-                  aria-label="Worker node CPU cores"
-                >
-                  {CPU_OPTIONS.map((option) => (
-                    <FormSelectOption
-                      key={option.value}
-                      value={String(option.value)}
-                      label={option.label}
-                    />
-                  ))}
-                </FormSelect>
-              </FormGroup>
-            </StackItem>
+        {/* Worker node memory size (GB) */}
+        <GridItem span={6}>
+          <FormGroup
+            label="Worker node memory size (GB)"
+            isRequired
+            fieldId="worker-memory"
+            labelHelp={
+              <PopoverIcon
+                noVerticalAlign
+                headerContent="Worker node memory size"
+                bodyContent="The amount of memory in GB allocated to each worker node. Choose based on your workload requirements."
+              />
+            }
+          >
+            <FormSelect
+              id="worker-memory"
+              value={String(values.customMemoryGb)}
+              onChange={handleMemoryChange}
+              aria-label="Worker node memory size"
+            >
+              {MEMORY_OPTIONS.map((option) => (
+                <FormSelectOption
+                  key={option.value}
+                  value={String(option.value)}
+                  label={option.label}
+                />
+              ))}
+            </FormSelect>
+          </FormGroup>
+        </GridItem>
 
-            {/* Worker node memory size (GB) */}
-            <StackItem>
-              <FormGroup
-                label="Worker node memory size (GB)"
-                isRequired
-                fieldId="worker-memory"
-                labelHelp={
-                  <PopoverIcon
-                    noVerticalAlign
-                    headerContent="Worker node memory size"
-                    bodyContent="The amount of memory in GB allocated to each worker node. Choose based on your workload requirements."
-                  />
-                }
-              >
-                <FormSelect
-                  id="worker-memory"
-                  value={String(values.customMemoryGb)}
-                  onChange={handleMemoryChange}
-                  aria-label="Worker node memory size"
-                >
-                  {MEMORY_OPTIONS.map((option) => (
-                    <FormSelectOption
-                      key={option.value}
-                      value={String(option.value)}
-                      label={option.label}
-                    />
-                  ))}
-                </FormSelect>
-              </FormGroup>
-            </StackItem>
+        {/* CPU overcommitment */}
+        <GridItem span={6}>
+          <FormGroup
+            label="CPU overcommitment"
+            isRequired
+            fieldId="cpu-overcommit-ratio"
+            labelHelp={
+              <PopoverIcon
+                noVerticalAlign
+                headerContent="CPU overcommitment"
+                bodyContent="The ratio of virtual CPUs to physical cores. Higher ratios allow more VMs but may impact performance if all VMs peak at once. Example: At 1:4, you can run 400 virtual CPUs on 100 physical cores."
+              />
+            }
+          >
+            <FormSelect
+              id="cpu-overcommit-ratio"
+              value={String(values.cpuOvercommitRatio)}
+              onChange={handleCpuOvercommitChange}
+              aria-label="CPU overcommitment ratio"
+            >
+              {CPU_OVERCOMMIT_OPTIONS.map((option) => (
+                <FormSelectOption
+                  key={option.value}
+                  value={String(option.value)}
+                  label={option.label}
+                />
+              ))}
+            </FormSelect>
+          </FormGroup>
+        </GridItem>
 
-            {/* CPU overcommitment */}
-            <StackItem>
-              <FormGroup
-                label="CPU overcommitment"
-                isRequired
-                fieldId="cpu-overcommit-ratio"
-                labelHelp={
-                  <PopoverIcon
-                    noVerticalAlign
-                    headerContent="CPU overcommitment"
-                    bodyContent="The ratio of virtual CPUs to physical cores. Higher ratios allow more VMs but may impact performance if all VMs peak at once. Example: At 1:4, you can run 400 virtual CPUs on 100 physical cores."
-                  />
-                }
-              >
-                <FormSelect
-                  id="cpu-overcommit-ratio"
-                  value={String(values.cpuOvercommitRatio)}
-                  onChange={handleCpuOvercommitChange}
-                  aria-label="CPU overcommitment ratio"
-                >
-                  {CPU_OVERCOMMIT_OPTIONS.map((option) => (
-                    <FormSelectOption
-                      key={option.value}
-                      value={String(option.value)}
-                      label={option.label}
-                    />
-                  ))}
-                </FormSelect>
-              </FormGroup>
-            </StackItem>
-
-            {/* Memory overcommitment */}
-            <StackItem>
-              <FormGroup
-                label="Memory overcommitment"
-                isRequired
-                fieldId="memory-overcommit-ratio"
-                labelHelp={
-                  <PopoverIcon
-                    noVerticalAlign
-                    headerContent="Memory overcommitment"
-                    bodyContent="The ratio of virtual memory to physical memory. Higher ratios allow more VMs; memory overcommit is typically more conservative than CPU (max 1:4)."
-                  />
-                }
-              >
-                <FormSelect
-                  id="memory-overcommit-ratio"
-                  value={String(values.memoryOvercommitRatio)}
-                  onChange={handleMemoryOvercommitChange}
-                  aria-label="Memory overcommitment ratio"
-                >
-                  {MEMORY_OVERCOMMIT_OPTIONS.map((option) => (
-                    <FormSelectOption
-                      key={option.value}
-                      value={String(option.value)}
-                      label={option.label}
-                    />
-                  ))}
-                </FormSelect>
-              </FormGroup>
-            </StackItem>
-          </Stack>
+        {/* Memory overcommitment */}
+        <GridItem span={6}>
+          <FormGroup
+            label="Memory overcommitment"
+            isRequired
+            fieldId="memory-overcommit-ratio"
+            labelHelp={
+              <PopoverIcon
+                noVerticalAlign
+                headerContent="Memory overcommitment"
+                bodyContent="The ratio of virtual memory to physical memory. Higher ratios allow more VMs; memory overcommit is typically more conservative than CPU (max 1:4)."
+              />
+            }
+          >
+            <FormSelect
+              id="memory-overcommit-ratio"
+              value={String(values.memoryOvercommitRatio)}
+              onChange={handleMemoryOvercommitChange}
+              aria-label="Memory overcommitment ratio"
+            >
+              {MEMORY_OVERCOMMIT_OPTIONS.map((option) => (
+                <FormSelectOption
+                  key={option.value}
+                  value={String(option.value)}
+                  label={option.label}
+                />
+              ))}
+            </FormSelect>
+          </FormGroup>
         </GridItem>
       </Grid>
     </Form>

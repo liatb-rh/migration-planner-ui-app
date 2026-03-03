@@ -1,3 +1,4 @@
+import type { MigrationEstimationResponse } from "@openshift-migration-advisor/planner-sdk";
 import { ResponseError } from "@openshift-migration-advisor/planner-sdk";
 import { useInjection } from "@y0n1/react-ioc";
 import { useCallback, useState, useSyncExternalStore } from "react";
@@ -26,6 +27,11 @@ export interface ClusterSizingWizardViewModel {
   isCalculating: boolean;
   calculateError: Error | undefined;
   calculate: () => Promise<void>;
+  migrationEstimation: MigrationEstimationResponse | null;
+  isCalculatingEstimation: boolean;
+  estimationError: Error | undefined;
+  calculateEstimation: () => Promise<void>;
+  ensureEstimationForMenu: (menuItem: string | null) => void;
   reset: () => void;
 }
 
@@ -49,6 +55,8 @@ export const useClusterSizingWizardViewModel = (
     useState<SizingFormValues>(DEFAULT_FORM_VALUES);
   const [sizerOutput, setSizerOutput] =
     useState<ClusterRequirementsResponse | null>(null);
+  const [migrationEstimation, setMigrationEstimation] =
+    useState<MigrationEstimationResponse | null>(null);
 
   const [calculateState, doCalculate] = useAsyncFn(async () => {
     // Get worker node CPU and memory based on preset or custom values
@@ -89,9 +97,48 @@ export const useClusterSizingWizardViewModel = (
     }
   }, [assessmentId, assessmentsStore, clusterId, formValues]);
 
+  const [estimationState, doCalculateEstimation] = useAsyncFn(async () => {
+    try {
+      const result = await assessmentsStore.calculateMigrationEstimation({
+        id: assessmentId,
+        migrationEstimationRequest: { clusterId },
+      });
+
+      setMigrationEstimation(result);
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        const message = await err.response.text();
+        throw new Error(err.message, { cause: message });
+      }
+      throw err instanceof Error
+        ? err
+        : new Error("Failed to calculate migration estimation");
+    }
+  }, [assessmentId, assessmentsStore, clusterId]);
+
+  const ensureEstimationForMenu = useCallback(
+    (menuItem: string | null) => {
+      if (
+        menuItem === "time-estimation" &&
+        !migrationEstimation &&
+        !estimationState.loading &&
+        !estimationState.error
+      ) {
+        void doCalculateEstimation();
+      }
+    },
+    [
+      migrationEstimation,
+      estimationState.loading,
+      estimationState.error,
+      doCalculateEstimation,
+    ],
+  );
+
   const reset = useCallback(() => {
     setFormValues(DEFAULT_FORM_VALUES);
     setSizerOutput(null);
+    setMigrationEstimation(null);
   }, []);
 
   return {
@@ -101,6 +148,11 @@ export const useClusterSizingWizardViewModel = (
     isCalculating: calculateState.loading,
     calculateError: calculateState.error,
     calculate: doCalculate,
+    migrationEstimation,
+    isCalculatingEstimation: estimationState.loading,
+    estimationError: estimationState.error,
+    calculateEstimation: doCalculateEstimation,
+    ensureEstimationForMenu,
     reset,
   };
 };

@@ -84,7 +84,8 @@
     },
     "@redhat-cloud-services/tsc-transform-imports": {
       "glob": ">=10.4.6"
-    }
+    },
+    "serialize-javascript": ">=7.0.3"
   },
   "insights": {
     "appname": "assisted-migration-app"

@@ -257,7 +257,7 @@ describe("useReportPageViewModel", () => {
   });
 
   describe("cluster selection", () => {
-    it("auto-selects first cluster when clusters are present", () => {
+    it("auto-selects largest cluster by VM count when clusters are present", () => {
       const assessment = createAssessment("assessment-1", {
         "Cluster-A": { infra: createInfra(2, 2), vms: createVMs(5) },
         "Cluster-B": { infra: createInfra(3, 3), vms: createVMs(7) },
@@ -265,7 +265,7 @@ describe("useReportPageViewModel", () => {
       mockAssessmentsStore.getSnapshot.mockReturnValue([assessment]);
 
       const { result } = renderHook(() => useReportPageViewModel());
-      expect(result.current.selectedClusterId).toBe("Cluster-A");
+      expect(result.current.selectedClusterId).toBe("Cluster-B");
     });
 
     it("defaults to 'all' when no clusters exist", () => {
@@ -284,13 +284,13 @@ describe("useReportPageViewModel", () => {
       mockAssessmentsStore.getSnapshot.mockReturnValue([assessment]);
 
       const { result } = renderHook(() => useReportPageViewModel());
-      expect(result.current.selectedClusterId).toBe("Cluster-A");
+      expect(result.current.selectedClusterId).toBe("Cluster-B");
 
       act(() => {
-        result.current.selectCluster("Cluster-B");
+        result.current.selectCluster("Cluster-A");
       });
 
-      expect(result.current.selectedClusterId).toBe("Cluster-B");
+      expect(result.current.selectedClusterId).toBe("Cluster-A");
     });
   });
 

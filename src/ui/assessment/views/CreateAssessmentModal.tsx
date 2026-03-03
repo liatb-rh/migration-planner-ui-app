@@ -38,6 +38,8 @@ interface CreateAssessmentModalProps {
   jobProgressLabel?: string;
   /** Error derived from a failed job (null when job hasn't failed). */
   jobError?: Error | null;
+  /** `true` while loading assessments and navigating to report after job completion. */
+  isNavigatingToReport?: boolean;
 }
 
 const isDuplicateNameError = (error: Error | null): boolean =>
@@ -71,6 +73,7 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
   jobProgressValue = 0,
   jobProgressLabel = "",
   jobError = null,
+  isNavigatingToReport = false,
 }) => {
   const [assessmentName, setAssessmentName] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -86,7 +89,7 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
 
   // Track dismissed API errors (reset on new submission)
   const [nameErrorDismissed, setNameErrorDismissed] = useState(false);
-  const [fileErrorDismissed, setFileErrorDismissed] = useState(false);
+  const [generalErrorDismissed, setGeneralErrorDismissed] = useState(false);
 
   // Helper to check if file operations should be disabled (RVTools mode during job creation/processing)
   const isFileOperationsDisabled =
@@ -99,14 +102,14 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
   React.useEffect(() => {
     if (error || jobError) {
       setNameErrorDismissed(false);
-      setFileErrorDismissed(false);
+      setGeneralErrorDismissed(false);
     }
   }, [error, jobError]);
 
   const hasDuplicateNameError =
     !nameErrorDismissed && isDuplicateNameError(effectiveError);
   const hasGeneralApiError =
-    !fileErrorDismissed &&
+    !generalErrorDismissed &&
     !!effectiveError &&
     !isDuplicateNameError(effectiveError) &&
     !isAbortError(effectiveError);
@@ -138,7 +141,7 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
         };
       case "rvtools":
         return {
-          title: "Create migration assessment from RVTools",
+          title: "Create assessment from RVTools",
           fileLabel: "RVTools File (Excel)",
           fileDescription: "Select an Excel file from RVTools (max 50 MiB)",
           accept: ".xlsx,.xls",
@@ -148,7 +151,7 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
         };
       case "agent":
         return {
-          title: "Create migration assessment from Environment",
+          title: "Create assessment from Environment",
           fileLabel: "Environment",
           fileDescription: "Select an environment to create assessment from",
           accept: "",
@@ -172,8 +175,6 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
     if (isFileOperationsDisabled) {
       return;
     }
-
-    setFileErrorDismissed(true);
 
     const maxSize = 52428800; // 50 MiB
     const fileExtension = file.name.toLowerCase().split(".").pop();
@@ -214,7 +215,6 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
     setSelectedFile(null);
     setFilename("");
     setFileValidationError("");
-    setFileErrorDismissed(true);
   };
 
   const validateForm = (): boolean => {
@@ -256,7 +256,7 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
     setFileValidationError("");
     setSelectedEnvironmentId("");
     setNameErrorDismissed(true);
-    setFileErrorDismissed(true);
+    setGeneralErrorDismissed(true);
     setRvtoolsConsentChecked(false);
     onClose();
   };
@@ -272,7 +272,12 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
     !!nameErrorToDisplay ||
     !!fileValidationError ||
     hasGeneralApiError ||
-    !!isJobProcessing;
+    !!isJobProcessing ||
+    isNavigatingToReport;
+
+  const progressMessage = isNavigatingToReport
+    ? "Opening report..."
+    : `${jobProgressValue}% done. ${jobProgressLabel}`;
 
   const actions = [
     <Button
@@ -280,16 +285,21 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
       variant="primary"
       onClick={handleSubmit}
       isDisabled={isButtonDisabled}
-      isLoading={isLoading || isJobProcessing}
+      isLoading={isLoading || isJobProcessing || isNavigatingToReport}
     >
-      Create Migration Assessment
+      Create Assessment
     </Button>,
-    <Button key="cancel" variant="link" onClick={handleClose}>
+    <Button
+      key="cancel"
+      variant="link"
+      onClick={handleClose}
+      isDisabled={isNavigatingToReport}
+    >
       Cancel
     </Button>,
-    isJobProcessing && (
+    (isJobProcessing || isNavigatingToReport) && (
       <div key="progress" style={{ marginRight: "auto" }}>
-        {`${jobProgressValue}% done. ${jobProgressLabel}`}
+        {progressMessage}
       </div>
     ),
   ].filter(Boolean);
@@ -316,9 +326,11 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
                   setNameValidationError("");
                 }
                 setNameErrorDismissed(true);
+                setGeneralErrorDismissed(true);
               }}
               validated={nameErrorToDisplay ? "error" : "default"}
               placeholder="Enter assessment name"
+              isDisabled={isFileOperationsDisabled}
             />
             {nameErrorToDisplay && (
               <HelperText>
@@ -439,6 +451,7 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
                       setRvtoolsConsentChecked(Boolean(checked));
                     }}
                     isRequired
+                    isDisabled={isFileOperationsDisabled}
                   />
                 </div>
               )}

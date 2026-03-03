@@ -25,7 +25,7 @@ objects:
           - id: "migration-assessment"
             module: "./RootApp"
             routes:
-              - pathname: /openshift/migration-assessment
+              - pathname: /openshift/migration-advisor
 
 parameters:
   - name: ENV_NAME

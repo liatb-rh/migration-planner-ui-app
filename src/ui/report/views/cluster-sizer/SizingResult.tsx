@@ -1,26 +1,35 @@
+import { css } from "@emotion/css";
 import {
   Alert,
+  AlertActionCloseButton,
   Button,
-  Content,
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
   Flex,
   FlexItem,
-  Panel,
-  PanelHeader,
-  PanelMain,
-  PanelMainBody,
+  List,
+  ListItem,
   Spinner,
   Stack,
   StackItem,
-  Title,
 } from "@patternfly/react-core";
 import { CopyIcon } from "@patternfly/react-icons";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 
 import { CPU_OVERCOMMIT_OPTIONS, MEMORY_OVERCOMMIT_OPTIONS } from "./constants";
 import type { ClusterRequirementsResponse, SizingFormValues } from "./types";
 
 const DISCLAIMER_TEXT =
   "Note: Resource requirements are estimates based on current workloads. Please verify this architecture with your SME team to ensure optimal performance.";
+
+const descriptionListStyles = css`
+  .pf-v6-c-description-list__term {
+    min-width: 250px;
+    width: auto;
+  }
+`;
 
 interface SizingResultProps {
   clusterName: string;
@@ -74,16 +83,17 @@ const generatePlainTextRecommendation = (
   return `
 Cluster: ${clusterName}
 Total Nodes: ${output.clusterSizing.totalNodes} (${output.clusterSizing.workerNodes} workers + ${output.clusterSizing.controlPlaneNodes} control plane)
+Failover Capacity: ${output.clusterSizing.failoverNodes} failover nodes
 Node Size: ${formValues.customCpu} CPU / ${formValues.customMemoryGb} GB
 
 Additional info
-Target Platform: BareMetal
+Target Platform: Bare Metal
 Over-Commitment: CPU ${getCpuOvercommitLabel(formValues.cpuOvercommitRatio)}, Memory ${getMemoryOvercommitLabel(formValues.memoryOvercommitRatio)}
 VMs to Migrate: ${formatNumber(output.inventoryTotals.totalVMs)} VMs
 - CPU Over-Commit Ratio: ${formatRatio(cpuOverCommitRatio)}
 - Memory Over-Commit Ratio: ${formatRatio(memoryOverCommitRatio)}
 Resource Breakdown
-VM Resources (requested): ${formatNumber(output.inventoryTotals.totalCPU)} CPU / ${formatNumber(output.inventoryTotals.totalMemory)} GB
+VM resources (request): ${formatNumber(output.inventoryTotals.totalCPU)} CPU / ${formatNumber(output.inventoryTotals.totalMemory)} GB
 With Over-commit (limits): ${formatNumber(cpuLimits)} CPU / ${formatNumber(memoryLimits)} GB
 Physical Capacity: ${formatNumber(output.clusterSizing.totalCPU)} CPU / ${formatNumber(output.clusterSizing.totalMemory)} GB
 
@@ -98,6 +108,9 @@ export const SizingResult: React.FC<SizingResultProps> = ({
   isLoading = false,
   error = null,
 }) => {
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
+
   const plainTextRecommendation = useMemo(() => {
     if (!sizerOutput) return "";
     return generatePlainTextRecommendation(
@@ -108,9 +121,36 @@ export const SizingResult: React.FC<SizingResultProps> = ({
   }, [clusterName, formValues, sizerOutput]);
 
   const handleCopyRecommendations = useCallback(() => {
-    void navigator.clipboard.writeText(plainTextRecommendation).catch((err) => {
-      console.error("Failed to copy recommendations:", err);
-    });
+    setCopyError(null);
+    setCopySuccess(false);
+
+    if (
+      !navigator.clipboard ||
+      !navigator.clipboard.writeText ||
+      (typeof window !== "undefined" && !window.isSecureContext)
+    ) {
+      setCopyError(
+        "Clipboard API is not available. Please use HTTPS or a secure context.",
+      );
+      setTimeout(() => setCopyError(null), 5000);
+      return;
+    }
+
+    navigator.clipboard
+      .writeText(plainTextRecommendation)
+      .then(() => {
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 3000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy recommendations:", err);
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "Failed to copy to clipboard. Please check your browser permissions.";
+        setCopyError(errorMessage);
+        setTimeout(() => setCopyError(null), 5000);
+      });
   }, [plainTextRecommendation]);
 
   if (isLoading) {
@@ -160,9 +200,7 @@ export const SizingResult: React.FC<SizingResultProps> = ({
     return (
       <Stack hasGutter>
         <StackItem>
-          <Content>
-            <Content component="p">No sizing data available.</Content>
-          </Content>
+          <p>No sizing data available.</p>
         </StackItem>
       </Stack>
     );
@@ -177,100 +215,139 @@ export const SizingResult: React.FC<SizingResultProps> = ({
   const memoryLimits = sizerOutput.resourceConsumption.limits?.memory ?? 0;
 
   return (
-    <Panel>
-      {/* Sticky Header with title and copy button */}
-      <PanelHeader>
-        <Flex justifyContent={{ default: "justifyContentSpaceBetween" }}>
-          <FlexItem>
-            <Title headingLevel="h2">Review cluster recommendations</Title>
-          </FlexItem>
-          <FlexItem>
-            <Button
-              variant="link"
-              icon={<CopyIcon />}
-              iconPosition="end"
-              onClick={handleCopyRecommendations}
-            >
-              Copy recommendations
-            </Button>
-          </FlexItem>
-        </Flex>
-      </PanelHeader>
+    <Stack hasGutter>
+      <StackItem>
+        <DescriptionList
+          isHorizontal
+          isCompact
+          className={descriptionListStyles}
+        >
+          <DescriptionListGroup>
+            <DescriptionListTerm>Cluster name</DescriptionListTerm>
+            <DescriptionListDescription>
+              {clusterName}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
 
-      {/* Scrollable Content */}
-      <PanelMain>
-        <PanelMainBody>
-          <Stack hasGutter>
-            {/* Main cluster info */}
+          <DescriptionListGroup>
+            <DescriptionListTerm>Target platform</DescriptionListTerm>
+            <DescriptionListDescription>Bare Metal</DescriptionListDescription>
+          </DescriptionListGroup>
 
-            <StackItem>
-              <Alert isInline variant="info" title={DISCLAIMER_TEXT} />
-            </StackItem>
-            <StackItem>
-              <Content>
-                <Content>
-                  <strong>Cluster:</strong> {clusterName}
-                </Content>
-                <Content>
-                  <strong>
-                    Total Nodes: {sizerOutput.clusterSizing.totalNodes} (
-                    {sizerOutput.clusterSizing.workerNodes} workers +{" "}
-                    {sizerOutput.clusterSizing.controlPlaneNodes} control plane)
-                  </strong>
-                </Content>
-                <Content>
-                  <strong>
-                    Node Size: {formValues.customCpu} CPU /{" "}
-                    {formValues.customMemoryGb} GB
-                  </strong>
-                </Content>
-              </Content>
-            </StackItem>
+          <DescriptionListGroup>
+            <DescriptionListTerm>Total nodes</DescriptionListTerm>
+            <DescriptionListDescription>
+              {sizerOutput.clusterSizing.totalNodes} (
+              {sizerOutput.clusterSizing.workerNodes} workers +{" "}
+              {sizerOutput.clusterSizing.controlPlaneNodes} control plane)
+            </DescriptionListDescription>
+          </DescriptionListGroup>
 
-            {/* Additional info section */}
-            <StackItem>
-              <Content>
-                <Content>
-                  <strong>Additional info</strong>
-                </Content>
-                <Content>Target Platform: BareMetal</Content>
-                <Content>
-                  Over-Commitment: CPU{" "}
-                  {getCpuOvercommitLabel(formValues.cpuOvercommitRatio)}, Memory{" "}
-                  {getMemoryOvercommitLabel(formValues.memoryOvercommitRatio)}
-                </Content>
-                <Content>
-                  VMs to Migrate:{" "}
-                  {formatNumber(sizerOutput.inventoryTotals.totalVMs)} VMs
-                </Content>
-                <Content>
-                  ~ CPU Over-Commit Ratio: {formatRatio(cpuOverCommitRatio)}
-                </Content>
-                <Content>
-                  - Memory Over-Commit Ratio:{" "}
-                  {formatRatio(memoryOverCommitRatio)}
-                </Content>
-                <Content>Resource Breakdown</Content>
-                <Content>
-                  VM Resources (requested):{" "}
-                  {formatNumber(sizerOutput.inventoryTotals.totalCPU)} CPU /{" "}
+          <DescriptionListGroup>
+            <DescriptionListTerm>Failover Capacity</DescriptionListTerm>
+            <DescriptionListDescription>
+              {sizerOutput.clusterSizing.failoverNodes} failover nodes
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+
+          <DescriptionListGroup>
+            <DescriptionListTerm>Node size</DescriptionListTerm>
+            <DescriptionListDescription>
+              {formValues.customCpu} CPU, {formValues.customMemoryGb} GB memory
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+
+          <DescriptionListGroup>
+            <DescriptionListTerm>Over-commitment</DescriptionListTerm>
+            <DescriptionListDescription>
+              CPU {getCpuOvercommitLabel(formValues.cpuOvercommitRatio)}, Memory{" "}
+              {getMemoryOvercommitLabel(formValues.memoryOvercommitRatio)}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+
+          <DescriptionListGroup>
+            <DescriptionListTerm>Workload details</DescriptionListTerm>
+            <DescriptionListDescription>
+              <List isPlain>
+                <ListItem>
+                  VMs to migrate:{" "}
+                  {formatNumber(sizerOutput.inventoryTotals.totalVMs)}
+                </ListItem>
+                <ListItem>
+                  CPU over-commit ratio: {formatRatio(cpuOverCommitRatio)}
+                </ListItem>
+                <ListItem>
+                  Memory over-commit ratio: {formatRatio(memoryOverCommitRatio)}
+                </ListItem>
+              </List>
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+
+          <DescriptionListGroup>
+            <DescriptionListTerm>Resources</DescriptionListTerm>
+            <DescriptionListDescription>
+              <List isPlain>
+                <ListItem>
+                  VM resources (request):{" "}
+                  {formatNumber(sizerOutput.inventoryTotals.totalCPU)} CPU,{" "}
                   {formatNumber(sizerOutput.inventoryTotals.totalMemory)} GB
-                </Content>
-                <Content>
-                  With Over-commit (limits): {formatNumber(cpuLimits)} CPU /{" "}
-                  {formatNumber(memoryLimits)} GB
-                </Content>
-                <Content>
-                  Physical Capacity:{" "}
-                  {formatNumber(sizerOutput.clusterSizing.totalCPU)} CPU /{" "}
+                  memory
+                </ListItem>
+                <ListItem>
+                  With Over-commit (limits): {formatNumber(cpuLimits)} CPU,{" "}
+                  {formatNumber(memoryLimits)} GB memory
+                </ListItem>
+                <ListItem>
+                  Physical capacity:{" "}
+                  {formatNumber(sizerOutput.clusterSizing.totalCPU)} CPU,{" "}
                   {formatNumber(sizerOutput.clusterSizing.totalMemory)} GB
-                </Content>
-              </Content>
-            </StackItem>
-          </Stack>
-        </PanelMainBody>
-      </PanelMain>
-    </Panel>
+                  memory
+                </ListItem>
+              </List>
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        </DescriptionList>
+      </StackItem>
+
+      <StackItem>
+        <Button
+          variant="link"
+          icon={<CopyIcon />}
+          iconPosition="end"
+          onClick={handleCopyRecommendations}
+        >
+          Copy as plain text
+        </Button>
+      </StackItem>
+
+      {copySuccess && (
+        <StackItem>
+          <Alert
+            variant="success"
+            isInline
+            title="Copied to clipboard"
+            actionClose={
+              <AlertActionCloseButton onClose={() => setCopySuccess(false)} />
+            }
+          />
+        </StackItem>
+      )}
+
+      {copyError && (
+        <StackItem>
+          <Alert
+            variant="danger"
+            isInline
+            title="Failed to copy"
+            actionClose={
+              <AlertActionCloseButton onClose={() => setCopyError(null)} />
+            }
+          >
+            {copyError}
+          </Alert>
+        </StackItem>
+      )}
+    </Stack>
   );
 };
 

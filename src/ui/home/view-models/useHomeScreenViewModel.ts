@@ -19,7 +19,7 @@ export const useHomeScreenViewModel = () => {
   const [rvtoolsOpenToken, setRvtoolsOpenToken] = useState(false);
 
   const breadcrumbs = [
-    { key: 1, children: "Migration assessment" },
+    { key: 1, children: "Migration advisor" },
     {
       key: 2,
       children: activeTabKey === 1 ? "environments" : "assessments",

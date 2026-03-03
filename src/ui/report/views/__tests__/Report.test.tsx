@@ -257,7 +257,7 @@ describe("Report", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText("View target cluster recommendations"),
+          screen.getByText("View Recommendation based on vCenter cluster"),
         ).toBeInTheDocument();
       });
     });

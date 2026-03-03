@@ -79,11 +79,11 @@ const StartingPageModal: React.FC<Props> = ({
       variant={ModalVariant.large}
       isOpen={isOpen}
       onClose={onClose}
-      aria-label="Getting started with Migration Assessment"
+      aria-label="Getting started with Migration Advisor"
       className={startingPageModal}
       header={
         <Title headingLevel="h1" size="xl">
-          Getting started with Migration Assessment
+          Getting started with Migration Advisor
         </Title>
       }
       actions={[
@@ -97,9 +97,8 @@ const StartingPageModal: React.FC<Props> = ({
               variant="primary"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               isExpanded={isDropdownOpen}
-              style={{ minWidth: "290px" }}
             >
-              Create new migration assessment
+              Create new assessment
             </MenuToggle>
           )}
         >

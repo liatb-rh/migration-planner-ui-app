@@ -1,5 +1,6 @@
 import type { AssessmentApiInterface } from "@openshift-migration-advisor/planner-sdk";
 import type { Assessment } from "@openshift-migration-advisor/planner-sdk";
+import { ResponseError } from "@openshift-migration-advisor/planner-sdk";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AssessmentsStore } from "../AssessmentsStore";
@@ -182,6 +183,53 @@ describe("AssessmentsStore", () => {
     expect(result.id).toBe("a-1");
     expect(store.getSnapshot()).toHaveLength(1);
     expect(store.getSnapshot()[0].id).toBe("a-2");
+  });
+
+  it("remove() suppresses ResponseError with status 200 (parsing error after successful deletion)", async () => {
+    const items = [
+      makeAssessment({ id: "a-1" }),
+      makeAssessment({ id: "a-2" }),
+    ];
+    vi.mocked(api.listAssessments).mockResolvedValue(items as never);
+    await store.list();
+
+    const mockResponse = new Response(null, { status: 200 });
+    const responseError = new ResponseError(
+      mockResponse,
+      "Failed to parse response",
+    );
+    vi.mocked(api.deleteAssessment).mockRejectedValue(responseError);
+
+    const result = await store.remove("a-1");
+
+    expect(result.id).toBe("a-1");
+    expect(store.getSnapshot()).toHaveLength(1);
+    expect(store.getSnapshot()[0].id).toBe("a-2");
+  });
+
+  it("remove() rethrows ResponseError with non-200 status", async () => {
+    const items = [makeAssessment({ id: "a-1" })];
+    vi.mocked(api.listAssessments).mockResolvedValue(items as never);
+    await store.list();
+
+    const mockResponse = new Response(null, { status: 404 });
+    const responseError = new ResponseError(mockResponse, "Not found");
+    vi.mocked(api.deleteAssessment).mockRejectedValue(responseError);
+
+    await expect(store.remove("a-1")).rejects.toThrow(responseError);
+    expect(store.getSnapshot()).toHaveLength(1);
+  });
+
+  it("remove() rethrows non-ResponseError exceptions", async () => {
+    const items = [makeAssessment({ id: "a-1" })];
+    vi.mocked(api.listAssessments).mockResolvedValue(items as never);
+    await store.list();
+
+    const networkError = new Error("Network failure");
+    vi.mocked(api.deleteAssessment).mockRejectedValue(networkError);
+
+    await expect(store.remove("a-1")).rejects.toThrow("Network failure");
+    expect(store.getSnapshot()).toHaveLength(1);
   });
 
   it("subscribe — listener called on mutation", async () => {

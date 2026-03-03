@@ -329,10 +329,10 @@ breadcrumbs) with an `<Outlet />` for child routes (`AssessmentsScreen`,
 
 The app runs in two modes with different routing contexts:
 
-| Mode                      | Who provides `<BrowserRouter>` | Router `basename` | App mount path                      |
-| ------------------------- | ------------------------------ | ----------------- | ----------------------------------- |
-| **Standalone (dev)**      | `dev/src/AppShell.tsx`         | `"/"`             | `/` (root)                          |
-| **Microfrontend (stage)** | Host chrome                    | `"/"`             | `/openshift/migration-assessment/*` |
+| Mode                      | Who provides `<BrowserRouter>` | Router `basename` | App mount path                   |
+| ------------------------- | ------------------------------ | ----------------- | -------------------------------- |
+| **Standalone (dev)**      | `dev/src/AppShell.tsx`         | `"/"`             | `/` (root)                       |
+| **Microfrontend (stage)** | Host chrome                    | `"/"`             | `/openshift/migration-advisor/*` |
 
 In **standalone mode**, the BrowserRouter's `basename` is `"/"` and the app
 occupies the root. Basename-free absolute paths like `/assessments/123` work
@@ -340,25 +340,25 @@ because they resolve from `"/"`.
 
 In **microfrontend (stage) mode**, the Chrome's `BrowserRouter` also has
 `basename="/"`, but the app is mounted inside a nested `<Route>` at
-`/openshift/migration-assessment/*`. An absolute `navigate("/assessments/123")`
+`/openshift/migration-advisor/*`. An absolute `navigate("/assessments/123")`
 resolves from the router root (`"/"`), producing the URL `/assessments/123` —
 which is _outside_ the app's mount point. Navigation paths must therefore
 include the full mount prefix.
 
 `src/routing/Routes.ts` handles this transparently through **runtime
 detection**. At module-load time it checks `window.location.pathname` to
-determine whether the app slug (`/openshift/migration-assessment`) is present
+determine whether the app slug (`/openshift/migration-advisor`) is present
 and stores the result in `APP_BASENAME`:
 
 - Dev mode → `APP_BASENAME = ""`
-- Stage mode → `APP_BASENAME = "/openshift/migration-assessment"`
+- Stage mode → `APP_BASENAME = "/openshift/migration-advisor"`
 
 Every entry in the `routes` object includes `APP_BASENAME` as a prefix, so
 consuming code never needs to think about it:
 
 ```typescript
 // src/routing/Routes.ts (simplified)
-export const APP_BASENAME = resolveAppBasename(); // "" or "/openshift/migration-assessment"
+export const APP_BASENAME = resolveAppBasename(); // "" or "/openshift/migration-advisor"
 
 export const routes = {
   root: APP_BASENAME || "/",
@@ -388,7 +388,7 @@ export const routes = {
 } as const;
 ```
 
-**Do NOT hardcode `/openshift/migration-assessment`** — `APP_BASENAME` handles
+**Do NOT hardcode `/openshift/migration-advisor`** — `APP_BASENAME` handles
 mode detection at runtime.
 
 #### 2. Create the view and view model
@@ -459,7 +459,7 @@ expect(mockNavigate).toHaveBeenCalledWith(routes.migrationPlanById("p-1"));
 #### Common mistakes to avoid
 
 - **Hardcoding the basename** in `navigate()` / `<Link>` — e.g.
-  `navigate("/openshift/migration-assessment/foo")`. This breaks standalone
+  `navigate("/openshift/migration-advisor/foo")`. This breaks standalone
   mode and bypasses the runtime detection.
 - **Using string literals** instead of `routes.*` — this bypasses the
   centralised route map and makes future path changes error-prone.

@@ -22,7 +22,7 @@ Testing: Vitest + @testing-library/react + jsdom
 - DI: define symbol in `Symbols.ts`, register in `createContainer()`, consume via `useInjection<IXxxStore>(Symbols.X)` using the interface type.
 - Styling: use `@emotion/css` (CSS-in-JS) for all component styles. Do NOT create plain .css files.
 - When deeply nested children share a VM, use a thin React context (see `EnvironmentPageContext.tsx` pattern).
-- Routing: all navigable paths (`navigate()`, `<Link to>`, breadcrumb to, `location.pathname` comparisons) MUST use the `routes` object from `src/routing/Routes.ts`. The routes object automatically includes the correct mount-path prefix via `APP_BASENAME` (empty in dev, `/openshift/migration-assessment` in stage). NEVER hardcode the basename in source files. See the "Routing" section of docs/app-architecture.md.
+- Routing: all navigable paths (`navigate()`, `<Link to>`, breadcrumb to, `location.pathname` comparisons) MUST use the `routes` object from `src/routing/Routes.ts`. The routes object automatically includes the correct mount-path prefix via `APP_BASENAME` (empty in dev, `/openshift/migration-advisor` in stage). NEVER hardcode the basename in source files. See the "Routing" section of docs/app-architecture.md.
 - Naming: files are PascalCase, hooks (use\*) are camelCase, index/constants/types/styles are all-lowercase, directories are kebab-case. See docs/naming-conventions.md.
 
 ## Documentation (`docs/`)

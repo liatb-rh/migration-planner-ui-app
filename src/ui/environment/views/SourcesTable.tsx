@@ -257,7 +257,7 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
     vm.setAssessmentFromAgent?.(true);
     vm.selectSourceById?.(sourceId);
     navigate(routes.assessmentCreate, {
-      state: { reset: true },
+      state: { reset: true, preselectedSourceId: sourceId },
     });
   };
 
@@ -472,7 +472,7 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
                                   handleCreateAssessment(source.id)
                                 }
                               >
-                                Create new migration assessment
+                                Create new assessment
                               </DropdownItem>
                               <DropdownItem
                                 isDisabled={

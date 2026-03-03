@@ -40,7 +40,7 @@ const CreateFromOvaContent: React.FC = () => {
         {
           key: 1,
           to: routes.root,
-          children: "Migration assessment",
+          children: "Migration advisor",
         },
         {
           key: 2,
@@ -49,7 +49,7 @@ const CreateFromOvaContent: React.FC = () => {
         },
         { key: 3, isActive: true, children: "create new assessment" },
       ]}
-      title="Create new migration assessment"
+      title="Create new assessment"
     >
       <div style={{ maxWidth: "900px" }}>
         <Form isWidthLimited>
@@ -79,7 +79,7 @@ const CreateFromOvaContent: React.FC = () => {
               >
                 {vm.hasDuplicateNameError
                   ? vm.apiError?.message
-                  : "Name your migration assessment"}
+                  : "Name your assessment"}
               </HelperTextItem>
             </HelperText>
           </FormGroup>
@@ -91,7 +91,7 @@ const CreateFromOvaContent: React.FC = () => {
               onClick={() => vm.setIsStepsModalOpen(true)}
               style={{ paddingLeft: 0 }}
             >
-              Migration assessment steps
+              Migration advisor steps
             </Button>
           </div>
 

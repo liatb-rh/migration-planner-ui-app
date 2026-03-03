@@ -74,7 +74,7 @@ export interface CreateFromOvaViewModel {
 export const useCreateFromOvaViewModel = (): CreateFromOvaViewModel => {
   const navigate = useNavigate();
   const location = useLocation() as {
-    state?: { reset?: boolean };
+    state?: { reset?: boolean; preselectedSourceId?: string };
     pathname: string;
     search: string;
     hash?: string;
@@ -152,8 +152,16 @@ export const useCreateFromOvaViewModel = (): CreateFromOvaViewModel => {
     const shouldReset = Boolean(location.state?.reset);
     if (shouldReset) {
       setName("");
-      setUseExisting(false);
-      setSelectedEnvironmentId("");
+      // Check if we have a pre-selected source ID from navigation state
+      const preselectedSourceId = location.state?.preselectedSourceId;
+      if (preselectedSourceId) {
+        // Pre-select the environment from navigation state
+        setUseExisting(true);
+        setSelectedEnvironmentId(preselectedSourceId);
+      } else {
+        setUseExisting(false);
+        setSelectedEnvironmentId("");
+      }
       try {
         sessionStorage.removeItem(DRAFT_KEY);
       } catch {

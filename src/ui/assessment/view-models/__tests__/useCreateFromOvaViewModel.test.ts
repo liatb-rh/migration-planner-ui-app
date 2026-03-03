@@ -13,11 +13,14 @@ import { useCreateFromOvaViewModel } from "../useCreateFromOvaViewModel";
 // ---------------------------------------------------------------------------
 
 const mockNavigate = vi.fn();
+let mockLocationState:
+  | { reset?: boolean; preselectedSourceId?: string }
+  | undefined = undefined;
 
 vi.mock("react-router-dom", () => ({
   useNavigate: () => mockNavigate,
   useLocation: () => ({
-    state: undefined,
+    state: mockLocationState,
     pathname: "/create",
     search: "",
     hash: "",
@@ -73,6 +76,7 @@ const makeSource = (overrides: Partial<Source> = {}): SourceModel =>
 describe("useCreateFromOvaViewModel", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockLocationState = undefined;
     vi.stubGlobal("sessionStorage", {
       getItem: vi.fn().mockReturnValue(null),
       setItem: vi.fn(),
@@ -438,6 +442,41 @@ describe("useCreateFromOvaViewModel", () => {
     expect(result.current.name).toBe("Saved Draft");
     expect(result.current.useExisting).toBe(true);
     expect(result.current.selectedEnvironmentId).toBe("s-saved");
+  });
+
+  it("pre-selects environment when coming from environment page with reset flag", () => {
+    const preselectedSource = makeSource({
+      id: "s-preselected",
+      name: "Preselected",
+    });
+    mockEnvVm.sources = [preselectedSource];
+    mockLocationState = { reset: true, preselectedSourceId: "s-preselected" };
+
+    const { result } = renderHook(() => useCreateFromOvaViewModel());
+
+    expect(result.current.name).toBe("");
+    expect(result.current.useExisting).toBe(true);
+    expect(result.current.selectedEnvironmentId).toBe("s-preselected");
+    expect(sessionStorage.removeItem).toHaveBeenCalled();
+  });
+
+  it("pre-selects manually uploaded environment when coming from environment page", () => {
+    const manuallyUploadedSource = makeSource({
+      id: "s-manual",
+      name: "Manually Uploaded",
+      agent: undefined,
+      onPremises: true,
+      inventory: { vcenter: {} } as Source["inventory"],
+    });
+    mockEnvVm.sources = [manuallyUploadedSource];
+    mockLocationState = { reset: true, preselectedSourceId: "s-manual" };
+
+    const { result } = renderHook(() => useCreateFromOvaViewModel());
+
+    expect(result.current.name).toBe("");
+    expect(result.current.useExisting).toBe(true);
+    expect(result.current.selectedEnvironmentId).toBe("s-manual");
+    expect(sessionStorage.removeItem).toHaveBeenCalled();
   });
 
   // ---- createdSource lookup -------------------------------------------------

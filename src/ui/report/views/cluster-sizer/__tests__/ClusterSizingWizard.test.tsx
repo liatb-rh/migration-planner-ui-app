@@ -12,19 +12,37 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ClusterSizingWizard } from "../ClusterSizingWizard";
 
-// Mock the IoC hook
-const mockCalculateAssessmentClusterRequirements = vi.fn();
+// Mock the viewModel
+const mockCalculate = vi.fn();
+const mockReset = vi.fn();
+const mockSetFormValues = vi.fn();
+const mockCalculateEstimation = vi.fn();
+const mockEnsureEstimationForMenu = vi.fn();
 
-const noop = (): void => {};
-const EMPTY: unknown[] = [];
-const mockStore = {
-  calculateAssessmentClusterRequirements:
-    mockCalculateAssessmentClusterRequirements,
-  subscribe: (_cb: () => void): (() => void) => noop,
-  getSnapshot: (): unknown[] => EMPTY,
+const mockViewModel = {
+  formValues: {
+    workerNodePreset: "custom" as const,
+    customCpu: 32,
+    customMemoryGb: 128,
+    cpuOvercommitRatio: 6,
+    memoryOvercommitRatio: 4,
+    scheduleOnControlPlane: false,
+  },
+  setFormValues: mockSetFormValues,
+  calculate: mockCalculate,
+  isCalculating: false,
+  sizerOutput: null,
+  calculateError: null,
+  migrationEstimation: null,
+  isCalculatingEstimation: false,
+  estimationError: null,
+  calculateEstimation: mockCalculateEstimation,
+  ensureEstimationForMenu: mockEnsureEstimationForMenu,
+  reset: mockReset,
 };
-vi.mock("@y0n1/react-ioc", () => ({
-  useInjection: vi.fn(() => mockStore),
+
+vi.mock("../../../view-models/useClusterSizingWizardViewModel", () => ({
+  useClusterSizingWizardViewModel: vi.fn(() => mockViewModel),
 }));
 
 // Mock child components to simplify testing
@@ -40,6 +58,18 @@ vi.mock("../SizingResult", () => ({
   ),
 }));
 
+vi.mock("../TimeEstimationResult", () => ({
+  TimeEstimationResult: ({
+    isLoading,
+  }: {
+    isLoading: boolean;
+  }): React.ReactElement => (
+    <div data-testid="time-estimation-result">
+      {isLoading ? "Loading..." : "Time Estimation Results"}
+    </div>
+  ),
+}));
+
 const defaultProps = {
   isOpen: true,
   onClose: vi.fn(),
@@ -50,133 +80,103 @@ const defaultProps = {
 
 describe("ClusterSizingWizard", () => {
   beforeEach(() => {
-    mockCalculateAssessmentClusterRequirements.mockResolvedValue({
-      sizing: {
-        workerNodes: 3,
-        controlPlaneNodes: 3,
-      },
-    });
+    mockCalculate.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
+    mockViewModel.isCalculatingEstimation = false;
+    mockViewModel.migrationEstimation = null;
   });
 
-  it("renders the wizard when open", () => {
+  it("renders the modal with menu when open", () => {
     render(<ClusterSizingWizard {...defaultProps} />);
 
     expect(
-      screen.getByText("Target cluster recommendations"),
+      screen.getByText("test-cluster - Recommendation"),
     ).toBeInTheDocument();
-    // PatternFly wizard shows step names in multiple places (sidebar and toggle)
-    expect(screen.getAllByText("Migration preferences").length).toBeGreaterThan(
-      0,
-    );
+
     expect(
-      screen.getAllByText("Review cluster recommendations").length,
-    ).toBeGreaterThan(0);
+      screen.getByText("OpenShift Cluster Architecture"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Migration Time Estimation")).toBeInTheDocument();
+    expect(screen.getByText("Migration Complexity")).toBeInTheDocument();
+    expect(screen.getByText("Migration Plan")).toBeInTheDocument();
   });
 
   it("does not render when closed", () => {
     render(<ClusterSizingWizard {...defaultProps} isOpen={false} />);
 
     expect(
-      screen.queryByText("Target cluster recommendations"),
+      screen.queryByText("test-cluster - Recommendation"),
     ).not.toBeInTheDocument();
   });
 
   describe("navigation and calculation", () => {
-    it("triggers calculation when clicking Next button to go to review step", async () => {
+    it("shows architecture section when tab is clicked", () => {
       render(<ClusterSizingWizard {...defaultProps} />);
 
-      // Click Next button
-      const nextButton = screen.getByRole("button", { name: "Next" });
-      fireEvent.click(nextButton);
+      const architectureTab = screen.getByRole("tab", {
+        name: /OpenShift Cluster Architecture/,
+      });
+      fireEvent.click(architectureTab);
 
-      // Calculation should be triggered via onStepChange
+      expect(screen.getByTestId("sizing-input-form")).toBeInTheDocument();
+    });
+
+    it("triggers calculation when clicking Generate recommendation button", async () => {
+      render(<ClusterSizingWizard {...defaultProps} />);
+
+      const architectureTab = screen.getByRole("tab", {
+        name: /OpenShift Cluster Architecture/,
+      });
+      fireEvent.click(architectureTab);
+
+      const generateButton = screen.getByRole("button", {
+        name: /Generate recommendation/,
+      });
+      fireEvent.click(generateButton);
+
       await waitFor(() => {
-        expect(
-          mockCalculateAssessmentClusterRequirements,
-        ).toHaveBeenCalledTimes(1);
+        expect(mockCalculate).toHaveBeenCalledTimes(1);
       });
     });
 
-    it("triggers calculation when clicking sidebar to navigate to review step", async () => {
+    it("navigates to time estimation section when tab is clicked", async () => {
+      mockViewModel.isCalculatingEstimation = true;
       render(<ClusterSizingWizard {...defaultProps} />);
 
-      // Click the sidebar nav item for step 2
-      const reviewStepNav = screen.getByRole("button", {
-        name: /Review cluster recommendations/,
+      const timeEstimationTab = screen.getByRole("tab", {
+        name: /Migration Time Estimation/,
       });
-      fireEvent.click(reviewStepNav);
-
-      // Calculation should be triggered via onStepChange
-      await waitFor(() => {
-        expect(
-          mockCalculateAssessmentClusterRequirements,
-        ).toHaveBeenCalledTimes(1);
-      });
-    });
-
-    it("does not trigger calculation when navigating back to preferences step", async () => {
-      render(<ClusterSizingWizard {...defaultProps} />);
-
-      // First navigate to review step
-      const nextButton = screen.getByRole("button", { name: "Next" });
-      fireEvent.click(nextButton);
+      fireEvent.click(timeEstimationTab);
 
       await waitFor(() => {
         expect(
-          mockCalculateAssessmentClusterRequirements,
-        ).toHaveBeenCalledTimes(1);
-      });
-
-      // Clear the mock to track new calls
-      mockCalculateAssessmentClusterRequirements.mockClear();
-
-      // Click Back button to go back to preferences step
-      const backButton = screen.getByRole("button", { name: "Back" });
-      fireEvent.click(backButton);
-
-      // Wait a bit and verify no new calculation was triggered
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      expect(mockCalculateAssessmentClusterRequirements).not.toHaveBeenCalled();
-    });
-
-    it("triggers calculation again when returning to review step after going back", async () => {
-      render(<ClusterSizingWizard {...defaultProps} />);
-
-      // Navigate to review step
-      const nextButton = screen.getByRole("button", { name: "Next" });
-      fireEvent.click(nextButton);
-
-      await waitFor(() => {
-        expect(
-          mockCalculateAssessmentClusterRequirements,
-        ).toHaveBeenCalledTimes(1);
-      });
-
-      // Go back to preferences
-      const backButton = screen.getByRole("button", { name: "Back" });
-      fireEvent.click(backButton);
-
-      // Navigate to review step again
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: "Next" }),
+          screen.getByTestId("time-estimation-result"),
         ).toBeInTheDocument();
       });
+    });
 
-      const nextButtonAgain = screen.getByRole("button", { name: "Next" });
-      fireEvent.click(nextButtonAgain);
+    it("disables Migration Complexity tab", () => {
+      render(<ClusterSizingWizard {...defaultProps} />);
 
-      // Calculation should be triggered again
-      await waitFor(() => {
-        expect(
-          mockCalculateAssessmentClusterRequirements,
-        ).toHaveBeenCalledTimes(2);
+      const complexityTab = screen.getByRole("tab", {
+        name: /Migration Complexity/,
       });
+      expect(complexityTab).toHaveAttribute("aria-disabled", "true");
+      expect(complexityTab).toBeDisabled();
+    });
+
+    it("disables Migration Plan tab", () => {
+      render(<ClusterSizingWizard {...defaultProps} />);
+
+      const planTab = screen.getByRole("tab", {
+        name: /Migration Plan/,
+      });
+      expect(planTab).toHaveAttribute("aria-disabled", "true");
+      expect(planTab).toBeDisabled();
     });
   });
 });

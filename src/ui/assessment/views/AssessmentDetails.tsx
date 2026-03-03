@@ -34,7 +34,7 @@ const AssessmentDetails: React.FC = () => {
         breadcrumbs={[
           {
             key: 1,
-            children: "Migration assessment",
+            children: "Migration advisor",
           },
           {
             key: 2,
@@ -71,7 +71,7 @@ const AssessmentDetails: React.FC = () => {
         {
           key: 1,
           to: routes.root,
-          children: "Migration assessment",
+          children: "Migration advisor",
         },
         {
           key: 2,

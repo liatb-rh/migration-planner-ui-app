@@ -1,6 +1,8 @@
 import {
   type AssessmentApiInterface,
   type CalculateAssessmentClusterRequirementsRequest,
+  type CalculateMigrationEstimationRequest,
+  ResponseError,
 } from "@openshift-migration-advisor/planner-sdk";
 import { type Assessment } from "@openshift-migration-advisor/planner-sdk";
 import { type InitOverrideFunction } from "@openshift-migration-advisor/planner-sdk";
@@ -105,12 +107,36 @@ export class AssessmentsStore
     id: string,
     initOverrides?: RequestInit | InitOverrideFunction,
   ): Promise<AssessmentModel> {
-    const deleted = await this.api.deleteAssessment({ id }, initOverrides);
+    const deletedAssessment = this.assessments.find((a) => a.id === id);
+    if (!deletedAssessment) {
+      throw new Error(`Assessment ${id} not found in local state`);
+    }
+
+    try {
+      // Call the API - the backend's delete endpoint returns a malformed response
+      // with null snapshots that breaks the SDK's JSON parser. We catch and ignore
+      // this parsing error since the deletion itself succeeds (status 200).
+      await this.api.deleteAssessment({ id }, initOverrides);
+    } catch (error) {
+      // Only suppress parsing errors if the HTTP response was successful.
+      // The SDK throws ResponseError when JSON parsing fails after a successful HTTP call.
+      // We must verify the deletion actually succeeded (status 200) before updating local state.
+      const hasSuccessStatus =
+        (error as { response?: { status?: number } })?.response?.status === 200;
+
+      const isSuccessfulDeletion =
+        error instanceof ResponseError && hasSuccessStatus;
+
+      if (!isSuccessfulDeletion) {
+        throw error;
+      }
+    }
+
     this.assessments = this.assessments.filter(
-      (assessment) => assessment.id !== deleted.id,
+      (assessment) => assessment.id !== id,
     );
     this.notify();
-    return createAssessmentModel(deleted);
+    return deletedAssessment;
   }
 
   calculateAssessmentClusterRequirements(
@@ -118,6 +144,16 @@ export class AssessmentsStore
     initOverrides?: RequestInit | InitOverrideFunction,
   ) {
     return this.api.calculateAssessmentClusterRequirements(
+      requestParameters,
+      initOverrides,
+    );
+  }
+
+  calculateMigrationEstimation(
+    requestParameters: CalculateMigrationEstimationRequest,
+    initOverrides?: RequestInit | InitOverrideFunction,
+  ) {
+    return this.api.calculateMigrationEstimation(
       requestParameters,
       initOverrides,
     );

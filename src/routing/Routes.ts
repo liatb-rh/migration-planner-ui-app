@@ -2,7 +2,7 @@
  * The app slug used by the Insights Chrome to mount this microfrontend.
  * Matches `appUrl` in `fec.config.js`.
  */
-const APP_SLUG = "/openshift/migration-assessment";
+const APP_SLUG = "/openshift/migration-advisor";
 
 /**
  * Resolve the app's base path at runtime.
@@ -33,7 +33,7 @@ function resolveAppBasename(): string {
 /**
  * The app's mount-path prefix.
  * - `""` in standalone (dev) mode
- * - `"/openshift/migration-assessment"` in stage mode
+ * - `"/openshift/migration-advisor"` in stage mode
  */
 export const APP_BASENAME = resolveAppBasename();
 

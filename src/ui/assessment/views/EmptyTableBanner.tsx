@@ -107,7 +107,7 @@ const EmptyTableBanner: React.FC<Props> = ({ onOpenModal }) => {
               isExpanded={isDropdownOpen}
               style={{ minWidth: "290px" }}
             >
-              Create new migration assessment
+              Create new assessment
             </MenuToggle>
           )}
           shouldFocusToggleOnSelect

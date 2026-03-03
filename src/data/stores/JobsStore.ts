@@ -2,6 +2,7 @@ import type { JobApi } from "@openshift-migration-advisor/planner-sdk";
 import type { Job } from "@openshift-migration-advisor/planner-sdk";
 import { JobStatus } from "@openshift-migration-advisor/planner-sdk";
 
+import { parseApiError } from "../../lib/common/ErrorParser";
 import { PollableStoreBase } from "../../lib/mvvm/PollableStore";
 import type { IJobsStore } from "./interfaces/IJobsStore";
 
@@ -76,8 +77,14 @@ export class JobsStore
       if (this.abortController.signal.aborted) {
         return undefined;
       }
-      this.setState({ createError: err as Error, isCreating: false });
-      throw err;
+
+      const errorToStore = await parseApiError(
+        err,
+        "Failed to create RVTools job",
+      );
+
+      this.setState({ createError: errorToStore, isCreating: false });
+      return undefined;
     }
   }
 

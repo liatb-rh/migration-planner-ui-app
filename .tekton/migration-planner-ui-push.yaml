@@ -27,10 +27,6 @@ spec:
       value: build-tools/Dockerfile
     - name: path-context
       value: .
-    - name: build-args
-      value:
-        - MIGRATION_PLANNER_UI_GIT_COMMIT={{revision}}
-        - MIGRATION_PLANNER_UI_VERSION={{revision}}
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while reducing network traffic.
@@ -219,6 +215,7 @@ spec:
           - name: BUILD_ARGS
             value:
               - $(params.build-args[*])
+              - APP_VERSION={{target_branch}}-$(tasks.clone-repository.results.short-commit)
           - name: BUILD_ARGS_FILE
             value: $(params.build-args-file)
           - name: PRIVILEGED_NESTED

@@ -20,7 +20,7 @@ export const MigrationAssessmentStepsModal: React.FC<
 
   return (
     <Modal variant={ModalVariant.medium} isOpen={isOpen} onClose={onClose}>
-      <ModalHeader title="Migration assessment steps" />
+      <ModalHeader title="Migration advisor steps" />
       <ModalBody>
         <div className="pf-v6-u-mb-lg" style={{ display: "flex", gap: "16px" }}>
           <button

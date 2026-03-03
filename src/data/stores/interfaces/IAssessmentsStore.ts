@@ -1,6 +1,8 @@
 import type { CalculateAssessmentClusterRequirementsRequest } from "@openshift-migration-advisor/planner-sdk";
+import type { CalculateMigrationEstimationRequest } from "@openshift-migration-advisor/planner-sdk";
 import type { ClusterRequirementsResponse } from "@openshift-migration-advisor/planner-sdk";
 import type { InitOverrideFunction } from "@openshift-migration-advisor/planner-sdk";
+import type { MigrationEstimationResponse } from "@openshift-migration-advisor/planner-sdk";
 
 import type { ExternalStore } from "../../../lib/mvvm/ExternalStore";
 import type { AssessmentModel } from "../../../models/AssessmentModel";
@@ -38,6 +40,10 @@ export interface IAssessmentsStore extends ExternalStore<AssessmentModel[]> {
     requestParameters: CalculateAssessmentClusterRequirementsRequest,
     initOverrides?: RequestInit | InitOverrideFunction,
   ): Promise<ClusterRequirementsResponse>;
+  calculateMigrationEstimation(
+    requestParameters: CalculateMigrationEstimationRequest,
+    initOverrides?: RequestInit | InitOverrideFunction,
+  ): Promise<MigrationEstimationResponse>;
   startPolling(intervalMs?: number): void;
   stopPolling(): void;
 }

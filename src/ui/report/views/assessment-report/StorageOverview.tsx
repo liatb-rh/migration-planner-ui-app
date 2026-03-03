@@ -365,10 +365,7 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                   </div>
                 </div>
                 {!isExportMode && (
-                  <Content
-                    component="small"
-                    className={storageTotalsNote}
-                  >
+                  <Content component="small" className={storageTotalsNote}>
                     Totals may exceed the unique VM count because individual VMs
                     can have multiple disk types
                   </Content>
@@ -431,7 +428,7 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                     }}
                     domainPadding={{ x: domainPaddingX }}
                     padding={{ top: 10, bottom: 36, left: 20, right: 20 }}
-                    height={isExportMode ? 20: 20}
+                    height={isExportMode ? 180 : 250}
                     width={barChartWidth}
                   >
                     <ChartAxis />

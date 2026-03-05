@@ -438,9 +438,7 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                         const item = diskTypeChartData.find(
                           (d) => d.name === x,
                         );
-                        return item
-                          ? `${item.name} (${item.count} VMs)`
-                          : String(x);
+                        return item ? item.name : String(x);
                       }}
                       style={{
                         axis: { stroke: "none" },

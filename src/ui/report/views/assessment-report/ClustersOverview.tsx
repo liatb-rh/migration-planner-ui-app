@@ -25,15 +25,15 @@ const cpuOvercommitBoxes = css`
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin: 124px 0 16px;
+  margin: 68px 0 16px;
   flex-wrap: wrap;
 
   @media (max-width: 1200px) {
-    margin: 72px 0 12px;
+    margin: 6px 0 12px;
     gap: 20px;
   }
   @media (max-width: 768px) {
-    margin: 40px 0 8px;
+    margin: 4px 0 8px;
     gap: 16px;
   }
 `;
@@ -70,7 +70,7 @@ const cpuOvercommitLegend = css`
   justify-content: center;
   gap: 6px 24px;
   flex-wrap: wrap;
-  margin-top: 20%;
+  margin-top: 10%;
 
   @media (max-width: 1200px) {
     margin-top: 20%;
@@ -647,7 +647,7 @@ export const ClustersOverview: React.FC<ClustersOverviewProps> = ({
                         style={{ background: legend[item.legendCategory] }}
                       />
                       <span className={cpuOvercommitLegendText}>
-                        {item.legendCategory} ({item.countDisplay})
+                        {item.legendCategory}
                       </span>
                     </div>
                   ))}

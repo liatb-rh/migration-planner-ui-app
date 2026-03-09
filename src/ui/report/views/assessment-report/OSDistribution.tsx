@@ -76,13 +76,29 @@ interface OSBarChartProps {
   isExportMode?: boolean;
 }
 
+function osSortGroup(osInfo: {
+  count: number;
+  supported: boolean;
+  upgradeRecommendation?: string;
+}): number {
+  if (!osInfo.supported && (osInfo.upgradeRecommendation?.trim() ?? "") !== "")
+    return 1;
+  if (!osInfo.supported) return 2;
+  return 3;
+}
+
 export const OSBarChart: React.FC<OSBarChartProps> = ({
   osData,
   isExportMode,
 }) => {
   const dataEntries = Object.entries(osData).filter(([os]) => os.trim() !== "");
 
-  const sorted = dataEntries.sort(([, a], [, b]) => b.count - a.count);
+  const sorted = [...dataEntries].sort(([, a], [, b]) => {
+    const groupA = osSortGroup(a);
+    const groupB = osSortGroup(b);
+    if (groupA !== groupB) return groupA - groupB;
+    return b.count - a.count;
+  });
 
   const chartData = sorted.map(([os, osInfo]) => ({
     name: os,

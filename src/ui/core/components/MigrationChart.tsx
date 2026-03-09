@@ -142,7 +142,10 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
               <Tbody>
                 {data.map((item, index) => (
                   <Tr key={index}>
-                    <Td width={dataLength} style={{ paddingLeft: "0px" }}>
+                    <Td
+                      width={dataLength}
+                      style={{ paddingLeft: "0px", paddingTop: "4px" }}
+                    >
                       <Flex
                         alignItems={{ default: "alignItemsCenter" }}
                         spaceItems={{ default: "spaceItemsXs" }}
@@ -225,7 +228,11 @@ const MigrationChart: React.FC<MigrationChartProps> = ({
                     </Td>
                     <Td
                       width={10}
-                      style={{ paddingRight: "0px", textAlign: "center" }}
+                      style={{
+                        paddingRight: "0px",
+                        textAlign: "center",
+                        paddingTop: "5px",
+                      }}
                     >
                       <Content
                         component="p"

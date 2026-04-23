@@ -4,13 +4,13 @@ import {
   Alert,
   Button,
   Content,
+  EmptyState,
   Flex,
   FlexItem,
-  InputGroup,
-  InputGroupItem,
   PageSection,
   Title,
 } from "@patternfly/react-core";
+import { SearchIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import React, { useState } from "react";
 
@@ -47,8 +47,8 @@ export const CustomerRequestsSection: React.FC = () => {
       <Content className={introStyle}>
         <Title headingLevel="h1">Customer assignment requests</Title>
         <Content component="p">
-          View and manage customer assignment requests. Approve or deny requests
-          from customers who want to work with you.
+          Review pending requests to add customers to your list. Denied requests
+          will remain here with an updated status.
         </Content>
       </Content>
 
@@ -63,66 +63,70 @@ export const CustomerRequestsSection: React.FC = () => {
       )}
 
       {!vm.isLoading && !vm.error && vm.requests.length === 0 && (
-        <Content>
-          <Content component="p">No customer requests yet.</Content>
-        </Content>
+        <EmptyState
+          headingLevel="h4"
+          icon={SearchIcon}
+          titleText="No customer requests yet"
+          variant="sm"
+        />
       )}
 
       {!vm.isLoading && !vm.error && vm.requests.length > 0 && (
         <Table aria-label="Customer request table" variant="compact">
           <Thead>
             <Tr>
-              <Th>Customer</Th>
+              <Th>Customer name</Th>
               <Th>Contact name</Th>
-              <Th>Contact phone</Th>
+              <Th>Email</Th>
+              <Th>Location</Th>
+              <Th>Request date</Th>
               <Th>Status</Th>
               <Th>Reason</Th>
-              <Th>Created</Th>
             </Tr>
           </Thead>
           <Tbody>
             {sortByNewestFirst(vm.requests).map((request) => (
               <Tr key={request.id}>
-                <Td dataLabel="Customer">{request.partner.name}</Td>
+                <Td dataLabel="Customer name">{request.name}</Td>
                 <Td dataLabel="Contact name">{request.contactName}</Td>
-                <Td dataLabel="Contact phone">{request.contactPhone}</Td>
-                <Td dataLabel="Status">
-                  <Flex>
-                    <FlexItem>
-                      <RequestStatus status={request.requestStatus} />
-                    </FlexItem>
-                    <FlexItem>
-                      {request.requestStatus === "pending" && (
-                        <InputGroup>
-                          <InputGroupItem>
-                            <Button
-                              variant="link"
-                              size="sm"
-                              onClick={() => {
-                                void handleAccept(request);
-                              }}
-                            >
-                              Accept
-                            </Button>
-                          </InputGroupItem>
-                          <InputGroupItem>
-                            <Button
-                              variant="link"
-                              size="sm"
-                              isDanger
-                              onClick={() => setRequestToDeny(request)}
-                            >
-                              Deny
-                            </Button>
-                          </InputGroupItem>
-                        </InputGroup>
-                      )}
-                    </FlexItem>
-                  </Flex>
+                <Td dataLabel="Email">{request.email}</Td>
+                <Td dataLabel="Location">
+                  {request.location ? request.location : "N/A"}
                 </Td>
-                <Td dataLabel="Status reason">{request.reason}</Td>
-                <Td dataLabel="Created at">
+                <Td dataLabel="Request date">
                   {humanizeDate(new Date(request.createdAt))}
+                </Td>
+                <Td dataLabel="Status">
+                  {request.requestStatus === "pending" ? (
+                    <Flex spaceItems={{ default: "spaceItemsXs" }}>
+                      <FlexItem>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => {
+                            void handleAccept(request);
+                          }}
+                        >
+                          Accept
+                        </Button>
+                      </FlexItem>
+                      <FlexItem>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          isDanger
+                          onClick={() => setRequestToDeny(request)}
+                        >
+                          Deny
+                        </Button>
+                      </FlexItem>
+                    </Flex>
+                  ) : (
+                    <RequestStatus status={request.requestStatus} />
+                  )}
+                </Td>
+                <Td dataLabel="Status reason">
+                  {request.reason ? request.reason : "N/A"}
                 </Td>
               </Tr>
             ))}

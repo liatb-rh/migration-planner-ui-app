@@ -46,8 +46,6 @@ export const PartnersListSection: React.FC = () => {
           You currently don't have a partner assigned. Once connected with a
           partner, you'll be able to share your migration assessments and
           collaborate on your infrastructure modernization journey.
-          <br />
-          Choose a partner below to get started:
         </Content>
       </Content>
 
@@ -101,7 +99,6 @@ export const PartnersListSection: React.FC = () => {
       {selectedPartner !== null && (
         <ContactFormModal
           isOpen
-          partner={selectedPartner}
           onClose={() => setSelectedPartner(null)}
           onSubmit={(values) => void handleSubmitRequest(values)}
         />

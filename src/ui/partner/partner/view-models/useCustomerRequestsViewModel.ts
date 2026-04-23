@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import { useAsync, useAsyncFn } from "react-use";
 
 import { Symbols } from "../../../../config/Dependencies";
+import type { ICustomersStore } from "../../../../data/stores/interfaces/ICustomersStore";
 import type { IPartnerRequestsStore } from "../../../../data/stores/interfaces/IPartnerRequestsStore";
 
 export interface CustomerRequestsViewModel {
@@ -22,6 +23,8 @@ export const useCustomerRequestsViewModel = (): CustomerRequestsViewModel => {
     Symbols.PartnerRequestsStore,
   );
 
+  const customersStore = useInjection<ICustomersStore>(Symbols.CustomersStore);
+
   const requests = useSyncExternalStore<PartnerRequest[]>(
     partnerRequestsStore.subscribe.bind(partnerRequestsStore),
     partnerRequestsStore.getSnapshot.bind(partnerRequestsStore),
@@ -31,9 +34,11 @@ export const useCustomerRequestsViewModel = (): CustomerRequestsViewModel => {
 
   const [acceptState, doAcceptPartnerRequest] = useAsyncFn(
     async (partnerRequestId: string): Promise<PartnerRequest> => {
-      return await partnerRequestsStore.accept(partnerRequestId);
+      const result = await partnerRequestsStore.accept(partnerRequestId);
+      await customersStore.list();
+      return result;
     },
-    [partnerRequestsStore],
+    [partnerRequestsStore, customersStore],
   );
 
   const [denyState, doDenyPartnerRequest] = useAsyncFn(

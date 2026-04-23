@@ -15,18 +15,16 @@ describe("ContactForm", () => {
     );
 
     expect(
-      getByRole("textbox", { name: /Customer name/i }),
+      getByRole("textbox", { name: /Your company name/i }),
     ).toBeInTheDocument();
     expect(
-      getByRole("textbox", { name: /Customer point of contact name/i }),
+      getByRole("textbox", { name: /Primary contact name/i }),
     ).toBeInTheDocument();
     expect(
       getByRole("textbox", { name: /Contact phone/i }),
     ).toBeInTheDocument();
     expect(getByRole("textbox", { name: /Email/i })).toBeInTheDocument();
-    expect(
-      getByRole("combobox", { name: /vCenter geo location/i }),
-    ).toBeInTheDocument();
+    expect(getByRole("textbox", { name: /Location/i })).toBeInTheDocument();
   });
 
   it("submits the form with correct values", async () => {
@@ -41,12 +39,12 @@ describe("ContactForm", () => {
       </>,
     );
 
-    const name = getByRole("textbox", { name: /Customer name/i });
+    const name = getByRole("textbox", { name: /Your company name/i });
     await user.clear(name);
     await user.type(name, "Acme Corporation");
 
     const contactName = getByRole("textbox", {
-      name: /Customer point of contact name/i,
+      name: /Primary contact name/i,
     });
     await user.clear(contactName);
     await user.type(contactName, "John Doe");
@@ -59,10 +57,9 @@ describe("ContactForm", () => {
     await user.clear(email);
     await user.type(email, "john.doe@acme.com");
 
-    await user.selectOptions(
-      getByRole("combobox", { name: /vCenter geo location/i }),
-      "us-east-2",
-    );
+    const location = getByRole("textbox", { name: /Location/i });
+    await user.clear(location);
+    await user.type(location, "Paris");
 
     const contactButton = getByRole("button", { name: /Contact/i });
     await user.click(contactButton);
@@ -74,7 +71,7 @@ describe("ContactForm", () => {
         contactName: "John Doe",
         contactPhone: "+1-555-0123",
         email: "john.doe@acme.com",
-        location: "us-east-2",
+        location: "Paris",
       });
     });
   });
@@ -98,10 +95,8 @@ describe("ContactForm", () => {
     expect(mockOnSubmit).not.toHaveBeenCalled();
 
     // Error messages should appear
-    expect(getByText("Customer name is required")).toBeInTheDocument();
-    expect(
-      getByText("Customer point of contact name is required"),
-    ).toBeInTheDocument();
+    expect(getByText("Your company name is required")).toBeInTheDocument();
+    expect(getByText("Primary contact name is required")).toBeInTheDocument();
     expect(getByText("Email is required")).toBeInTheDocument();
   });
 
@@ -143,15 +138,17 @@ describe("ContactForm", () => {
     await user.click(contactButton);
 
     // Error should appear
-    expect(getByText("Customer name is required")).toBeInTheDocument();
+    expect(getByText("Your company name is required")).toBeInTheDocument();
 
     // Type in the field
-    const name = getByRole("textbox", { name: /Customer name/i });
+    const name = getByRole("textbox", { name: /Your company name/i });
     await user.type(name, "A");
 
     // Error should disappear
     await waitFor(() => {
-      expect(queryByText("Customer name is required")).not.toBeInTheDocument();
+      expect(
+        queryByText("Your company name is required"),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -162,7 +159,7 @@ describe("ContactForm", () => {
       <ContactForm id="contact-form" onSubmit={mockOnSubmit} />,
     );
 
-    const name = getByRole("textbox", { name: /Customer name/i });
+    const name = getByRole("textbox", { name: /Your company name/i });
     await user.type(name, "Test Company");
 
     expect(name).toHaveValue("Test Company");
@@ -175,30 +172,14 @@ describe("ContactForm", () => {
       <ContactForm id="contact-form" onSubmit={mockOnSubmit} />,
     );
 
-    const name = getByRole("textbox", { name: /Customer name/i });
+    const name = getByRole("textbox", { name: /Your company name/i });
 
     // Focus and then blur without entering anything
     await user.click(name);
     await user.tab();
 
     await waitFor(() => {
-      expect(getByText("Customer name is required")).toBeInTheDocument();
+      expect(getByText("Your company name is required")).toBeInTheDocument();
     });
-  });
-
-  it("displays all region options in the dropdown", () => {
-    const mockOnSubmit = vi.fn();
-    const { getByRole } = render(
-      <ContactForm id="contact-form" onSubmit={mockOnSubmit} />,
-    );
-
-    const select = getByRole("combobox", { name: /vCenter geo location/i });
-    const options = select.querySelectorAll("option");
-
-    // Should have placeholder + all regions (35 regions + "Other" + 1 placeholder = 37)
-    expect(options.length).toBe(36);
-    expect(options[0]).toHaveTextContent("Select a region");
-    expect(options[1]).toHaveTextContent("US East (N. Virginia)");
-    expect(options[2]).toHaveTextContent("US East (Ohio)");
   });
 });

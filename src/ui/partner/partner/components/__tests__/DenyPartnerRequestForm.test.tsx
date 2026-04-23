@@ -32,7 +32,7 @@ describe("DenyPartnerRequestForm", () => {
           onSubmit={mockOnSubmit}
         />
         <Button variant="danger" type="submit" form="reject-request-form">
-          Reject
+          Deny
         </Button>
       </>,
     );
@@ -40,7 +40,7 @@ describe("DenyPartnerRequestForm", () => {
     const reason = getByRole("textbox", { name: /Reason for rejection/i });
     await user.type(reason, "The request does not meet our criteria");
 
-    const rejectButton = getByRole("button", { name: /Reject/i });
+    const rejectButton = getByRole("button", { name: /Deny/i });
     await user.click(rejectButton);
 
     await waitFor(() => {
@@ -61,12 +61,12 @@ describe("DenyPartnerRequestForm", () => {
           onSubmit={mockOnSubmit}
         />
         <Button variant="danger" type="submit" form="reject-request-form">
-          Reject
+          Deny
         </Button>
       </>,
     );
 
-    const rejectButton = getByRole("button", { name: /Reject/i });
+    const rejectButton = getByRole("button", { name: /Deny/i });
     await user.click(rejectButton);
 
     expect(mockOnSubmit).not.toHaveBeenCalled();
@@ -83,12 +83,12 @@ describe("DenyPartnerRequestForm", () => {
           onSubmit={mockOnSubmit}
         />
         <Button variant="danger" type="submit" form="reject-request-form">
-          Reject
+          Deny
         </Button>
       </>,
     );
 
-    const rejectButton = getByRole("button", { name: /Reject/i });
+    const rejectButton = getByRole("button", { name: /Deny/i });
     await user.click(rejectButton);
 
     expect(getByText("Reason is required")).toBeInTheDocument();

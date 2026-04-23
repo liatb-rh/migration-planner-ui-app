@@ -32,9 +32,9 @@ export const DenyPartnerRequestModal: React.FC<
       variant={ModalVariant.medium}
       isOpen={isOpen}
       onClose={onClose}
-      aria-label="Reject partner request"
+      aria-label="Deny partner request"
     >
-      <ModalHeader title="Reject customer request" />
+      <ModalHeader title="Deny customer request" />
       <ModalBody>
         <DenyPartnerRequestForm
           id="deny-partner-request-form"
@@ -45,7 +45,7 @@ export const DenyPartnerRequestModal: React.FC<
       </ModalBody>
       <ModalFooter>
         <Button variant="danger" type="submit" form="deny-partner-request-form">
-          Reject
+          Deny
         </Button>
         <Button variant="link" onClick={onClose}>
           Cancel

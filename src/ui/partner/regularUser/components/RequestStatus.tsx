@@ -11,11 +11,11 @@ export const RequestStatus: React.FC<RequestStatusProps> = ({ status }) => {
     case "accepted":
       return <Label color="green">Accepted</Label>;
     case "pending":
-      return <Label color="yellow">Waiting for approval</Label>;
+      return <Label color="yellow">Pending</Label>;
     case "rejected":
       return <Label color="red">Denied</Label>;
     case "cancelled":
-      return <Label color="orange">Cancelled</Label>;
+      return <Label color="grey">Cancelled</Label>;
     default:
       return <Label>{status}</Label>;
   }

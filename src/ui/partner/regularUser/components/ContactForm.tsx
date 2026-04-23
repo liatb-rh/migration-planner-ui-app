@@ -5,11 +5,7 @@ import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 
-import {
-  SelectFormGroup,
-  TextInputFormGroup,
-} from "../../../core/components/form";
-import { REGIONS } from "../constants/regions";
+import { TextInputFormGroup } from "../../../core/components/form";
 
 interface ContactFormProps {
   id: string;
@@ -19,11 +15,11 @@ interface ContactFormProps {
 const validationSchema: yup.ObjectSchema<PartnerRequestCreate> = yup
   .object()
   .shape({
-    name: yup.string().trim().required("Customer name is required"),
+    name: yup.string().trim().required("Your company name is required"),
     contactName: yup
       .string()
       .trim()
-      .required("Customer point of contact name is required"),
+      .required("Primary contact name is required"),
     contactPhone: yup.string().trim().default(""),
     email: yup
       .string()
@@ -56,45 +52,43 @@ export const ContactForm: React.FC<ContactFormProps> = ({ id, onSubmit }) => {
         }}
       >
         <TextInputFormGroup
-          label="Customer name"
+          label="Your company name"
           id="name"
           name="name"
+          placeholder="ACME Corp"
           isRequired
         />
 
         <TextInputFormGroup
-          label="Customer point of contact name"
+          label="Primary contact name"
           id="contact-name"
           name="contactName"
+          placeholder="John Doe"
+          isRequired
+        />
+        <TextInputFormGroup
+          label="Contact email address"
+          id="email"
+          name="email"
+          type="email"
+          placeholder="john.doe@example.org"
           isRequired
         />
 
         <TextInputFormGroup
-          label="Contact phone"
+          label="Contact phone number"
           id="contact-phone"
           name="contactPhone"
+          placeholder="+1 415-555-2671"
           type="tel"
         />
 
         <TextInputFormGroup
-          label="Email"
-          id="email"
-          name="email"
-          type="email"
-          isRequired
-        />
-
-        <SelectFormGroup
-          label="vCenter geo location"
+          label="Location"
           id="location"
           name="location"
-          options={[
-            { label: "Select a region", value: "" },
-            ...REGIONS.map((region) => ({
-              label: region.name,
-              value: region.code,
-            })),
-          ]}
+          placeholder="New York, US"
+          helpText="This field will help us partner you with a person closer to your region."
         />
       </Form>
     </FormProvider>

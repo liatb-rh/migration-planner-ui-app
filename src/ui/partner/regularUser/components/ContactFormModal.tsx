@@ -9,19 +9,16 @@ import {
 } from "@patternfly/react-core";
 import React from "react";
 
-import type { Partner } from "../../../../models/PartnerModel";
 import { ContactForm } from "./ContactForm";
 
 interface ContactFormModalProps {
   isOpen: boolean;
-  partner: Partner;
   onClose: () => void;
   onSubmit: (values: PartnerRequestCreate) => void | Promise<void>;
 }
 
 export const ContactFormModal: React.FC<ContactFormModalProps> = ({
   isOpen,
-  partner,
   onClose,
   onSubmit,
 }) => {
@@ -35,9 +32,9 @@ export const ContactFormModal: React.FC<ContactFormModalProps> = ({
       variant={ModalVariant.medium}
       isOpen={isOpen}
       onClose={onClose}
-      aria-label="Contact Partner"
+      aria-label="Connect with a partner"
     >
-      <ModalHeader title={`Request assignment - ${partner.name}`} />
+      <ModalHeader title="Request a partner" />
       <ModalBody>
         <ContactForm
           id="contact-partner-form"

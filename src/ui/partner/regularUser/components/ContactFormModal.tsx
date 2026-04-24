@@ -28,12 +28,7 @@ export const ContactFormModal: React.FC<ContactFormModalProps> = ({
   };
 
   return (
-    <Modal
-      variant={ModalVariant.medium}
-      isOpen={isOpen}
-      onClose={onClose}
-      aria-label="Connect with a partner"
-    >
+    <Modal variant={ModalVariant.medium} isOpen={isOpen} onClose={onClose}>
       <ModalHeader title="Request a partner" />
       <ModalBody>
         <ContactForm

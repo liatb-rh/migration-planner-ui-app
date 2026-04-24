@@ -125,7 +125,7 @@ export const CustomerRequestsSection: React.FC = () => {
                     <RequestStatus status={request.requestStatus} />
                   )}
                 </Td>
-                <Td dataLabel="Status reason">
+                <Td dataLabel="Reason">
                   {request.reason ? request.reason : "N/A"}
                 </Td>
               </Tr>

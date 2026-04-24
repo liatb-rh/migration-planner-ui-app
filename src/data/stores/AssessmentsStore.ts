@@ -195,6 +195,10 @@ export class AssessmentsStore
     return deletedAssessment;
   }
 
+  async share(id: string) {
+    await this.api.shareAssessment({ id });
+  }
+
   calculateAssessmentClusterRequirements(
     requestParameters: CalculateAssessmentClusterRequirementsRequest,
     initOverrides?: RequestInit | InitOverrideFunction,

@@ -24,7 +24,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
         variant="sm"
       >
         <EmptyStateBody>
-          No customers yet. To get started, accept a pending requests.
+          No customers yet. To get started, accept a pending request.
         </EmptyStateBody>
       </EmptyState>
     );

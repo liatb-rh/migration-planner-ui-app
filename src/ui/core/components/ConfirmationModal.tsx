@@ -43,7 +43,7 @@ export const ConfirmationModal: React.FC<
     onConfirm,
     onCancel,
     variant = "small",
-    titleIconVariant = "info",
+    titleIconVariant,
     primaryButtonVariant = "danger",
     confirmButtonText = "Delete",
     cancelButtonText = "Cancel",

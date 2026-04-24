@@ -1,4 +1,4 @@
-import type { Job } from "@openshift-migration-advisor/planner-sdk";
+import type { Identity, Job } from "@openshift-migration-advisor/planner-sdk";
 import { JobStatus } from "@openshift-migration-advisor/planner-sdk";
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -17,6 +17,12 @@ vi.mock("react-router-dom", () => ({
 }));
 
 // Mock stores that will be injected
+let mockAccountStore: {
+  getIdentity: ReturnType<typeof vi.fn>;
+  subscribe: ReturnType<typeof vi.fn>;
+  getSnapshot: ReturnType<typeof vi.fn>;
+};
+
 let mockAssessmentsStore: {
   list: ReturnType<typeof vi.fn>;
   update: ReturnType<typeof vi.fn>;
@@ -38,10 +44,12 @@ let mockJobsStore: {
 
 let jobsStoreState: JobsStoreState;
 let jobsListeners: Set<() => void>;
+let accountStoreState: Identity | null;
 
 vi.mock("@y0n1/react-ioc", () => ({
   useInjection: (symbol: symbol) => {
     const key = symbol.description;
+    if (key === "AccountStore") return mockAccountStore;
     if (key === "AssessmentsStore") return mockAssessmentsStore;
     if (key === "JobsStore") return mockJobsStore;
     throw new Error(`Unexpected symbol: ${String(symbol)}`);
@@ -73,12 +81,22 @@ describe("useAssessmentPageViewModel", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
+    accountStoreState = null;
     jobsStoreState = {
       currentJob: null,
       isCreating: false,
       createError: undefined,
     };
     jobsListeners = new Set();
+
+    mockAccountStore = {
+      getIdentity: vi.fn().mockResolvedValue(null),
+      subscribe: vi.fn((_fn: () => void) => {
+        // no-op for account store in these tests
+        return () => {};
+      }),
+      getSnapshot: vi.fn(() => accountStoreState),
+    };
 
     mockAssessmentsStore = {
       list: vi.fn().mockResolvedValue([]),
@@ -124,6 +142,20 @@ describe("useAssessmentPageViewModel", () => {
     expect(result.current.deleteError).toBeUndefined();
     expect(result.current.isUpdatingAssessment).toBe(false);
     expect(result.current.updateError).toBeUndefined();
+  });
+
+  it("exposes identity for a regular user", () => {
+    const regularUser: Identity = {
+      username: "user-1",
+      kind: "regular",
+      groupId: "group-regular-1",
+      partnerId: null,
+    };
+    accountStoreState = regularUser;
+
+    const { result } = renderHook(() => useAssessmentPageViewModel());
+
+    expect(result.current.identity).toEqual(regularUser);
   });
 
   // -- createRVToolsJob -----------------------------------------------------

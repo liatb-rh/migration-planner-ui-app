@@ -2,7 +2,7 @@ import React from "react";
 
 import { LoadingSpinner } from "../../core/components/LoadingSpinner";
 import { useAssessmentsScreenViewModel } from "../view-models/useAssessmentsScreenViewModel";
-import AssessmentPage from "./Assessment";
+import { AssessmentsPage } from "./AssessmentsPage";
 
 export const AssessmentsScreen: React.FC = () => {
   const { assessments, isLoading, hasInitialLoad, rvtoolsOpenToken } =
@@ -15,10 +15,11 @@ export const AssessmentsScreen: React.FC = () => {
 
   // Always show assessment component
   return (
-    <AssessmentPage
+    <AssessmentsPage
       assessments={assessments}
       rvtoolsOpenToken={rvtoolsOpenToken}
     />
   );
 };
+
 AssessmentsScreen.displayName = "AssessmentsScreen";

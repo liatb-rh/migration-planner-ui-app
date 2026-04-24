@@ -46,7 +46,7 @@ const openAssistedInstaller = (): void => {
   }
 };
 
-type Props = {
+type AssessmentsTableProps = {
   assessments: AssessmentModel[];
   search?: string;
   filterBy?: string;
@@ -62,6 +62,8 @@ type Props = {
   onDelete?: (assessmentId: string) => void;
   onUpdate?: (assessmentId: string) => void;
   visibleColumns?: ColumnKey[];
+  canShareAssessment: boolean;
+  onShareAssessment: (assessmentId: string) => void;
 };
 
 export const Columns = {
@@ -92,7 +94,7 @@ export const SORTABLE_COLUMNS: SortableColumn[] = [
   "Datastores",
 ];
 
-export const AssessmentsTable: React.FC<Props> = ({
+export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
   assessments,
   search: _search = "",
   filterBy = "Filter",
@@ -103,6 +105,8 @@ export const AssessmentsTable: React.FC<Props> = ({
   onSort,
   onDelete,
   visibleColumns = Object.keys(Columns) as ColumnKey[],
+  canShareAssessment,
+  onShareAssessment,
 }) => {
   const navigate = useNavigate();
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>(
@@ -585,13 +589,28 @@ export const AssessmentsTable: React.FC<Props> = ({
                     >
                       Edit assessment
                     </DropdownItem>
+                    {canShareAssessment && (
+                      <DropdownItem
+                        onClick={() => {
+                          toggleDropdown(row.id);
+                          return onShareAssessment(row.id);
+                        }}
+                      >
+                        Share with partner
+                      </DropdownItem>
+                    )}
                     <DropdownItem
                       onClick={openAssistedInstaller}
                       isDisabled={!row.hasData}
                     >
                       Create a target cluster
                     </DropdownItem>
-                    <DropdownItem onClick={() => handleDelete(row.id)}>
+                    <DropdownItem
+                      onClick={() => {
+                        toggleDropdown(row.id);
+                        return handleDelete(row.id);
+                      }}
+                    >
                       Delete assessment
                     </DropdownItem>
                   </DropdownList>
@@ -606,5 +625,3 @@ export const AssessmentsTable: React.FC<Props> = ({
 };
 
 AssessmentsTable.displayName = "AssessmentsTable";
-
-export default AssessmentsTable;

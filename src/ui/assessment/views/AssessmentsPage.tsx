@@ -26,7 +26,8 @@ import CreateAssessmentDropdown from "../../core/components/CreateAssessmentDrop
 import FilterPill from "../../core/components/FilterPill";
 import { useAssessmentPageViewModel } from "../view-models/useAssessmentPageViewModel";
 import AssessmentEmptyState from "./AssessmentEmptyState";
-import AssessmentsTable, {
+import {
+  AssessmentsTable,
   type ColumnKey,
   Columns,
   MANDATORY_COLUMNS,
@@ -37,7 +38,7 @@ import CreateAssessmentModal, {
 } from "./CreateAssessmentModal";
 import UpdateAssessment from "./UpdateAssessment";
 
-type AssessmentProps = {
+type AssessmentsPageProps = {
   assessments: AssessmentModel[];
   // When this token changes, the component should open the RVTools modal.
   rvtoolsOpenToken?: string;
@@ -79,11 +80,12 @@ const tableContainerStyle = css`
   overflow: auto;
 `;
 
-const Assessment: React.FC<AssessmentProps> = ({
+export const AssessmentsPage: React.FC<AssessmentsPageProps> = ({
   assessments,
   rvtoolsOpenToken,
 }) => {
   const {
+    identity,
     isCreatingJob,
     jobCreateError,
     isJobProcessing,
@@ -91,6 +93,7 @@ const Assessment: React.FC<AssessmentProps> = ({
     jobProgressLabel,
     jobError,
     isNavigatingToReport,
+    isSharingAssessment,
     isDeletingAssessment,
     isColumnSelectOpen,
     setIsColumnSelectOpen,
@@ -101,8 +104,9 @@ const Assessment: React.FC<AssessmentProps> = ({
     createRVToolsJob,
     clearJobCreateError,
     cancelRVToolsJob,
-    updateAssessment: vmUpdateAssessment,
-    deleteAssessment: vmDeleteAssessment,
+    updateAssessment,
+    shareAssessment,
+    deleteAssessment,
   } = useAssessmentPageViewModel();
 
   const [search, setSearch] = useState("");
@@ -110,6 +114,7 @@ const Assessment: React.FC<AssessmentProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<AssessmentMode>("inventory");
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isSharingModalOpen, setIsSharingModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedAssessment, setSelectedAssessment] =
     useState<AssessmentModel | null>(null);
@@ -197,6 +202,13 @@ const Assessment: React.FC<AssessmentProps> = ({
       setIsUpdateModalOpen(true);
     }
   };
+  const handleShareAssessment = (assessmentId: string): void => {
+    const assessment = assessments.find((a) => a.id === assessmentId);
+    if (assessment) {
+      setSelectedAssessment(assessment);
+      setIsSharingModalOpen(true);
+    }
+  };
 
   const isTableEmpty = (): boolean => {
     return !Array.isArray(assessments) || assessments.length === 0;
@@ -215,6 +227,11 @@ const Assessment: React.FC<AssessmentProps> = ({
     setSelectedAssessment(null);
   };
 
+  const handleCloseSharingModal = (): void => {
+    setIsSharingModalOpen(false);
+    setSelectedAssessment(null);
+  };
+
   const handleCloseDeleteModal = (): void => {
     setIsDeleteModalOpen(false);
     setSelectedAssessment(null);
@@ -222,13 +239,19 @@ const Assessment: React.FC<AssessmentProps> = ({
 
   const handleConfirmUpdate = async (name: string): Promise<void> => {
     if (!selectedAssessment) return;
-    await vmUpdateAssessment(selectedAssessment.id, name);
+    await updateAssessment(selectedAssessment.id, name);
     handleCloseUpdateModal();
+  };
+
+  const handleConfirmShare = async (): Promise<void> => {
+    if (!selectedAssessment) return;
+    await shareAssessment(selectedAssessment.id);
+    handleCloseSharingModal();
   };
 
   const handleConfirmDelete = async (): Promise<void> => {
     if (!selectedAssessment) return;
-    await vmDeleteAssessment(selectedAssessment.id);
+    await deleteAssessment(selectedAssessment.id);
     handleCloseDeleteModal();
   };
 
@@ -481,9 +504,11 @@ const Assessment: React.FC<AssessmentProps> = ({
             onSort={onSort}
             onDelete={handleDeleteAssessment}
             onUpdate={handleUpdateAssessment}
+            onShareAssessment={handleShareAssessment}
             selectedSourceTypes={selectedSourceTypes}
             selectedOwners={selectedOwners}
             visibleColumns={visibleColumns}
+            canShareAssessment={identity?.kind === "customer"}
           />
         </div>
       )}
@@ -514,6 +539,23 @@ const Assessment: React.FC<AssessmentProps> = ({
       />
 
       <ConfirmationModal
+        isOpen={isSharingModalOpen}
+        onClose={handleCloseSharingModal}
+        onCancel={handleCloseSharingModal}
+        onConfirm={() => {
+          void handleConfirmShare();
+        }}
+        isDisabled={isSharingAssessment}
+        title="Share Assessment"
+        primaryButtonVariant="primary"
+        confirmButtonText="Share"
+      >
+        Are you sure you want to share{" "}
+        <b>{(selectedAssessment as AssessmentModel)?.name}</b> with your
+        partner?
+      </ConfirmationModal>
+
+      <ConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={handleCloseDeleteModal}
         onCancel={handleCloseDeleteModal}
@@ -532,6 +574,4 @@ const Assessment: React.FC<AssessmentProps> = ({
   );
 };
 
-Assessment.displayName = "Assessment";
-
-export default Assessment;
+AssessmentsPage.displayName = "AssessmentsPage";

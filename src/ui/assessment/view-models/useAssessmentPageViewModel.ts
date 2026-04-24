@@ -1,4 +1,4 @@
-import type { Job } from "@openshift-migration-advisor/planner-sdk";
+import type { Identity, Job } from "@openshift-migration-advisor/planner-sdk";
 import { JobStatus } from "@openshift-migration-advisor/planner-sdk";
 import { useInjection } from "@y0n1/react-ioc";
 import {
@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useAsyncFn } from "react-use";
 
 import { Symbols } from "../../../config/Dependencies";
+import type { IAccountStore } from "../../../data/stores/interfaces/IAccountStore";
 import type { IAssessmentsStore } from "../../../data/stores/interfaces/IAssessmentsStore";
 import type { IJobsStore } from "../../../data/stores/interfaces/IJobsStore";
 import {
@@ -83,6 +84,8 @@ const extractErrorMessage = (message: string): string => {
 // ---------------------------------------------------------------------------
 
 export interface AssessmentPageViewModel {
+  /** Current user identity (null when not logged in). */
+  identity: Identity | null;
   /** Current RVTools job (null when idle). */
   currentJob: Job | null;
   /** `true` while the create-job request is in flight. */
@@ -142,8 +145,14 @@ export interface AssessmentPageViewModel {
   cancelRVToolsJob: () => Promise<void>;
   /** Update an existing assessment's name. */
   updateAssessment: (id: string, name: string) => Promise<void>;
+
   /** Delete an assessment by id. */
   deleteAssessment: (id: string) => Promise<void>;
+
+  /** Share assessment with partner. */
+  shareAssessment: (id: string) => Promise<void>;
+  isSharingAssessment: boolean;
+  shareError?: Error;
 }
 
 // ---------------------------------------------------------------------------
@@ -153,10 +162,16 @@ export interface AssessmentPageViewModel {
 export const useAssessmentPageViewModel = (): AssessmentPageViewModel => {
   const navigate = useNavigate();
 
+  const accountStore = useInjection<IAccountStore>(Symbols.AccountStore);
   const assessmentsStore = useInjection<IAssessmentsStore>(
     Symbols.AssessmentsStore,
   );
   const jobsStore = useInjection<IJobsStore>(Symbols.JobsStore);
+
+  const identity = useSyncExternalStore(
+    accountStore.subscribe.bind(accountStore),
+    accountStore.getSnapshot.bind(accountStore),
+  );
 
   const jobState = useSyncExternalStore(
     jobsStore.subscribe.bind(jobsStore),
@@ -289,6 +304,13 @@ export const useAssessmentPageViewModel = (): AssessmentPageViewModel => {
     [assessmentsStore],
   );
 
+  const [shareState, doShareAssessment] = useAsyncFn(
+    async (id: string): Promise<void> => {
+      await assessmentsStore.share(id);
+    },
+    [assessmentsStore],
+  );
+
   const [deleteState, doDeleteAssessment] = useAsyncFn(
     async (id: string): Promise<void> => {
       await assessmentsStore.remove(id);
@@ -329,6 +351,7 @@ export const useAssessmentPageViewModel = (): AssessmentPageViewModel => {
     );
 
   return {
+    identity,
     currentJob,
     isCreatingJob: jobState.isCreating,
     jobCreateError: jobState.createError,
@@ -352,5 +375,8 @@ export const useAssessmentPageViewModel = (): AssessmentPageViewModel => {
     cancelRVToolsJob,
     updateAssessment: doUpdateAssessment,
     deleteAssessment: doDeleteAssessment,
+    shareAssessment: doShareAssessment,
+    isSharingAssessment: shareState.loading,
+    shareError: shareState.error,
   };
 };

@@ -211,6 +211,8 @@ function makeBaseVm(
     clearExportError: vi.fn(),
     isSizingWizardOpen: false,
     setIsSizingWizardOpen: vi.fn(),
+    savedSizingDataMap: {},
+    onSizingCalculated: vi.fn(),
     ...overrides,
   };
 }

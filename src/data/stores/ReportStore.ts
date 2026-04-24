@@ -4,7 +4,10 @@ import type {
   InventoryData,
   SnapshotLike,
 } from "../../services/html-export/types";
-import type { PdfExportService } from "../../services/pdf-export/PdfExportService";
+import type {
+  PdfExtraPage,
+  PdfExportService,
+} from "../../services/pdf-export/PdfExportService";
 import type { IReportStore, ReportStoreState } from "./interfaces/IReportStore";
 
 const IDLE_STATE: ReportStoreState = Object.freeze({
@@ -35,7 +38,11 @@ export class ReportStore
 
   async exportPdf(
     container: HTMLElement,
-    options?: { documentTitle?: string },
+    options?: {
+      documentTitle?: string;
+      additionalTocItems?: string[];
+      extraPages?: PdfExtraPage[];
+    },
   ): Promise<void> {
     this.setState({ loadingState: "generating-pdf", error: null });
 

@@ -352,6 +352,14 @@ const ReportContent: React.FC = () => {
         clusterName={vm.clusterView.selectionLabel}
         clusterId={vm.selectedClusterId}
         assessmentId={vm.assessmentId || ""}
+        onCalculated={(result, formValues) => {
+          vm.onSizingCalculated({
+            result,
+            formValues,
+            clusterName: vm.clusterView.selectionLabel,
+            clusterId: vm.selectedClusterId,
+          });
+        }}
       />
 
       {/* Off-screen render target for PDF export — React owns the rendering,

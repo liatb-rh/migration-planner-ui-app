@@ -20,6 +20,7 @@ import { SizingInputForm } from "./SizingInputForm";
 import { SizingResult } from "./SizingResult";
 import { TimeEstimationForm } from "./TimeEstimationForm";
 import { TimeEstimationResult } from "./TimeEstimationResult";
+import type { ClusterRequirementsResponse, SizingFormValues } from "./types";
 
 interface ClusterSizingWizardProps {
   isOpen: boolean;
@@ -28,6 +29,14 @@ interface ClusterSizingWizardProps {
   clusterId: string;
   /** Assessment ID for the API endpoint */
   assessmentId: string;
+  /**
+   * Called whenever a sizing calculation succeeds. Used by the parent to
+   * cache the result for inclusion in the PDF export.
+   */
+  onCalculated?: (
+    result: ClusterRequirementsResponse,
+    formValues: SizingFormValues,
+  ) => void;
 }
 
 type MenuItem = "architecture" | "time-estimation" | "complexity" | "plan";
@@ -91,10 +100,19 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
   clusterName,
   clusterId,
   assessmentId,
+  onCalculated,
 }) => {
   const vm = useClusterSizingWizardViewModel(assessmentId, clusterId);
   const [selectedMenuItem, setSelectedMenuItem] =
     useState<MenuItem>("architecture");
+
+  useEffect(() => {
+    if (vm.sizerOutput && onCalculated) {
+      onCalculated(vm.sizerOutput, vm.formValues);
+    }
+    // Only fire when sizerOutput changes (not on every formValues keystroke)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vm.sizerOutput]);
 
   const handleClose = useCallback(() => {
     vm.reset();

@@ -1,4 +1,5 @@
 import type {
+  ClusterRequirementsResponse,
   Infra,
   InventoryData,
   Job,
@@ -31,15 +32,144 @@ import type { AssessmentModel } from "../../../models/AssessmentModel";
 import type { SourceModel } from "../../../models/SourceModel";
 import { routes } from "../../../routing/Routes";
 import type { SnapshotLike } from "../../../services/html-export/types";
+import type {
+  PdfExtraPage,
+  PdfExtraPageItem,
+} from "../../../services/pdf-export/PdfExportService";
 import {
   buildClusterViewModel,
   type ClusterViewModel,
   compareClustersByVmCount,
 } from "../helpers/clusterViewModel";
+import {
+  formatNumber,
+  formatRatio,
+  getCpuOvercommitLabel,
+  getMemoryOvercommitLabel,
+} from "./ClusterSizingHelpers";
+import type { SizingFormValues } from "../views/cluster-sizer/types";
+
+// ---------------------------------------------------------------------------
+// Sizing → PDF page builder
+// ---------------------------------------------------------------------------
+
+const buildSizingPdfExtraPage = (data: SizingPdfData): PdfExtraPage => {
+  const { result, formValues, clusterName } = data;
+  const isSNO = formValues.clusterMode === "single-node";
+  const hasControlPlane = result.clusterSizing.controlPlaneNodes > 0;
+
+  const cpuOverCommitRatio =
+    result.resourceConsumption.overCommitRatio?.cpu ?? 0;
+  const memoryOverCommitRatio =
+    result.resourceConsumption.overCommitRatio?.memory ?? 0;
+  const cpuLimits = result.resourceConsumption.limits?.cpu ?? 0;
+  const memoryLimits = result.resourceConsumption.limits?.memory ?? 0;
+
+  const items: PdfExtraPageItem[] = [
+    { label: "Cluster name", value: clusterName },
+    { label: "Target platform", value: "Bare metal" },
+  ];
+
+  if (isSNO) {
+    items.push(
+      {
+        label: "Total nodes",
+        value: String(result.clusterSizing.totalNodes),
+      },
+      {
+        label: "Node size",
+        value: `${formValues.controlPlaneCpu} CPU, ${formValues.controlPlaneMemoryGb} GB memory`,
+      },
+      {
+        label: "VMs to migrate",
+        value: formatNumber(result.inventoryTotals.totalVMs),
+      },
+      {
+        label: "VM resources (request)",
+        value: `${formatNumber(result.inventoryTotals.totalCPU)} CPU, ${formatNumber(result.inventoryTotals.totalMemory)} GB memory`,
+      },
+    );
+  } else {
+    items.push(
+      {
+        label: "Total nodes",
+        value: `${result.clusterSizing.totalNodes} (${result.clusterSizing.workerNodes} workers + ${result.clusterSizing.controlPlaneNodes} control plane)`,
+      },
+      {
+        label: "Failover capacity",
+        value: `${result.clusterSizing.failoverNodes} failover nodes`,
+      },
+    );
+
+    if (hasControlPlane) {
+      items.push(
+        {
+          label: "Worker node size",
+          value: `${formValues.customCpu} CPU, ${formValues.customMemoryGb} GB memory`,
+        },
+        {
+          label: "Control plane node size",
+          value: `${formValues.controlPlaneCpu} CPU, ${formValues.controlPlaneMemoryGb} GB memory`,
+        },
+      );
+    } else {
+      items.push({
+        label: "Node size",
+        value: `${formValues.customCpu} CPU, ${formValues.customMemoryGb} GB memory`,
+      });
+    }
+
+    items.push(
+      {
+        label: "Overcommitment",
+        value: `CPU ${getCpuOvercommitLabel(formValues.cpuOvercommitRatio)}, Memory ${getMemoryOvercommitLabel(formValues.memoryOvercommitRatio)}`,
+      },
+      {
+        label: "VMs to migrate",
+        value: formatNumber(result.inventoryTotals.totalVMs),
+      },
+      {
+        label: "CPU over-commit ratio",
+        value: formatRatio(cpuOverCommitRatio),
+      },
+      {
+        label: "Memory over-commit ratio",
+        value: formatRatio(memoryOverCommitRatio),
+      },
+      {
+        label: "VM resources (request)",
+        value: `${formatNumber(result.inventoryTotals.totalCPU)} CPU, ${formatNumber(result.inventoryTotals.totalMemory)} GB memory`,
+      },
+      {
+        label: "With over-commit (limits)",
+        value: `${formatNumber(cpuLimits)} CPU, ${formatNumber(memoryLimits)} GB memory`,
+      },
+      {
+        label: "Physical capacity",
+        value: `${formatNumber(result.clusterSizing.totalCPU)} CPU, ${formatNumber(result.clusterSizing.totalMemory)} GB memory`,
+      },
+    );
+  }
+
+  return {
+    title: "Cluster sizing recommendations",
+    items,
+    footer:
+      "Note: Resource requirements are estimates based on current workloads. Please verify this architecture with your SME team to ensure optimal performance.",
+  };
+};
 
 // ---------------------------------------------------------------------------
 // Public interface
 // ---------------------------------------------------------------------------
+
+/** Sizing result cached for inclusion in the PDF export. */
+export interface SizingPdfData {
+  result: ClusterRequirementsResponse;
+  formValues: SizingFormValues;
+  clusterName: string;
+  clusterId: string;
+}
 
 export interface ReportPageViewModel {
   // Route param
@@ -86,6 +216,12 @@ export interface ReportPageViewModel {
   // Sizing wizard
   isSizingWizardOpen: boolean;
   setIsSizingWizardOpen: (open: boolean) => void;
+  /**
+   * All sizing results calculated in this session, keyed by clusterId.
+   * Used by exportPdf to include recommendations for every sized cluster.
+   */
+  savedSizingDataMap: Record<string, SizingPdfData>;
+  onSizingCalculated: (data: SizingPdfData) => void;
 
   // RVTools modal (create-new-assessment from report page)
   isRvtoolsModalOpen: boolean;
@@ -236,6 +372,13 @@ export const useReportPageViewModel = (): ReportPageViewModel => {
   >(null);
   const [isClusterSelectOpen, setIsClusterSelectOpen] = useState(false);
   const [isSizingWizardOpen, setIsSizingWizardOpen] = useState(false);
+  const [savedSizingDataMap, setSavedSizingDataMap] = useState<
+    Record<string, SizingPdfData>
+  >({});
+
+  const onSizingCalculated = useCallback((data: SizingPdfData): void => {
+    setSavedSizingDataMap((prev) => ({ ...prev, [data.clusterId]: data }));
+  }, []);
 
   // ---- Snapshot data -------------------------------------------------------
   const latestSnapshot = useMemo((): SnapshotLike => {
@@ -428,11 +571,30 @@ export const useReportPageViewModel = (): ReportPageViewModel => {
   const exportPdf = useCallback(
     (container: HTMLElement): void => {
       const title = `${assessment?.name || `Assessment ${id}`} - vCenter report`;
+
+      // Determine which sizing entries to include:
+      // - Single cluster view → only that cluster (if calculated)
+      // - All-clusters view → every cluster that has been sized
+      const sizingEntries: SizingPdfData[] =
+        selectedClusterId === "all"
+          ? Object.values(savedSizingDataMap)
+          : savedSizingDataMap[selectedClusterId]
+            ? [savedSizingDataMap[selectedClusterId]]
+            : [];
+
+      const additionalTocItems = sizingEntries.map(
+        (entry) => `- Cluster sizing recommendations: ${entry.clusterName}`,
+      );
+
+      const extraPages = sizingEntries.map(buildSizingPdfExtraPage);
+
       void reportStore.exportPdf(container, {
         documentTitle: title,
+        additionalTocItems,
+        extraPages,
       });
     },
-    [reportStore, assessment?.name, id],
+    [reportStore, assessment?.name, id, savedSizingDataMap, selectedClusterId],
   );
 
   const exportHtml = useCallback((): void => {
@@ -579,6 +741,8 @@ export const useReportPageViewModel = (): ReportPageViewModel => {
 
     isSizingWizardOpen,
     setIsSizingWizardOpen,
+    savedSizingDataMap,
+    onSizingCalculated,
 
     isRvtoolsModalOpen,
     openRvtoolsModal,

@@ -42,8 +42,27 @@ const TOC_ITEMS = [
  */
 const EXPECTED_CUSTOM_SEGMENTS = 3;
 
+export interface PdfExtraPageItem {
+  label: string;
+  value: string;
+}
+
+export interface PdfExtraPage {
+  title: string;
+  items: PdfExtraPageItem[];
+  footer?: string;
+}
+
 export interface PdfExportOptions {
   documentTitle?: string;
+  /** Extra items appended to the table of contents on the cover page. */
+  additionalTocItems?: string[];
+  /**
+   * Additional pages appended after the canvas-based report pages.
+   * Each entry becomes one new PDF page rendered with native jsPDF text,
+   * so it is guaranteed to start on a fresh page with no bleed.
+   */
+  extraPages?: PdfExtraPage[];
 }
 
 interface BlockBoundary {
@@ -89,6 +108,8 @@ export class PdfExportService {
       container.clientWidth,
       options.documentTitle,
       backgroundColor,
+      options.additionalTocItems,
+      options.extraPages,
     );
     this.downloadPdf(pdf, options.documentTitle);
   }
@@ -163,6 +184,8 @@ export class PdfExportService {
     containerClientWidth: number,
     documentTitle?: string,
     backgroundColor = "#ffffff",
+    additionalTocItems?: string[],
+    extraPages?: PdfExtraPage[],
   ): jsPDF {
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
@@ -176,7 +199,14 @@ export class PdfExportService {
     const imgHeight = canvas.height;
 
     // Build cover page with TOC
-    this.buildCoverPage(pdf, pageWidth, pageHeight, margin, documentTitle);
+    this.buildCoverPage(
+      pdf,
+      pageWidth,
+      pageHeight,
+      margin,
+      documentTitle,
+      additionalTocItems,
+    );
     pdf.addPage();
 
     // Calculate scaling
@@ -231,6 +261,11 @@ export class PdfExportService {
       );
     }
 
+    // Append any extra pages (e.g. cluster sizing recommendations)
+    if (extraPages && extraPages.length > 0) {
+      this.addExtraPages(pdf, extraPages, pageWidth, pageHeight, margin);
+    }
+
     // Add page numbers
     this.addPageNumbers(pdf, pageWidth, pageHeight);
 
@@ -243,6 +278,7 @@ export class PdfExportService {
     pageHeight: number,
     margin: number,
     documentTitle?: string,
+    additionalTocItems?: string[],
   ): void {
     pdf.setFillColor(255, 255, 255);
     pdf.rect(0, 0, pageWidth, pageHeight, "F");
@@ -278,9 +314,11 @@ export class PdfExportService {
     pdf.setFontSize(14);
     pdf.text("Table of contents", margin, tocStartY);
 
+    const allTocItems: string[] = [...TOC_ITEMS, ...(additionalTocItems ?? [])];
+
     pdf.setFontSize(11);
     let tocY = tocStartY + 10;
-    TOC_ITEMS.forEach((line) => {
+    allTocItems.forEach((line) => {
       if (tocY > pageHeight - margin - 10) {
         pdf.addPage();
         tocY = margin;
@@ -541,6 +579,77 @@ export class PdfExportService {
       renderWidthMm,
       renderHeightMm,
     );
+  }
+
+  private addExtraPages(
+    pdf: jsPDF,
+    extraPages: PdfExtraPage[],
+    pageWidth: number,
+    pageHeight: number,
+    margin: number,
+  ): void {
+    const LABEL_COL_WIDTH = 68; // mm — enough for the longest label
+    const VALUE_COL_X = margin + LABEL_COL_WIDTH;
+    const VALUE_COL_WIDTH = pageWidth - margin - LABEL_COL_WIDTH;
+    const LINE_HEIGHT = 7; // mm between rows
+
+    for (const page of extraPages) {
+      pdf.addPage();
+      let y = margin + 8;
+
+      // Title
+      pdf.setFontSize(16);
+      pdf.setFont("helvetica", "bold");
+      pdf.text(page.title, margin, y);
+      y += 10;
+
+      // Accent line below title
+      pdf.setDrawColor(0, 103, 187);
+      pdf.setLineWidth(0.5);
+      pdf.line(margin, y, pageWidth - margin, y);
+      y += 10;
+
+      pdf.setFontSize(11);
+
+      for (const item of page.items) {
+        // Label column (bold)
+        pdf.setFont("helvetica", "bold");
+        const labelLines = pdf.splitTextToSize(
+          item.label,
+          LABEL_COL_WIDTH - 4,
+        ) as string[];
+        pdf.text(labelLines, margin, y);
+
+        // Value column (normal)
+        pdf.setFont("helvetica", "normal");
+        const valueLines = pdf.splitTextToSize(
+          item.value,
+          VALUE_COL_WIDTH,
+        ) as string[];
+        pdf.text(valueLines, VALUE_COL_X, y);
+
+        y += LINE_HEIGHT * Math.max(labelLines.length, valueLines.length);
+
+        if (y > pageHeight - margin - 25) {
+          pdf.addPage();
+          y = margin + 10;
+        }
+      }
+
+      // Footer disclaimer
+      if (page.footer) {
+        y += 4;
+        pdf.setFontSize(9);
+        pdf.setFont("helvetica", "bolditalic");
+        const footerLines = pdf.splitTextToSize(
+          page.footer,
+          pageWidth - margin * 2,
+        ) as string[];
+        pdf.text(footerLines, margin, y);
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(11);
+      }
+    }
   }
 
   private addPageNumbers(

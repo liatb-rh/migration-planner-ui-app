@@ -63,10 +63,11 @@ export class ChartDataTransformer {
       snapshotLike.inventory?.vcenter?.infra ||
       (snapshotLike as { vcenter: { infra: InfraData } }).vcenter?.infra;
 
-    const vms = (snapshotLike.vms ||
+    const vms =
+      snapshotLike.vms ||
       snapshotLike.inventory?.vms ||
       snapshotLike.inventory?.vcenter?.vms ||
-      (snapshotLike as { vcenter: { vms: VMsData } }).vcenter?.vms) as VMsData;
+      (snapshotLike as { vcenter: { vms: VMsData } }).vcenter?.vms;
 
     if (!infra || !vms) {
       throw new Error("Invalid inventory data structure");

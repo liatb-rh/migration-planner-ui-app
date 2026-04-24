@@ -60,7 +60,7 @@ describe("PartnerRequestsStore", () => {
       makePartnerRequest({ id: "req-1" }),
       makePartnerRequest({ id: "req-2" }),
     ];
-    vi.mocked(api.listPartnerRequests).mockResolvedValue(requests as never);
+    vi.mocked(api.listPartnerRequests).mockResolvedValue(requests);
 
     const result = await store.list();
 
@@ -71,7 +71,7 @@ describe("PartnerRequestsStore", () => {
 
   it("create() adds new partner request", async () => {
     const created = makePartnerRequest({ id: "req-1" });
-    vi.mocked(api.createPartnerRequest).mockResolvedValue(created as never);
+    vi.mocked(api.createPartnerRequest).mockResolvedValue(created);
 
     const input = {
       name: "Customer Name",
@@ -93,11 +93,11 @@ describe("PartnerRequestsStore", () => {
 
   it("create() appends to existing requests", async () => {
     const existing = [makePartnerRequest({ id: "req-1" })];
-    vi.mocked(api.listPartnerRequests).mockResolvedValue(existing as never);
+    vi.mocked(api.listPartnerRequests).mockResolvedValue(existing);
     await store.list();
 
     const created = makePartnerRequest({ id: "req-2" });
-    vi.mocked(api.createPartnerRequest).mockResolvedValue(created as never);
+    vi.mocked(api.createPartnerRequest).mockResolvedValue(created);
 
     await store.create("partner-1", {
       name: "Customer Name",
@@ -116,12 +116,12 @@ describe("PartnerRequestsStore", () => {
       makePartnerRequest({ id: "req-1" }),
       makePartnerRequest({ id: "req-2" }),
     ];
-    vi.mocked(api.listPartnerRequests).mockResolvedValue(requests as never);
+    vi.mocked(api.listPartnerRequests).mockResolvedValue(requests);
     await store.list();
 
     const afterCancel = [makePartnerRequest({ id: "req-2" })];
-    vi.mocked(api.listPartnerRequests).mockResolvedValue(afterCancel as never);
-    vi.mocked(api.cancelPartnerRequest).mockResolvedValue(undefined as never);
+    vi.mocked(api.listPartnerRequests).mockResolvedValue(afterCancel);
+    vi.mocked(api.cancelPartnerRequest).mockResolvedValue(undefined);
 
     await store.cancel("req-1");
 
@@ -135,14 +135,14 @@ describe("PartnerRequestsStore", () => {
       id: "req-1",
       requestStatus: "pending",
     });
-    vi.mocked(api.listPartnerRequests).mockResolvedValue([pending] as never);
+    vi.mocked(api.listPartnerRequests).mockResolvedValue([pending]);
     await store.list();
 
     const accepted = makePartnerRequest({
       id: "req-1",
       requestStatus: "accepted",
     });
-    vi.mocked(api.updatePartnerRequest).mockResolvedValue(accepted as never);
+    vi.mocked(api.updatePartnerRequest).mockResolvedValue(accepted);
 
     const result = await store.accept("req-1");
 
@@ -159,14 +159,14 @@ describe("PartnerRequestsStore", () => {
       makePartnerRequest({ id: "req-1", requestStatus: "pending" }),
       makePartnerRequest({ id: "req-2", requestStatus: "pending" }),
     ];
-    vi.mocked(api.listPartnerRequests).mockResolvedValue(requests as never);
+    vi.mocked(api.listPartnerRequests).mockResolvedValue(requests);
     await store.list();
 
     const accepted = makePartnerRequest({
       id: "req-1",
       requestStatus: "accepted",
     });
-    vi.mocked(api.updatePartnerRequest).mockResolvedValue(accepted as never);
+    vi.mocked(api.updatePartnerRequest).mockResolvedValue(accepted);
 
     await store.accept("req-1");
 
@@ -180,7 +180,7 @@ describe("PartnerRequestsStore", () => {
       id: "req-1",
       requestStatus: "pending",
     });
-    vi.mocked(api.listPartnerRequests).mockResolvedValue([pending] as never);
+    vi.mocked(api.listPartnerRequests).mockResolvedValue([pending]);
     await store.list();
 
     const rejected = makePartnerRequest({
@@ -188,7 +188,7 @@ describe("PartnerRequestsStore", () => {
       requestStatus: "rejected",
       reason: "Does not meet criteria",
     });
-    vi.mocked(api.updatePartnerRequest).mockResolvedValue(rejected as never);
+    vi.mocked(api.updatePartnerRequest).mockResolvedValue(rejected);
 
     const result = await store.deny("req-1", "Does not meet criteria");
 
@@ -208,7 +208,7 @@ describe("PartnerRequestsStore", () => {
       makePartnerRequest({ id: "req-1", requestStatus: "pending" }),
       makePartnerRequest({ id: "req-2", requestStatus: "pending" }),
     ];
-    vi.mocked(api.listPartnerRequests).mockResolvedValue(requests as never);
+    vi.mocked(api.listPartnerRequests).mockResolvedValue(requests);
     await store.list();
 
     const rejected = makePartnerRequest({
@@ -216,7 +216,7 @@ describe("PartnerRequestsStore", () => {
       requestStatus: "rejected",
       reason: "Test reason",
     });
-    vi.mocked(api.updatePartnerRequest).mockResolvedValue(rejected as never);
+    vi.mocked(api.updatePartnerRequest).mockResolvedValue(rejected);
 
     await store.deny("req-1", "Test reason");
 
@@ -231,7 +231,7 @@ describe("PartnerRequestsStore", () => {
 
     vi.mocked(api.listPartnerRequests).mockResolvedValue([
       makePartnerRequest(),
-    ] as never);
+    ]);
     await store.list();
 
     expect(listener).toHaveBeenCalled();
@@ -242,7 +242,7 @@ describe("PartnerRequestsStore", () => {
     store.subscribe(listener);
 
     const created = makePartnerRequest({ id: "req-1" });
-    vi.mocked(api.createPartnerRequest).mockResolvedValue(created as never);
+    vi.mocked(api.createPartnerRequest).mockResolvedValue(created);
     await store.create("partner-1", {
       name: "Customer Name",
       contactName: "John Doe",
@@ -259,7 +259,7 @@ describe("PartnerRequestsStore", () => {
       id: "req-1",
       requestStatus: "pending",
     });
-    vi.mocked(api.listPartnerRequests).mockResolvedValue([pending] as never);
+    vi.mocked(api.listPartnerRequests).mockResolvedValue([pending]);
     await store.list();
 
     const listener = vi.fn();
@@ -269,7 +269,7 @@ describe("PartnerRequestsStore", () => {
       id: "req-1",
       requestStatus: "accepted",
     });
-    vi.mocked(api.updatePartnerRequest).mockResolvedValue(accepted as never);
+    vi.mocked(api.updatePartnerRequest).mockResolvedValue(accepted);
     await store.accept("req-1");
 
     expect(listener).toHaveBeenCalled();
@@ -280,7 +280,7 @@ describe("PartnerRequestsStore", () => {
       id: "req-1",
       requestStatus: "pending",
     });
-    vi.mocked(api.listPartnerRequests).mockResolvedValue([pending] as never);
+    vi.mocked(api.listPartnerRequests).mockResolvedValue([pending]);
     await store.list();
 
     const listener = vi.fn();
@@ -291,7 +291,7 @@ describe("PartnerRequestsStore", () => {
       requestStatus: "rejected",
       reason: "Test reason",
     });
-    vi.mocked(api.updatePartnerRequest).mockResolvedValue(rejected as never);
+    vi.mocked(api.updatePartnerRequest).mockResolvedValue(rejected);
     await store.deny("req-1", "Test reason");
 
     expect(listener).toHaveBeenCalled();

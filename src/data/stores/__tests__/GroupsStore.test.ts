@@ -10,17 +10,16 @@ import { GroupsStore } from "../GroupsStore";
 // Helpers
 // ---------------------------------------------------------------------------
 
-const makeGroup = (overrides: Partial<Group> = {}): Group =>
-  ({
-    id: "g-1",
-    name: "Test Group",
-    kind: "partner" as const,
-    icon: "test-icon",
-    company: "Test Company",
-    createdAt: new Date("2026-01-01T00:00:00Z"),
-    updatedAt: new Date("2026-01-01T00:00:00Z"),
-    ...overrides,
-  }) as Group;
+const makeGroup = (overrides: Partial<Group> = {}): Group => ({
+  id: "g-1",
+  name: "Test Group",
+  kind: "partner" as const,
+  icon: "test-icon",
+  company: "Test Company",
+  createdAt: new Date("2026-01-01T00:00:00Z"),
+  updatedAt: new Date("2026-01-01T00:00:00Z"),
+  ...overrides,
+});
 
 const createMockApi = (): AccountApiInterface =>
   ({
@@ -53,7 +52,7 @@ describe("GroupsStore", () => {
       makeGroup({ id: "g-1", name: "Group 1" }),
       makeGroup({ id: "g-2", name: "Group 2" }),
     ];
-    vi.mocked(api.listGroups).mockResolvedValue(groups as never);
+    vi.mocked(api.listGroups).mockResolvedValue(groups);
 
     const result = await store.list();
 
@@ -64,7 +63,7 @@ describe("GroupsStore", () => {
 
   it("create() adds new group", async () => {
     const created = makeGroup({ id: "g-1", name: "New Group" });
-    vi.mocked(api.createGroup).mockResolvedValue(created as never);
+    vi.mocked(api.createGroup).mockResolvedValue(created);
 
     const input = {
       name: "New Group",
@@ -83,11 +82,11 @@ describe("GroupsStore", () => {
 
   it("create() appends to existing groups", async () => {
     const existing = [makeGroup({ id: "g-1", name: "Group 1" })];
-    vi.mocked(api.listGroups).mockResolvedValue(existing as never);
+    vi.mocked(api.listGroups).mockResolvedValue(existing);
     await store.list();
 
     const created = makeGroup({ id: "g-2", name: "Group 2" });
-    vi.mocked(api.createGroup).mockResolvedValue(created as never);
+    vi.mocked(api.createGroup).mockResolvedValue(created);
 
     await store.create({
       name: "Group 2",
@@ -103,7 +102,7 @@ describe("GroupsStore", () => {
 
   it("get() delegates to API", async () => {
     const group = makeGroup({ id: "g-1", name: "Group 1" });
-    vi.mocked(api.getGroup).mockResolvedValue(group as never);
+    vi.mocked(api.getGroup).mockResolvedValue(group);
 
     const result = await store.get("g-1");
 
@@ -113,11 +112,11 @@ describe("GroupsStore", () => {
 
   it("update() updates existing group in snapshot", async () => {
     const initial = makeGroup({ id: "g-1", name: "Old Name" });
-    vi.mocked(api.listGroups).mockResolvedValue([initial] as never);
+    vi.mocked(api.listGroups).mockResolvedValue([initial]);
     await store.list();
 
     const updated = makeGroup({ id: "g-1", name: "New Name" });
-    vi.mocked(api.updateGroup).mockResolvedValue(updated as never);
+    vi.mocked(api.updateGroup).mockResolvedValue(updated);
 
     const input = { name: "New Name" };
     const result = await store.update("g-1", input);
@@ -135,11 +134,11 @@ describe("GroupsStore", () => {
       makeGroup({ id: "g-1", name: "Group 1" }),
       makeGroup({ id: "g-2", name: "Group 2" }),
     ];
-    vi.mocked(api.listGroups).mockResolvedValue(groups as never);
+    vi.mocked(api.listGroups).mockResolvedValue(groups);
     await store.list();
 
     const updated = makeGroup({ id: "g-1", name: "Updated" });
-    vi.mocked(api.updateGroup).mockResolvedValue(updated as never);
+    vi.mocked(api.updateGroup).mockResolvedValue(updated);
 
     await store.update("g-1", { name: "Updated" });
 
@@ -153,10 +152,10 @@ describe("GroupsStore", () => {
       makeGroup({ id: "g-1", name: "Group 1" }),
       makeGroup({ id: "g-2", name: "Group 2" }),
     ];
-    vi.mocked(api.listGroups).mockResolvedValue(groups as never);
+    vi.mocked(api.listGroups).mockResolvedValue(groups);
     await store.list();
 
-    vi.mocked(api.deleteGroup).mockResolvedValue(undefined as never);
+    vi.mocked(api.deleteGroup).mockResolvedValue(makeGroup({ id: "g-1" }));
 
     await store.delete("g-1");
 
@@ -169,7 +168,7 @@ describe("GroupsStore", () => {
     const listener = vi.fn();
     store.subscribe(listener);
 
-    vi.mocked(api.listGroups).mockResolvedValue([makeGroup()] as never);
+    vi.mocked(api.listGroups).mockResolvedValue([makeGroup()]);
     await store.list();
 
     expect(listener).toHaveBeenCalled();
@@ -180,7 +179,7 @@ describe("GroupsStore", () => {
     store.subscribe(listener);
 
     const created = makeGroup({ id: "g-1" });
-    vi.mocked(api.createGroup).mockResolvedValue(created as never);
+    vi.mocked(api.createGroup).mockResolvedValue(created);
     await store.create({
       name: "New Group",
       description: "Test description",
@@ -194,14 +193,14 @@ describe("GroupsStore", () => {
 
   it("subscriber notification on update()", async () => {
     const initial = makeGroup({ id: "g-1" });
-    vi.mocked(api.listGroups).mockResolvedValue([initial] as never);
+    vi.mocked(api.listGroups).mockResolvedValue([initial]);
     await store.list();
 
     const listener = vi.fn();
     store.subscribe(listener);
 
     const updated = makeGroup({ id: "g-1", name: "Updated" });
-    vi.mocked(api.updateGroup).mockResolvedValue(updated as never);
+    vi.mocked(api.updateGroup).mockResolvedValue(updated);
     await store.update("g-1", { name: "Updated" });
 
     expect(listener).toHaveBeenCalled();
@@ -209,13 +208,13 @@ describe("GroupsStore", () => {
 
   it("subscriber notification on delete()", async () => {
     const groups = [makeGroup({ id: "g-1" })];
-    vi.mocked(api.listGroups).mockResolvedValue(groups as never);
+    vi.mocked(api.listGroups).mockResolvedValue(groups);
     await store.list();
 
     const listener = vi.fn();
     store.subscribe(listener);
 
-    vi.mocked(api.deleteGroup).mockResolvedValue(undefined as never);
+    vi.mocked(api.deleteGroup).mockResolvedValue(undefined as unknown as Group);
     await store.delete("g-1");
 
     expect(listener).toHaveBeenCalled();

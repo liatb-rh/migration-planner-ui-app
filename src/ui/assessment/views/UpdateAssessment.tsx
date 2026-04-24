@@ -30,7 +30,6 @@ export const UpdateAssessment: React.FC<UpdateAssessmentProps> = ({
 
   // Reset form when name prop changes or modal opens
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAssessmentName(name);
     setSelectedFile(null);
   }, [name, isOpen]);

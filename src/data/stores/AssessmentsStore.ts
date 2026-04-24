@@ -17,7 +17,7 @@ import {
 } from "../../models/AssessmentModel";
 import type { IAssessmentsStore } from "./interfaces/IAssessmentsStore";
 
-type AssessmentListResponse =
+export type AssessmentListResponse =
   | Assessment[]
   | { items?: Assessment[] }
   | { assessments?: Assessment[] };

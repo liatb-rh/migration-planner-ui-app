@@ -217,9 +217,7 @@ export const useReportPageViewModel = (): ReportPageViewModel => {
   // ---- Assessment lookup ---------------------------------------------------
   const assessment = useMemo(
     () =>
-      assessments?.find((a: AssessmentModel) => String(a.id) === String(id)) as
-        | (AssessmentModel & AssessmentLike)
-        | undefined,
+      assessments?.find((a: AssessmentModel) => String(a.id) === String(id)),
     [assessments, id],
   );
 
@@ -242,9 +240,7 @@ export const useReportPageViewModel = (): ReportPageViewModel => {
   // ---- Snapshot data -------------------------------------------------------
   const latestSnapshot = useMemo((): SnapshotLike => {
     const snapshots = assessment?.snapshots || [];
-    return snapshots.length > 0
-      ? snapshots[snapshots.length - 1]
-      : ({} as SnapshotLike);
+    return snapshots.length > 0 ? snapshots[snapshots.length - 1] : {};
   }, [assessment?.snapshots]);
 
   const infra = useMemo(
@@ -364,7 +360,7 @@ export const useReportPageViewModel = (): ReportPageViewModel => {
   // ---- Last updated text ---------------------------------------------------
   const lastUpdatedText = useMemo((): string => {
     // Delegate to the domain model's pre-computed latestSnapshot
-    const model = assessment as AssessmentModel | undefined;
+    const model = assessment;
     return model?.latestSnapshot?.lastUpdated || "-";
   }, [assessment]);
 

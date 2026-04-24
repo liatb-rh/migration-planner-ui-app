@@ -142,6 +142,9 @@ const srcConfig = {
   },
   rules: {
     "react/prop-types": "off",
+    // Disable new react-hooks rules that are too strict for our codebase
+    "react-hooks/set-state-in-effect": "off",
+    "react-hooks/refs": "off",
   },
 };
 

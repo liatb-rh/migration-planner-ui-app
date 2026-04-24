@@ -10,14 +10,13 @@ import { GroupMembersStore } from "../GroupMembersStore";
 // Helpers
 // ---------------------------------------------------------------------------
 
-const makeMember = (overrides: Partial<Member> = {}): Member =>
-  ({
-    username: "testuser",
-    email: "test@example.com",
-    groupId: "g-1",
-    createdAt: new Date("2026-01-01T00:00:00Z"),
-    ...overrides,
-  }) as Member;
+const makeMember = (overrides: Partial<Member> = {}): Member => ({
+  username: "testuser",
+  email: "test@example.com",
+  groupId: "g-1",
+  createdAt: new Date("2026-01-01T00:00:00Z"),
+  ...overrides,
+});
 
 const createMockApi = (): AccountApiInterface =>
   ({
@@ -48,7 +47,7 @@ describe("GroupMembersStore", () => {
       makeMember({ username: "user1", email: "user1@example.com" }),
       makeMember({ username: "user2", email: "user2@example.com" }),
     ];
-    vi.mocked(api.listGroupMembers).mockResolvedValue(members as never);
+    vi.mocked(api.listGroupMembers).mockResolvedValue(members);
 
     const result = await store.list("g-1");
 
@@ -59,7 +58,7 @@ describe("GroupMembersStore", () => {
 
   it("createGroupMember() adds new member to current group", async () => {
     const existing = [makeMember({ username: "user1" })];
-    vi.mocked(api.listGroupMembers).mockResolvedValue(existing as never);
+    vi.mocked(api.listGroupMembers).mockResolvedValue(existing);
     await store.list("g-1");
 
     const created = makeMember({
@@ -67,7 +66,7 @@ describe("GroupMembersStore", () => {
       email: "new@example.com",
       groupId: "g-1",
     });
-    vi.mocked(api.createGroupMember).mockResolvedValue(created as never);
+    vi.mocked(api.createGroupMember).mockResolvedValue(created);
 
     const input = { username: "newuser", email: "new@example.com" };
     const result = await store.create("g-1", input);
@@ -83,7 +82,7 @@ describe("GroupMembersStore", () => {
 
   it("createGroupMember() does not update snapshot for different group", async () => {
     const existing = [makeMember({ username: "user1" })];
-    vi.mocked(api.listGroupMembers).mockResolvedValue(existing as never);
+    vi.mocked(api.listGroupMembers).mockResolvedValue(existing);
     await store.list("g-1");
 
     const created = makeMember({
@@ -91,7 +90,7 @@ describe("GroupMembersStore", () => {
       email: "new@example.com",
       groupId: "g-2",
     });
-    vi.mocked(api.createGroupMember).mockResolvedValue(created as never);
+    vi.mocked(api.createGroupMember).mockResolvedValue(created);
 
     await store.create("g-2", {
       username: "newuser",
@@ -107,10 +106,10 @@ describe("GroupMembersStore", () => {
       makeMember({ username: "user1", email: "user1@example.com" }),
       makeMember({ username: "user2", email: "user2@example.com" }),
     ];
-    vi.mocked(api.listGroupMembers).mockResolvedValue(members as never);
+    vi.mocked(api.listGroupMembers).mockResolvedValue(members);
     await store.list("g-1");
 
-    vi.mocked(api.removeGroupMember).mockResolvedValue(undefined as never);
+    vi.mocked(api.removeGroupMember).mockResolvedValue(undefined);
 
     await store.delete("g-1", "user1");
 
@@ -127,10 +126,10 @@ describe("GroupMembersStore", () => {
       makeMember({ username: "user1" }),
       makeMember({ username: "user2" }),
     ];
-    vi.mocked(api.listGroupMembers).mockResolvedValue(members as never);
+    vi.mocked(api.listGroupMembers).mockResolvedValue(members);
     await store.list("g-1");
 
-    vi.mocked(api.removeGroupMember).mockResolvedValue(undefined as never);
+    vi.mocked(api.removeGroupMember).mockResolvedValue(undefined);
 
     await store.delete("g-2", "user1");
 
@@ -141,21 +140,21 @@ describe("GroupMembersStore", () => {
     const listener = vi.fn();
     store.subscribe(listener);
 
-    vi.mocked(api.listGroupMembers).mockResolvedValue([makeMember()] as never);
+    vi.mocked(api.listGroupMembers).mockResolvedValue([makeMember()]);
     await store.list("g-1");
 
     expect(listener).toHaveBeenCalled();
   });
 
   it("subscriber notification on createGroupMember()", async () => {
-    vi.mocked(api.listGroupMembers).mockResolvedValue([] as never);
+    vi.mocked(api.listGroupMembers).mockResolvedValue([]);
     await store.list("g-1");
 
     const listener = vi.fn();
     store.subscribe(listener);
 
     const created = makeMember({ username: "newuser" });
-    vi.mocked(api.createGroupMember).mockResolvedValue(created as never);
+    vi.mocked(api.createGroupMember).mockResolvedValue(created);
     await store.create("g-1", {
       username: "newuser",
       email: "new@example.com",
@@ -166,27 +165,27 @@ describe("GroupMembersStore", () => {
 
   it("subscriber notification on deleteGroupMember()", async () => {
     const members = [makeMember({ username: "user1" })];
-    vi.mocked(api.listGroupMembers).mockResolvedValue(members as never);
+    vi.mocked(api.listGroupMembers).mockResolvedValue(members);
     await store.list("g-1");
 
     const listener = vi.fn();
     store.subscribe(listener);
 
-    vi.mocked(api.removeGroupMember).mockResolvedValue(undefined as never);
+    vi.mocked(api.removeGroupMember).mockResolvedValue(undefined);
     await store.delete("g-1", "user1");
 
     expect(listener).toHaveBeenCalled();
   });
 
   it("no notification when modifying different group", async () => {
-    vi.mocked(api.listGroupMembers).mockResolvedValue([] as never);
+    vi.mocked(api.listGroupMembers).mockResolvedValue([]);
     await store.list("g-1");
 
     const listener = vi.fn();
     store.subscribe(listener);
 
     const created = makeMember({ username: "newuser", groupId: "g-2" });
-    vi.mocked(api.createGroupMember).mockResolvedValue(created as never);
+    vi.mocked(api.createGroupMember).mockResolvedValue(created);
     await store.create("g-2", {
       username: "newuser",
       email: "new@example.com",
@@ -209,7 +208,7 @@ describe("GroupMembersStore", () => {
     const snapshotBefore = store.getSnapshot();
 
     const members = [makeMember({ username: "user1" })];
-    vi.mocked(api.listGroupMembers).mockResolvedValue(members as never);
+    vi.mocked(api.listGroupMembers).mockResolvedValue(members);
     await store.list("g-1");
 
     const snapshotAfter1 = store.getSnapshot();

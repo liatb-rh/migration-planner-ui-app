@@ -155,7 +155,7 @@ describe("ChartDataTransformer", () => {
     });
 
     it("throws when inventory structure is invalid", () => {
-      expect(() => transformer.normalizeInventory({} as SnapshotLike)).toThrow(
+      expect(() => transformer.normalizeInventory({})).toThrow(
         "Invalid inventory data structure",
       );
     });

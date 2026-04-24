@@ -31,7 +31,7 @@ describe("ImagesStore", () => {
   });
 
   it("headImage() delegates to API", async () => {
-    vi.mocked(api.headImage).mockResolvedValue(undefined as never);
+    vi.mocked(api.headImage).mockResolvedValue(undefined);
 
     await store.headImage("s-1");
 
@@ -43,7 +43,7 @@ describe("ImagesStore", () => {
 
   it("getDownloadUrl() stores URL and returns it", async () => {
     const url = "https://example.com/ova?token=abc";
-    vi.mocked(api.getSourceDownloadURL).mockResolvedValue({ url } as never);
+    vi.mocked(api.getSourceDownloadURL).mockResolvedValue({ url });
 
     const result = await store.getDownloadUrl("s-1");
 
@@ -57,8 +57,8 @@ describe("ImagesStore", () => {
 
   it("getDownloadUrl() caches URL per sourceId", async () => {
     vi.mocked(api.getSourceDownloadURL)
-      .mockResolvedValueOnce({ url: "https://a.com" } as never)
-      .mockResolvedValueOnce({ url: "https://b.com" } as never);
+      .mockResolvedValueOnce({ url: "https://a.com" })
+      .mockResolvedValueOnce({ url: "https://b.com" });
 
     await store.getDownloadUrl("s-1");
     await store.getDownloadUrl("s-2");
@@ -76,7 +76,7 @@ describe("ImagesStore", () => {
   it("getDownloadUrlFromCache() returns cached URL after getDownloadUrl", async () => {
     vi.mocked(api.getSourceDownloadURL).mockResolvedValue({
       url: "https://cached.com",
-    } as never);
+    });
 
     await store.getDownloadUrl("s-1");
 
@@ -90,7 +90,7 @@ describe("ImagesStore", () => {
 
     vi.mocked(api.getSourceDownloadURL).mockResolvedValue({
       url: "https://test.com",
-    } as never);
+    });
     await store.getDownloadUrl("s-1");
 
     expect(listener).toHaveBeenCalled();

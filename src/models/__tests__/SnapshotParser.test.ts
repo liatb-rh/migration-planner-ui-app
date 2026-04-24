@@ -35,7 +35,7 @@ describe("hasUsefulData", () => {
         inventory: {
           vcenterId: "vcenter-1",
           clusters: {},
-        } as unknown as SnapshotModel["inventory"],
+        },
       }),
     ];
 

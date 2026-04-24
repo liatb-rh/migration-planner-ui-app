@@ -52,7 +52,7 @@ describe("SourcesStore", () => {
       name: "VMware",
       agent: { status: "up-to-date" } as Source["agent"],
     });
-    vi.mocked(api.listSources).mockResolvedValue([raw] as never);
+    vi.mocked(api.listSources).mockResolvedValue([raw]);
 
     const result = await store.list();
 
@@ -66,7 +66,7 @@ describe("SourcesStore", () => {
 
   it("getById() returns item or undefined", async () => {
     const items = [makeSource({ id: "s-1" }), makeSource({ id: "s-2" })];
-    vi.mocked(api.listSources).mockResolvedValue(items as never);
+    vi.mocked(api.listSources).mockResolvedValue(items);
     await store.list();
 
     expect(store.getById("s-1")).toBeDefined();
@@ -79,7 +79,7 @@ describe("SourcesStore", () => {
       id: "s-1",
       name: "New Source",
     });
-    vi.mocked(api.createSource).mockResolvedValue(created as never);
+    vi.mocked(api.createSource).mockResolvedValue(created);
 
     const input = {
       name: "New Source",
@@ -106,11 +106,11 @@ describe("SourcesStore", () => {
 
   it("update() replaces source", async () => {
     const initial = makeSource({ id: "s-1", name: "Old" });
-    vi.mocked(api.listSources).mockResolvedValue([initial] as never);
+    vi.mocked(api.listSources).mockResolvedValue([initial]);
     await store.list();
 
     const updated = makeSource({ id: "s-1", name: "Updated" });
-    vi.mocked(api.updateSource).mockResolvedValue(updated as never);
+    vi.mocked(api.updateSource).mockResolvedValue(updated);
 
     const input = {
       sourceId: "s-1",
@@ -135,12 +135,10 @@ describe("SourcesStore", () => {
 
   it("delete() removes source", async () => {
     const items = [makeSource({ id: "s-1" }), makeSource({ id: "s-2" })];
-    vi.mocked(api.listSources).mockResolvedValue(items as never);
+    vi.mocked(api.listSources).mockResolvedValue(items);
     await store.list();
 
-    vi.mocked(api.deleteSource).mockResolvedValue(
-      makeSource({ id: "s-1" }) as never,
-    );
+    vi.mocked(api.deleteSource).mockResolvedValue(makeSource({ id: "s-1" }));
 
     const result = await store.delete("s-1");
 
@@ -157,7 +155,7 @@ describe("SourcesStore", () => {
 
   it("updateInventory() updates source in list", async () => {
     const initial = makeSource({ id: "s-1", name: "Source" });
-    vi.mocked(api.listSources).mockResolvedValue([initial] as never);
+    vi.mocked(api.listSources).mockResolvedValue([initial]);
     await store.list();
 
     const mockInventory = {
@@ -169,7 +167,7 @@ describe("SourcesStore", () => {
       name: "Source",
       inventory: mockInventory,
     });
-    vi.mocked(api.updateInventory).mockResolvedValue(updated as never);
+    vi.mocked(api.updateInventory).mockResolvedValue(updated);
 
     const result = await store.updateInventory("s-1", mockInventory);
 
@@ -183,7 +181,7 @@ describe("SourcesStore", () => {
     store.subscribe(listener);
 
     const created = makeSource({ id: "s-1" });
-    vi.mocked(api.createSource).mockResolvedValue(created as never);
+    vi.mocked(api.createSource).mockResolvedValue(created);
     await store.create({
       name: "New",
       sshPublicKey: "",
@@ -197,11 +195,11 @@ describe("SourcesStore", () => {
 
   it("polling lifecycle", async () => {
     vi.mocked(api.listSources)
-      .mockResolvedValueOnce([makeSource({ id: "s-1" })] as never)
+      .mockResolvedValueOnce([makeSource({ id: "s-1" })])
       .mockResolvedValueOnce([
         makeSource({ id: "s-1" }),
         makeSource({ id: "s-2" }),
-      ] as never);
+      ]);
 
     store.startPolling(1000);
     expect(store.getSnapshot()).toEqual([]);

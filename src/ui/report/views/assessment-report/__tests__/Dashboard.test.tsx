@@ -141,7 +141,7 @@ describe("Dashboard", () => {
         vms={baseVms}
         cpuCores={baseVms.cpuCores}
         ramGB={baseVms.ramGB}
-        clusters={{} as Record<string, InventoryData>}
+        clusters={{}}
         isAggregateView={false}
         clusterFound={false}
       />,

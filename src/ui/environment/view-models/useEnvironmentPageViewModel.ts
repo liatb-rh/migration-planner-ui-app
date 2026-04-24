@@ -145,6 +145,21 @@ export const useEnvironmentPageViewModel = (): EnvironmentPageViewModel => {
     assessmentsStore.stopPolling();
   }, [sourcesStore, assessmentsStore]);
 
+  // ---- Source listing ------------------------------------------------------
+  const hasInitialLoadRef = useRef(false);
+
+  const [listSourcesState, doListSources] = useAsyncFn(
+    async () => {
+      try {
+        return await sourcesStore.list();
+      } finally {
+        hasInitialLoadRef.current = true;
+      }
+    },
+    [sourcesStore],
+    { loading: true },
+  );
+
   useMount(() => {
     startPolling();
     void Promise.all([doListSources(), assessmentsStore.list()]);
@@ -178,21 +193,6 @@ export const useEnvironmentPageViewModel = (): EnvironmentPageViewModel => {
   const getSourceById = useCallback(
     (id: string): SourceModel | undefined => sourcesStore.getById(id),
     [sourcesStore],
-  );
-
-  // ---- Source listing ------------------------------------------------------
-  const hasInitialLoadRef = useRef(false);
-
-  const [listSourcesState, doListSources] = useAsyncFn(
-    async () => {
-      try {
-        return await sourcesStore.list();
-      } finally {
-        hasInitialLoadRef.current = true;
-      }
-    },
-    [sourcesStore],
-    { loading: true },
   );
 
   // ---- Source deletion -----------------------------------------------------

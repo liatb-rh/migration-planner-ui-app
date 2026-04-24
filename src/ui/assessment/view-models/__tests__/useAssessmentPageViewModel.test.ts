@@ -52,13 +52,12 @@ vi.mock("@y0n1/react-ioc", () => ({
 // Helpers
 // ---------------------------------------------------------------------------
 
-const makeJob = (overrides: Partial<Job> = {}): Job =>
-  ({
-    id: 1,
-    status: JobStatus.Pending,
-    assessmentId: undefined,
-    ...overrides,
-  }) as Job;
+const makeJob = (overrides: Partial<Job> = {}): Job => ({
+  id: 1,
+  status: JobStatus.Pending,
+  assessmentId: undefined,
+  ...overrides,
+});
 
 const setJobsState = (partial: Partial<JobsStoreState>): void => {
   jobsStoreState = { ...jobsStoreState, ...partial };

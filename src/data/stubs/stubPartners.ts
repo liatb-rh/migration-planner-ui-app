@@ -1,4 +1,5 @@
 import type { Group } from "@openshift-migration-advisor/planner-sdk";
+
 import type { Partner } from "../../models/PartnerModel";
 import { FAKE_GROUPS } from "./stubGroups";
 

@@ -44,7 +44,7 @@ describe("VersionsStore", () => {
     vi.mocked(api.getInfo).mockResolvedValue({
       versionName: "v1.2.3",
       gitCommit: "abc123",
-    } as never);
+    });
 
     const result = await store.getApiVersionInfo();
 
@@ -61,7 +61,7 @@ describe("VersionsStore", () => {
     vi.mocked(api.getInfo).mockResolvedValue({
       versionName: "v2.0",
       gitCommit: "def456",
-    } as never);
+    });
     await store.getApiVersionInfo();
 
     expect(listener).toHaveBeenCalled();

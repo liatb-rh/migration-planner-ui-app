@@ -209,7 +209,7 @@ const mockSource = createSourceModel({
     updatedAt: new Date(),
     version: "",
   },
-} as Source);
+});
 
 // ---------------------------------------------------------------------------
 // Tests

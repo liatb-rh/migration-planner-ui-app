@@ -40,9 +40,7 @@ export const HostsOverview: React.FC<HostsOverviewProps> = ({
   isExportMode = false,
 }) => {
   const { slices, legend, totalHosts } = useMemo(() => {
-    const asArray: HostLike[] = Array.isArray(hosts)
-      ? (hosts as HostLike[])
-      : [];
+    const asArray: HostLike[] = Array.isArray(hosts) ? hosts : [];
 
     // Build counts per model, defaulting to "Unknown model" if not available
     const countsMap = asArray.reduce(

@@ -39,7 +39,7 @@ describe("createAuthMiddleware", () => {
       fetch: globalThis.fetch,
     })) as FetchParams;
 
-    const headers = new Headers(result.init.headers as HeadersInit);
+    const headers = new Headers(result.init.headers);
     expect(headers.get("X-Authorization")).toBe("Bearer mock-jwt-token");
   });
 
@@ -80,7 +80,7 @@ describe("createAuthMiddleware", () => {
       fetch: globalThis.fetch,
     })) as FetchParams;
 
-    const headers = new Headers(result.init.headers as HeadersInit);
+    const headers = new Headers(result.init.headers);
     expect(headers.get("Content-Type")).toBe("application/json");
     expect(headers.get("X-Authorization")).toBe("Bearer mock-jwt-token");
   });
@@ -107,7 +107,7 @@ describe("createAuthMiddleware", () => {
       fetch: globalThis.fetch,
     })) as FetchParams;
 
-    const headers = new Headers(result.init.headers as HeadersInit);
+    const headers = new Headers(result.init.headers);
     expect(headers.get("X-Authorization")).toBe("Bearer custom-token-xyz");
   });
 
@@ -120,7 +120,7 @@ describe("createAuthMiddleware", () => {
       fetch: globalThis.fetch,
     })) as FetchParams;
 
-    const headers = new Headers(result.init.headers as HeadersInit);
+    const headers = new Headers(result.init.headers);
     expect(headers.get("X-Authorization")).toBe("Bearer mock-jwt-token");
   });
 });

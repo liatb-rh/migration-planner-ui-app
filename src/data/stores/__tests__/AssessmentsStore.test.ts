@@ -3,7 +3,10 @@ import type { Assessment } from "@openshift-migration-advisor/planner-sdk";
 import { ResponseError } from "@openshift-migration-advisor/planner-sdk";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { AssessmentsStore } from "../AssessmentsStore";
+import {
+  type AssessmentListResponse,
+  AssessmentsStore,
+} from "../AssessmentsStore";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -53,7 +56,7 @@ describe("AssessmentsStore", () => {
       makeAssessment({ id: "a-1", name: "A" }),
       makeAssessment({ id: "a-2", name: "B" }),
     ];
-    vi.mocked(api.listAssessments).mockResolvedValue(items as never);
+    vi.mocked(api.listAssessments).mockResolvedValue(items);
 
     const result = await store.list();
 
@@ -70,9 +73,8 @@ describe("AssessmentsStore", () => {
 
   it("list() normalizes {items} response", async () => {
     const items = [makeAssessment({ id: "a-1", name: "Item" })];
-    vi.mocked(api.listAssessments).mockResolvedValue({
-      items,
-    } as never);
+    const response: AssessmentListResponse = { items };
+    vi.mocked(api.listAssessments).mockResolvedValue(response as Assessment[]);
 
     const result = await store.list();
 
@@ -83,9 +85,8 @@ describe("AssessmentsStore", () => {
 
   it("list() normalizes {assessments} response", async () => {
     const assessments = [makeAssessment({ id: "a-1", name: "Assessment" })];
-    vi.mocked(api.listAssessments).mockResolvedValue({
-      assessments,
-    } as never);
+    const response: AssessmentListResponse = { assessments };
+    vi.mocked(api.listAssessments).mockResolvedValue(response as Assessment[]);
 
     const result = await store.list();
 
@@ -101,7 +102,7 @@ describe("AssessmentsStore", () => {
       ownerFirstName: "john",
       ownerLastName: "doe",
     });
-    vi.mocked(api.listAssessments).mockResolvedValue([raw] as never);
+    vi.mocked(api.listAssessments).mockResolvedValue([raw]);
 
     const result = await store.list();
 
@@ -116,7 +117,7 @@ describe("AssessmentsStore", () => {
       makeAssessment({ id: "a-1" }),
       makeAssessment({ id: "a-2" }),
     ];
-    vi.mocked(api.listAssessments).mockResolvedValue(items as never);
+    vi.mocked(api.listAssessments).mockResolvedValue(items);
     await store.list();
 
     expect(store.getById("a-1")).toBeDefined();
@@ -127,7 +128,7 @@ describe("AssessmentsStore", () => {
 
   it("create() adds new item", async () => {
     const created = makeAssessment({ id: "a-1", name: "New" });
-    vi.mocked(api.createAssessment).mockResolvedValue(created as never);
+    vi.mocked(api.createAssessment).mockResolvedValue(created);
 
     const form = { name: "New" } as Parameters<
       AssessmentApiInterface["createAssessment"]
@@ -205,11 +206,11 @@ describe("AssessmentsStore", () => {
 
   it("update() replaces existing item", async () => {
     const initial = makeAssessment({ id: "a-1", name: "Old" });
-    vi.mocked(api.listAssessments).mockResolvedValue([initial] as never);
+    vi.mocked(api.listAssessments).mockResolvedValue([initial]);
     await store.list();
 
     const updated = makeAssessment({ id: "a-1", name: "Updated" });
-    vi.mocked(api.updateAssessment).mockResolvedValue(updated as never);
+    vi.mocked(api.updateAssessment).mockResolvedValue(updated);
 
     const form = {} as Parameters<
       AssessmentApiInterface["updateAssessment"]
@@ -227,7 +228,7 @@ describe("AssessmentsStore", () => {
 
   it("update() extracts error message from ResponseError with JSON body", async () => {
     const initial = makeAssessment({ id: "a-1", name: "Old" });
-    vi.mocked(api.listAssessments).mockResolvedValue([initial] as never);
+    vi.mocked(api.listAssessments).mockResolvedValue([initial]);
     await store.list();
 
     const mockResponse = {
@@ -258,16 +259,16 @@ describe("AssessmentsStore", () => {
       makeAssessment({ id: "a-1" }),
       makeAssessment({ id: "a-2" }),
     ];
-    vi.mocked(api.listAssessments).mockResolvedValue(items as never);
+    vi.mocked(api.listAssessments).mockResolvedValue(items);
     await store.list();
 
     vi.mocked(api.deleteAssessment).mockResolvedValue(
-      makeAssessment({ id: "a-1" }) as never,
+      makeAssessment({ id: "a-1" }),
     );
     // After deletion, list() is called to refresh from server
     vi.mocked(api.listAssessments).mockResolvedValue([
       makeAssessment({ id: "a-2" }),
-    ] as never);
+    ]);
 
     const result = await store.remove("a-1");
 
@@ -283,7 +284,7 @@ describe("AssessmentsStore", () => {
       makeAssessment({ id: "a-1" }),
       makeAssessment({ id: "a-2" }),
     ];
-    vi.mocked(api.listAssessments).mockResolvedValue(items as never);
+    vi.mocked(api.listAssessments).mockResolvedValue(items);
     await store.list();
 
     const mockResponse = new Response(null, { status: 200 });
@@ -295,7 +296,7 @@ describe("AssessmentsStore", () => {
     // After deletion, list() is called to refresh from server
     vi.mocked(api.listAssessments).mockResolvedValue([
       makeAssessment({ id: "a-2" }),
-    ] as never);
+    ]);
 
     const result = await store.remove("a-1");
 
@@ -307,7 +308,7 @@ describe("AssessmentsStore", () => {
 
   it("remove() rethrows ResponseError with non-200 status", async () => {
     const items = [makeAssessment({ id: "a-1" })];
-    vi.mocked(api.listAssessments).mockResolvedValue(items as never);
+    vi.mocked(api.listAssessments).mockResolvedValue(items);
     await store.list();
 
     const mockResponse = new Response(null, { status: 404 });
@@ -320,7 +321,7 @@ describe("AssessmentsStore", () => {
 
   it("remove() rethrows non-ResponseError exceptions", async () => {
     const items = [makeAssessment({ id: "a-1" })];
-    vi.mocked(api.listAssessments).mockResolvedValue(items as never);
+    vi.mocked(api.listAssessments).mockResolvedValue(items);
     await store.list();
 
     const networkError = new Error("Network failure");
@@ -335,7 +336,7 @@ describe("AssessmentsStore", () => {
       makeAssessment({ id: "a-1" }),
       makeAssessment({ id: "a-2" }),
     ];
-    vi.mocked(api.listAssessments).mockResolvedValue(items as never);
+    vi.mocked(api.listAssessments).mockResolvedValue(items);
     await store.list();
 
     // Simulate the exact error from the backend: TypeError during JSON parsing
@@ -346,7 +347,7 @@ describe("AssessmentsStore", () => {
     // After deletion, list() is called to refresh from server
     vi.mocked(api.listAssessments).mockResolvedValue([
       makeAssessment({ id: "a-2" }),
-    ] as never);
+    ]);
 
     const result = await store.remove("a-1");
 
@@ -358,7 +359,7 @@ describe("AssessmentsStore", () => {
 
   it("remove() rethrows unrelated TypeErrors (not backend parsing errors)", async () => {
     const items = [makeAssessment({ id: "a-1" })];
-    vi.mocked(api.listAssessments).mockResolvedValue(items as never);
+    vi.mocked(api.listAssessments).mockResolvedValue(items);
     await store.list();
 
     // Simulate an unrelated TypeError (not the specific backend parsing error)
@@ -377,18 +378,18 @@ describe("AssessmentsStore", () => {
       makeAssessment({ id: "a-1" }),
       makeAssessment({ id: "a-2" }),
     ];
-    vi.mocked(api.listAssessments).mockResolvedValue(items as never);
+    vi.mocked(api.listAssessments).mockResolvedValue(items);
     await store.list();
 
     vi.mocked(api.deleteAssessment).mockResolvedValue(
-      makeAssessment({ id: "a-1" }) as never,
+      makeAssessment({ id: "a-1" }),
     );
     // Simulate slow backend: first list() call still returns the deleted item
-    vi.mocked(api.listAssessments).mockResolvedValueOnce(items as never);
+    vi.mocked(api.listAssessments).mockResolvedValueOnce(items);
     // Second list() call (after backend processes) returns without the deleted item
     vi.mocked(api.listAssessments).mockResolvedValueOnce([
       makeAssessment({ id: "a-2" }),
-    ] as never);
+    ]);
 
     await store.remove("a-1");
 
@@ -407,15 +408,15 @@ describe("AssessmentsStore", () => {
       makeAssessment({ id: "a-1", name: "Assessment 1" }),
       makeAssessment({ id: "a-2", name: "Assessment 2" }),
     ];
-    vi.mocked(api.listAssessments).mockResolvedValue(allItems as never);
+    vi.mocked(api.listAssessments).mockResolvedValue(allItems);
     await store.list();
 
     // Delete a-1 (adds it to deletedAssessmentIds cache)
     vi.mocked(api.deleteAssessment).mockResolvedValue(
-      makeAssessment({ id: "a-1" }) as never,
+      makeAssessment({ id: "a-1" }),
     );
     // Mock the background refresh after delete to still include a-1 (slow backend)
-    vi.mocked(api.listAssessments).mockResolvedValueOnce(allItems as never);
+    vi.mocked(api.listAssessments).mockResolvedValueOnce(allItems);
     await store.remove("a-1");
 
     // Verify a-1 is filtered out (deleted cache is working)
@@ -424,13 +425,11 @@ describe("AssessmentsStore", () => {
 
     // Now call list() with a sourceId (filtered response)
     const filteredItems = [makeAssessment({ id: "a-2" })];
-    vi.mocked(api.listAssessments).mockResolvedValueOnce(
-      filteredItems as never,
-    );
+    vi.mocked(api.listAssessments).mockResolvedValueOnce(filteredItems);
     await store.list("someOtherSource");
 
     // Verify that a-1 is still in the deleted cache by calling an unfiltered list()
-    vi.mocked(api.listAssessments).mockResolvedValueOnce(allItems as never);
+    vi.mocked(api.listAssessments).mockResolvedValueOnce(allItems);
     await store.list();
 
     // a-1 should still be filtered out (deleted cache was not cleared by the filtered call)
@@ -443,7 +442,7 @@ describe("AssessmentsStore", () => {
     store.subscribe(listener);
 
     const created = makeAssessment({ id: "a-1" });
-    vi.mocked(api.createAssessment).mockResolvedValue(created as never);
+    vi.mocked(api.createAssessment).mockResolvedValue(created);
     const form = { name: "New" } as Parameters<
       AssessmentApiInterface["createAssessment"]
     >[0]["assessmentForm"];
@@ -454,11 +453,11 @@ describe("AssessmentsStore", () => {
 
   it("polling — startPolling triggers periodic list()", async () => {
     vi.mocked(api.listAssessments)
-      .mockResolvedValueOnce([makeAssessment({ id: "a-1" })] as never)
+      .mockResolvedValueOnce([makeAssessment({ id: "a-1" })])
       .mockResolvedValueOnce([
         makeAssessment({ id: "a-1" }),
         makeAssessment({ id: "a-2" }),
-      ] as never);
+      ]);
 
     store.startPolling(1000);
     expect(store.getSnapshot()).toEqual([]);

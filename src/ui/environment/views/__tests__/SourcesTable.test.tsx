@@ -117,7 +117,7 @@ const makeSource = (
     updatedAt: now,
     onPremises: false,
     ...overrides,
-  } as Source);
+  });
 
 const ALL_STATUS_SOURCES: SourceModel[] = [
   // 1. Not connected — no agent, no agentVersion → "Download pending"

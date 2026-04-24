@@ -66,7 +66,7 @@ export const GroupForm: React.FC<GroupFormProps> = ({
           name: group.name,
           description: group.description || "",
           icon: group.icon || "",
-          kind: group.kind as GroupCreateKindEnum,
+          kind: group.kind,
           company: group.company || "",
         }
       : {

@@ -13,13 +13,12 @@ import { JobsStore, TERMINAL_JOB_STATUSES } from "../JobsStore";
 // Helpers
 // ---------------------------------------------------------------------------
 
-const makeJob = (overrides: Partial<Job> = {}): Job =>
-  ({
-    id: 1,
-    status: JobStatus.Pending,
-    assessmentId: undefined,
-    ...overrides,
-  }) as Job;
+const makeJob = (overrides: Partial<Job> = {}): Job => ({
+  id: 1,
+  status: JobStatus.Pending,
+  assessmentId: undefined,
+  ...overrides,
+});
 
 const createMockApi = (): JobApi =>
   ({
@@ -237,7 +236,7 @@ describe("JobsStore", () => {
     await store.createRVToolsJob("t", new File([], "f.xlsx"));
 
     vi.mocked(api.getJob).mockResolvedValue(runningJob);
-    vi.mocked(api.cancelJob).mockResolvedValue(undefined as never);
+    vi.mocked(api.cancelJob).mockResolvedValue(undefined as unknown as Job);
 
     const result = await store.cancelRVToolsJob();
 
@@ -289,7 +288,7 @@ describe("JobsStore", () => {
     expect(store.getSnapshot().isCreating).toBe(false);
 
     // Let getJob resolve so the cancel promise can finish.
-    vi.mocked(api.cancelJob).mockResolvedValue(undefined as never);
+    vi.mocked(api.cancelJob).mockResolvedValue(undefined as unknown as Job);
     resolveGetJob(runningJob);
     await cancelPromise;
   });
@@ -324,7 +323,7 @@ describe("JobsStore", () => {
     await vi.advanceTimersByTimeAsync(1000);
 
     // Now cancel — this calls stopPolling() (aborting the poll signal) and reset().
-    vi.mocked(api.cancelJob).mockResolvedValue(undefined as never);
+    vi.mocked(api.cancelJob).mockResolvedValue(undefined as unknown as Job);
     const cancelPromise = store.cancelRVToolsJob();
 
     // Simulate the stale poll getJob resolving AFTER cancel has reset state.

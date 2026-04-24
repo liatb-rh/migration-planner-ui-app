@@ -130,7 +130,7 @@ const AssessmentDetails: React.FC = () => {
                   Boolean(vm.source?.onPremises) &&
                   vm.source?.inventory !== undefined
                 }
-                updatedAt={vm.source?.updatedAt as unknown as string}
+                updatedAt={vm.source?.updatedAt}
                 disableInteractions
               />
             </Content>

@@ -152,7 +152,7 @@ const mockSource = createSourceModel({
     updatedAt: new Date(),
     version: "",
   },
-} as Source);
+});
 
 import { buildClusterViewModel } from "../assessment-report/ClusterView";
 

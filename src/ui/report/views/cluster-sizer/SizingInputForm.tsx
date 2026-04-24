@@ -229,8 +229,8 @@ export const SizingInputForm: React.FC<SizingInputFormProps> = ({
                   isDisabled={!values.smtEnabled}
                   type="number"
                   className={smtInputStyle}
-                  min={SMT_THREADS_MIN as number}
-                  max={SMT_THREADS_MAX as number}
+                  min={SMT_THREADS_MIN}
+                  max={SMT_THREADS_MAX}
                   validated={smtThreadsValidated}
                 />
                 {smtThreadsValidated === "error" && (

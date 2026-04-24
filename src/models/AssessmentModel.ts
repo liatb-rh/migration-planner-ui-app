@@ -59,7 +59,7 @@ const computeOwnerFullName = (raw: Assessment): string => {
 export const createAssessmentModel = (raw: Assessment): AssessmentModel => ({
   ...raw,
   ownerFullName: computeOwnerFullName(raw),
-  latestSnapshot: parseLatestSnapshot(raw.snapshots as Snapshot[] | undefined),
-  hasUsefulData: hasUsefulData(raw.snapshots as Snapshot[] | undefined),
-  snapshotsSorted: sortSnapshotsDesc(raw.snapshots as Snapshot[] | undefined),
+  latestSnapshot: parseLatestSnapshot(raw.snapshots),
+  hasUsefulData: hasUsefulData(raw.snapshots),
+  snapshotsSorted: sortSnapshotsDesc(raw.snapshots),
 });

@@ -1,4 +1,8 @@
-import type { SourceApiInterface } from "@openshift-migration-advisor/planner-sdk";
+import type {
+  SourceApiInterface,
+  SourceCreate,
+  SourceUpdate,
+} from "@openshift-migration-advisor/planner-sdk";
 import { UpdateInventoryFromJSON } from "@openshift-migration-advisor/planner-sdk";
 
 import { PollableStoreBase } from "../../lib/mvvm/PollableStore";
@@ -11,6 +15,7 @@ export type SourceNetworkConfigType = "dhcp" | "static";
 export type SourceCreateInput = {
   name: string;
   sshPublicKey: string;
+  enableProxy: boolean;
   httpProxy: string;
   httpsProxy: string;
   noProxy: string;
@@ -25,15 +30,9 @@ export type SourceUpdateInput = Omit<SourceCreateInput, "name"> & {
   sourceId: string;
 };
 
-type SourceCreatePayload = Parameters<
-  SourceApiInterface["createSource"]
->[0]["sourceCreate"];
-type SourceUpdatePayload = Parameters<
-  SourceApiInterface["updateSource"]
->[0]["sourceUpdate"];
 type UpdateInventoryInput = Parameters<typeof UpdateInventoryFromJSON>[0];
-type ProxyPayload = NonNullable<SourceCreatePayload["proxy"]>;
-type NetworkPayload = NonNullable<SourceCreatePayload["network"]>;
+type ProxyPayload = NonNullable<SourceCreate["proxy"]>;
+type NetworkPayload = NonNullable<SourceCreate["vmNetwork"]>;
 
 const buildProxyPayload = (
   httpProxy: string,
@@ -81,10 +80,8 @@ const buildNetworkPayload = (
   return undefined;
 };
 
-const buildSourceCreatePayload = (
-  input: SourceCreateInput,
-): SourceCreatePayload => {
-  const payload: SourceCreatePayload = {
+const buildSourceCreatePayload = (input: SourceCreateInput): SourceCreate => {
+  const payload: SourceCreate = {
     name: input.name,
   };
 
@@ -92,44 +89,40 @@ const buildSourceCreatePayload = (
     payload.sshPublicKey = input.sshPublicKey;
   }
 
-  const proxy = buildProxyPayload(
-    input.httpProxy,
-    input.httpsProxy,
-    input.noProxy,
-  );
-  if (proxy) {
-    payload.proxy = proxy;
+  if (input.enableProxy) {
+    payload.proxy = buildProxyPayload(
+      input.httpProxy,
+      input.httpsProxy,
+      input.noProxy,
+    );
   }
 
-  const network = buildNetworkPayload(input);
-  if (network) {
-    payload.network = network;
+  if (input.networkConfigType === "static") {
+    payload.vmNetwork = buildNetworkPayload(input);
   }
 
   return payload;
 };
 
-const buildSourceUpdatePayload = (
-  input: SourceUpdateInput,
-): SourceUpdatePayload => {
-  const payload: SourceUpdatePayload = {};
+const buildSourceUpdatePayload = (input: SourceUpdateInput): SourceUpdate => {
+  const payload: SourceUpdate = {};
 
   if (input.sshPublicKey && input.sshPublicKey.trim()) {
     payload.sshPublicKey = input.sshPublicKey;
   }
 
-  const proxy = buildProxyPayload(
-    input.httpProxy,
-    input.httpsProxy,
-    input.noProxy,
-  );
-  if (proxy) {
-    payload.proxy = proxy;
+  payload.enableProxy = input.enableProxy;
+  if (input.enableProxy) {
+    payload.proxy = buildProxyPayload(
+      input.httpProxy,
+      input.httpsProxy,
+      input.noProxy,
+    );
   }
 
-  const network = buildNetworkPayload(input);
-  if (network) {
-    payload.network = network;
+  payload.networkConfigType = input.networkConfigType;
+  if (input.networkConfigType === "static") {
+    payload.vmNetwork = buildNetworkPayload(input);
   }
 
   return payload;

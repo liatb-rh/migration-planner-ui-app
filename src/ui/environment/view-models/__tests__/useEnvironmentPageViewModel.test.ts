@@ -257,6 +257,7 @@ describe("useEnvironmentPageViewModel", () => {
       result.current.createDownloadSource({
         name: "my-env",
         sshPublicKey: "ssh-rsa AAAA",
+        enableProxy: false,
         httpProxy: "",
         httpsProxy: "",
         noProxy: "",
@@ -284,6 +285,7 @@ describe("useEnvironmentPageViewModel", () => {
       result.current.createDownloadSource({
         name: "bad",
         sshPublicKey: "",
+        enableProxy: false,
         httpProxy: "",
         httpsProxy: "",
         noProxy: "",
@@ -310,6 +312,7 @@ describe("useEnvironmentPageViewModel", () => {
       result.current.updateSource({
         sourceId: "upd-1",
         sshPublicKey: "ssh-ed25519 BBB",
+        enableProxy: false,
         httpProxy: "",
         httpsProxy: "",
         noProxy: "",
@@ -335,6 +338,7 @@ describe("useEnvironmentPageViewModel", () => {
       result.current.updateSource({
         sourceId: "fail-1",
         sshPublicKey: "",
+        enableProxy: false,
         httpProxy: "",
         httpsProxy: "",
         noProxy: "",
@@ -392,6 +396,7 @@ describe("useEnvironmentPageViewModel", () => {
       result.current.createDownloadSource({
         name: "tmp",
         sshPublicKey: "",
+        enableProxy: false,
         httpProxy: "",
         httpsProxy: "",
         noProxy: "",
@@ -422,6 +427,7 @@ describe("useEnvironmentPageViewModel", () => {
       result.current.createDownloadSource({
         name: "err",
         sshPublicKey: "",
+        enableProxy: false,
         httpProxy: "",
         httpsProxy: "",
         noProxy: "",
@@ -442,6 +448,7 @@ describe("useEnvironmentPageViewModel", () => {
       result.current.updateSource({
         sourceId: "x",
         sshPublicKey: "",
+        enableProxy: false,
         httpProxy: "",
         httpsProxy: "",
         noProxy: "",
@@ -463,6 +470,7 @@ describe("useEnvironmentPageViewModel", () => {
       result.current.createDownloadSource({
         name: "err1",
         sshPublicKey: "",
+        enableProxy: false,
         httpProxy: "",
         httpsProxy: "",
         noProxy: "",
@@ -483,6 +491,7 @@ describe("useEnvironmentPageViewModel", () => {
       result.current.createDownloadSource({
         name: "err",
         sshPublicKey: "",
+        enableProxy: false,
         httpProxy: "",
         httpsProxy: "",
         noProxy: "",
@@ -585,6 +594,7 @@ describe("useEnvironmentPageViewModel", () => {
       promise = result.current.createDownloadSource({
         name: "loading-test",
         sshPublicKey: "",
+        enableProxy: false,
         httpProxy: "",
         httpsProxy: "",
         noProxy: "",
@@ -625,6 +635,7 @@ describe("useEnvironmentPageViewModel", () => {
       promise = result.current.updateSource({
         sourceId: "upd-loading",
         sshPublicKey: "",
+        enableProxy: false,
         httpProxy: "",
         httpsProxy: "",
         noProxy: "",

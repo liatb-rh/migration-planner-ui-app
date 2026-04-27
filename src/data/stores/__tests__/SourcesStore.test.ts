@@ -84,6 +84,7 @@ describe("SourcesStore", () => {
     const input = {
       name: "New Source",
       sshPublicKey: "ssh-key",
+      enableProxy: false,
       httpProxy: "",
       httpsProxy: "",
       noProxy: "",
@@ -115,6 +116,7 @@ describe("SourcesStore", () => {
     const input = {
       sourceId: "s-1",
       sshPublicKey: "new-key",
+      enableProxy: false,
       httpProxy: "",
       httpsProxy: "",
       noProxy: "",
@@ -185,6 +187,7 @@ describe("SourcesStore", () => {
     await store.create({
       name: "New",
       sshPublicKey: "",
+      enableProxy: false,
       httpProxy: "",
       httpsProxy: "",
       noProxy: "",

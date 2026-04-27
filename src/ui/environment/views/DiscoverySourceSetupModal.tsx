@@ -278,6 +278,7 @@ export const DiscoverySourceSetupModal: React.FC<
             .updateSource({
               sourceId: sourceIdToUpdate,
               sshPublicKey: normalizeSshKey(sshKey),
+              enableProxy,
               httpProxy,
               httpsProxy,
               noProxy,
@@ -332,6 +333,7 @@ export const DiscoverySourceSetupModal: React.FC<
           void vm.createDownloadSource({
             name: environmentName,
             sshPublicKey: normalizeSshKey(sshKey),
+            enableProxy,
             httpProxy,
             httpsProxy,
             noProxy,

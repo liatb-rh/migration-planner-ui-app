@@ -26,6 +26,12 @@ module.exports = {
       "process.env.MIGRATION_PLANNER_UI_VERSION": JSON.stringify(
         process.env.MIGRATION_PLANNER_UI_VERSION,
       ),
+      // Static mount-path prefix — consumed by src/routing/Routes.ts.
+      // Must match appUrl in this file. In standalone (Vite) mode this is
+      // defined as "" in dev/vite.config.ts.
+      "process.env.MIGRATION_PLANNER_APP_BASENAME": JSON.stringify(
+        "/openshift/migration-advisor",
+      ),
     }),
     // Prevent EMFILE (too many open files) by excluding node_modules from
     // webpack's file-system watcher.  The FEC-generated config sets no

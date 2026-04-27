@@ -1,122 +1,67 @@
 /**
- * The current app slug used by the Insights Chrome to mount this microfrontend.
- * Matches `appUrl` in `fec.config.js`.
+ * The app's mount-path prefix, injected at build time.
+ *
+ * - **Standalone (dev) mode** — Vite defines this as `""` so every route is
+ *   root-relative (the app is served directly at `/`).
+ *
+ * - **Microfrontend (stage/prod) mode** — Webpack's DefinePlugin (fec.config.js)
+ *   sets this to `"/openshift/migration-advisor"`. The Chrome's BrowserRouter
+ *   has `basename="/"` and mounts the app at this slug, so all navigate() and
+ *   <Link to> calls must include the full mount path as a prefix — exactly the
+ *   same pattern used by the uhc-portal's `withBasename` / `ocmBaseName`.
+ *
+ * Using a static build-time constant (rather than reading window.location at
+ * call-time) avoids a Chrome-specific race condition where the browser updates
+ * window.location synchronously when the back/forward button is pressed, before
+ * React finishes its current render cycle. That stale read caused routes.*
+ * getters to return root-relative paths like /assessments instead of
+ * /openshift/migration-advisor/assessments, crashing the Console.
  */
-const APP_SLUG = "/openshift/migration-advisor";
+const APP_BASENAME: string = process.env.MIGRATION_PLANNER_APP_BASENAME ?? "";
 
 /**
- * The legacy app slug kept alive for backward compatibility.
- * Both slugs serve the same RootApp module (see deploy/frontend.yaml).
+ * The app's mount-path prefix at module-load time.
+ *
+ * @deprecated Use the `routes` object instead. This export exists only for
+ * legacy callers; it has the same value as the internal APP_BASENAME constant.
  */
-const LEGACY_APP_SLUG = "/openshift/migration-assessment";
-
-let lastLoggedBasename: string | null = null;
+export { APP_BASENAME };
 
 /**
- * Resolve the app's base path at runtime.
+ * Centralized route map.
  *
- * - **Standalone (dev) mode** — `BrowserRouter` has `basename="/"` and the
- *   app is mounted at the root. Returns `""` so every route is root-relative.
- *
- * - **Microfrontend (stage) mode** — The Chrome's `BrowserRouter` has
- *   `basename="/"` and mounts the app inside a nested `<Route>` at
- *   `APP_SLUG`. Absolute `navigate()` / `<Link to>` calls must therefore
- *   include the full mount path, otherwise React Router resolves them from
- *   the router root and the URL ends up outside the app.
- *
- * Detection: if the current URL contains the app slug, we're in stage mode.
- * This is called dynamically each time routes are accessed to avoid module-load
- * timing issues with federated modules.
- */
-function resolveAppBasename(): string {
-  try {
-    // Strip known Chrome preview/beta prefixes before matching
-    const pathname = window.location.pathname.replace(/^\/(preview|beta)/, "");
-    const basename = pathname.startsWith(APP_SLUG)
-      ? APP_SLUG
-      : pathname.startsWith(LEGACY_APP_SLUG)
-        ? LEGACY_APP_SLUG
-        : "";
-
-    // Log only when basename changes or on first detection (to track production issues)
-    if (process.env.NODE_ENV !== "test" && lastLoggedBasename !== basename) {
-      console.info("[Routes] Basename detected:", {
-        mode: basename ? "microfrontend" : "standalone",
-        basename: basename || "(root)",
-        currentPathname: window.location.pathname,
-        timestamp: new Date().toISOString(),
-      });
-      lastLoggedBasename = basename;
-    }
-
-    return basename;
-  } catch {
-    return ""; // SSR / test environment without DOM
-  }
-}
-
-/**
- * Get the app's mount-path prefix dynamically.
- * - `""` in standalone (dev) mode
- * - `"/openshift/migration-advisor"` in stage mode (current slug)
- * - `"/openshift/migration-assessment"` in stage mode (legacy slug)
- *
- * This is computed on each access to avoid caching stale values during
- * module hot-reloading or federated module initialization.
- */
-function getAppBasename(): string {
-  return resolveAppBasename();
-}
-
-/**
- * The app's mount-path prefix.
- * - `""` in standalone (dev) mode
- * - `"/openshift/migration-advisor"` in stage mode (current slug)
- * - `"/openshift/migration-assessment"` in stage mode (legacy slug)
- *
- * @deprecated This is a snapshot at module-load time and may be stale.
- * Prefer using the `routes` object which dynamically resolves the basename.
- */
-export const APP_BASENAME = getAppBasename();
-
-/**
- * Centralized route map with dynamic basename resolution.
- *
- * Each route property is a getter that computes the full path at access time,
- * ensuring the basename is always current even during HMR or federated module
- * initialization.
+ * Every path includes the build-time basename prefix so that navigate() and
+ * <Link to> calls work correctly in both standalone and microfrontend mode.
  */
 export const routes = {
   get root() {
-    const base = getAppBasename();
-    return base || "/";
+    return APP_BASENAME || "/";
   },
   get assessments() {
-    return `${getAppBasename()}/assessments`;
+    return `${APP_BASENAME}/assessments`;
   },
-  assessmentById: (id: string) => `${getAppBasename()}/assessments/${id}`,
-  assessmentReport: (id: string) =>
-    `${getAppBasename()}/assessments/${id}/report`,
+  assessmentById: (id: string) => `${APP_BASENAME}/assessments/${id}`,
+  assessmentReport: (id: string) => `${APP_BASENAME}/assessments/${id}/report`,
   get assessmentCreate() {
-    return `${getAppBasename()}/assessments/create`;
+    return `${APP_BASENAME}/assessments/create`;
   },
   get exampleReport() {
-    return `${getAppBasename()}/assessments/example-report`;
+    return `${APP_BASENAME}/assessments/example-report`;
   },
   get environments() {
-    return `${getAppBasename()}/environments`;
+    return `${APP_BASENAME}/environments`;
   },
   get partners() {
-    return `${getAppBasename()}/partners`;
+    return `${APP_BASENAME}/partners`;
   },
   get myPartner() {
-    return `${getAppBasename()}/partners/my`;
+    return `${APP_BASENAME}/partners/my`;
   },
   get customers() {
-    return `${getAppBasename()}/partners/customers`;
+    return `${APP_BASENAME}/partners/customers`;
   },
   get adminGroups() {
-    return `${getAppBasename()}/partners/groups`;
+    return `${APP_BASENAME}/partners/groups`;
   },
-  adminGroupById: (id: string) => `${getAppBasename()}/partners/groups/${id}`,
+  adminGroupById: (id: string) => `${APP_BASENAME}/partners/groups/${id}`,
 } as const;

@@ -6,8 +6,6 @@ import { useAsync } from "react-use";
 import { Symbols } from "../../../config/Dependencies";
 import type { IAccountStore } from "../../../data/stores/interfaces/IAccountStore";
 import type { IPartnerRequestsStore } from "../../../data/stores/interfaces/IPartnerRequestsStore";
-import { PARTNER_FEATURE_VISIBLE_KEY } from "../../../data/stubs/stubPartners";
-import useLocalStorage from "../../../hooks/useLocalStorage";
 import { routes } from "../../../routing/Routes";
 
 export type HomeScreenOutletContext = {
@@ -46,12 +44,6 @@ export const useHomeScreenViewModel = (): HomeScreenViewModel => {
   const identity = useSyncExternalStore(
     accountStore.subscribe.bind(accountStore),
     accountStore.getSnapshot.bind(accountStore),
-  );
-
-  // Partner feature visibility
-  const [isPartnerFeatureVisible] = useLocalStorage(
-    PARTNER_FEATURE_VISIBLE_KEY,
-    false,
   );
 
   // Partner requests store subscription
@@ -144,7 +136,7 @@ export const useHomeScreenViewModel = (): HomeScreenViewModel => {
   };
 
   const getPartnerTabConfig = () => {
-    if (!identity || !isPartnerFeatureVisible) return null;
+    if (!identity) return null;
 
     switch (identity.kind) {
       case "regular":

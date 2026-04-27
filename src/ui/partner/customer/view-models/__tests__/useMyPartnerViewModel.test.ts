@@ -1,8 +1,7 @@
-import type { Group } from "@openshift-migration-advisor/planner-sdk";
+import type { Group, Identity } from "@openshift-migration-advisor/planner-sdk";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { getFakeIdentity } from "../../../../../data/stubs/stubIdentity";
 import { useMyPartnerViewModel } from "../useMyPartnerViewModel";
 
 // ---------------------------------------------------------------------------
@@ -29,6 +28,20 @@ vi.mock("@y0n1/react-ioc", () => ({
   },
 }));
 
+const regularUserIdentity: Identity = {
+  username: "regular-user-1",
+  kind: "regular",
+  groupId: "fb2f7a90-e583-40c2-931d-cdfc88b0c3c4",
+  partnerId: null,
+};
+
+const customerIdentity: Identity = {
+  username: "customer-user-1",
+  kind: "customer",
+  groupId: "e39ec328-458c-4384-a29f-8ab12d630777",
+  partnerId: "290a5d8a-175a-4e57-8896-88a1303c516f",
+};
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -39,7 +52,6 @@ describe("useMyPartnerViewModel", () => {
   });
 
   it("should fetch partner group when identity has partnerId", async () => {
-    const mockIdentity = getFakeIdentity("customer");
     const mockPartnerGroup: Group = {
       id: "partner-1",
       name: "Test Partner",
@@ -56,7 +68,7 @@ describe("useMyPartnerViewModel", () => {
 
     mockAccountStore = {
       subscribe: vi.fn(() => unsubscribe),
-      getSnapshot: vi.fn(() => mockIdentity),
+      getSnapshot: vi.fn(() => customerIdentity),
     };
 
     mockGroupsStore = {
@@ -72,20 +84,20 @@ describe("useMyPartnerViewModel", () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(mockGroupsStore.get).toHaveBeenCalledWith(mockIdentity.partnerId);
+    expect(mockGroupsStore.get).toHaveBeenCalledWith(
+      customerIdentity.partnerId,
+    );
     expect(result.current.partnerGroup).toEqual(mockPartnerGroup);
     expect(result.current.error).toBeUndefined();
   });
 
   it("should not fetch when identity has no partnerId", async () => {
-    const mockIdentity = getFakeIdentity("regular");
-
     const unsubscribe = vi.fn();
     const cachedGroups: Group[] = [];
 
     mockAccountStore = {
       subscribe: vi.fn(() => unsubscribe),
-      getSnapshot: vi.fn(() => mockIdentity),
+      getSnapshot: vi.fn(() => regularUserIdentity),
     };
 
     mockGroupsStore = {
@@ -132,7 +144,6 @@ describe("useMyPartnerViewModel", () => {
   });
 
   it("should handle error when fetch fails", async () => {
-    const mockIdentity = getFakeIdentity("customer");
     const mockError = new Error("Failed to fetch group");
 
     const unsubscribe = vi.fn();
@@ -140,7 +151,7 @@ describe("useMyPartnerViewModel", () => {
 
     mockAccountStore = {
       subscribe: vi.fn(() => unsubscribe),
-      getSnapshot: vi.fn(() => mockIdentity),
+      getSnapshot: vi.fn(() => customerIdentity),
     };
 
     mockGroupsStore = {
@@ -155,13 +166,14 @@ describe("useMyPartnerViewModel", () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(mockGroupsStore.get).toHaveBeenCalledWith(mockIdentity.partnerId);
+    expect(mockGroupsStore.get).toHaveBeenCalledWith(
+      customerIdentity.partnerId,
+    );
     expect(result.current.partnerGroup).toBeUndefined();
     expect(result.current.error).toEqual(mockError);
   });
 
   it("should show loading state while fetching", async () => {
-    const mockIdentity = getFakeIdentity("customer");
     const mockPartnerGroup: Group = {
       id: "partner-1",
       name: "Test Partner",
@@ -178,7 +190,7 @@ describe("useMyPartnerViewModel", () => {
 
     mockAccountStore = {
       subscribe: vi.fn(() => unsubscribe),
-      getSnapshot: vi.fn(() => mockIdentity),
+      getSnapshot: vi.fn(() => customerIdentity),
     };
 
     mockGroupsStore = {

@@ -13,20 +13,17 @@ import { CopyIcon } from "@patternfly/react-icons";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { generatePlainTextRecommendation } from "../../view-models/ClusterSizingHelpers";
-import { useClusterSizingWizardViewModel } from "../../view-models/useClusterSizingWizardViewModel";
+import {
+  type UseClusterSizingWizardOptions,
+  useClusterSizingWizardViewModel,
+} from "../../view-models/useClusterSizingWizardViewModel";
 import { ComplexityResult } from "./ComplexityResult";
 import { RecommendationTemplate } from "./RecommendationTemplate";
 import { SizingInputForm } from "./SizingInputForm";
 import { SizingResult } from "./SizingResult";
 import { TimeEstimationForm } from "./TimeEstimationForm";
 import { TimeEstimationResult } from "./TimeEstimationResult";
-import type {
-  ClusterRequirementsResponse,
-  MigrationComplexityResponse,
-  MigrationEstimationByComplexityResponse,
-  MigrationEstimationResponse,
-  SizingFormValues,
-} from "./types";
+import type { ClusterRequirementsResponse, SizingFormValues } from "./types";
 
 interface ClusterSizingWizardProps {
   isOpen: boolean;
@@ -43,16 +40,8 @@ interface ClusterSizingWizardProps {
     result: ClusterRequirementsResponse,
     formValues: SizingFormValues,
   ) => void;
-  /** Pre-populate the sizing result (used in the example report). */
-  initialSizerOutput?: ClusterRequirementsResponse;
-  /** Pre-populate the input form values (used in the example report). */
-  initialFormValues?: SizingFormValues;
-  /** Pre-populate the time estimation result (used in the example report). */
-  initialMigrationEstimation?: MigrationEstimationResponse;
-  /** Pre-populate the complexity estimation result (used in the example report). */
-  initialComplexityEstimation?: MigrationComplexityResponse;
-  /** Pre-populate the estimation-by-complexity result (used in the example report). */
-  initialEstimationByComplexity?: MigrationEstimationByComplexityResponse;
+  /** Pre-populated data for the wizard (used in the example report). */
+  options?: UseClusterSizingWizardOptions;
   /** When true, collapses and disables the preferences panel (used in the example report). */
   isReadOnly?: boolean;
 }
@@ -119,20 +108,10 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
   clusterId,
   assessmentId,
   onCalculated,
-  initialSizerOutput,
-  initialFormValues,
-  initialMigrationEstimation,
-  initialComplexityEstimation,
-  initialEstimationByComplexity,
+  options,
   isReadOnly = false,
 }) => {
-  const vm = useClusterSizingWizardViewModel(assessmentId, clusterId, {
-    initialSizerOutput,
-    initialFormValues,
-    initialMigrationEstimation,
-    initialComplexityEstimation,
-    initialEstimationByComplexity,
-  });
+  const vm = useClusterSizingWizardViewModel(assessmentId, clusterId, options);
   const [selectedMenuItem, setSelectedMenuItem] =
     useState<MenuItem>("architecture");
 

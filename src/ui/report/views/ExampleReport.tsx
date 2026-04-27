@@ -204,11 +204,13 @@ const ExampleReport: React.FC = () => {
           clusterName={exampleSizing.clusterName}
           clusterId={selectedClusterId}
           assessmentId="example"
-          initialSizerOutput={exampleSizing.result}
-          initialFormValues={EXAMPLE_FORM_VALUES}
-          initialMigrationEstimation={exampleSizing.migrationEstimation}
-          initialComplexityEstimation={exampleSizing.complexityEstimation}
-          initialEstimationByComplexity={exampleSizing.estimationByComplexity}
+          options={{
+            initialSizerOutput: exampleSizing.result,
+            initialFormValues: EXAMPLE_FORM_VALUES,
+            initialMigrationEstimation: exampleSizing.migrationEstimation,
+            initialComplexityEstimation: exampleSizing.complexityEstimation,
+            initialEstimationByComplexity: exampleSizing.estimationByComplexity,
+          }}
           isReadOnly
         />
       )}

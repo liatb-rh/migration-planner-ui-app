@@ -80,7 +80,7 @@ export interface ClusterSizingWizardViewModel {
  * the snapshot taken on mount. If you need the wizard to reflect new initial
  * values, remount the component by changing its React `key` prop.
  */
-interface UseClusterSizingWizardOptions {
+export interface UseClusterSizingWizardOptions {
   /** Pre-populate the sizing result (bypasses the API call). */
   initialSizerOutput?: ClusterRequirementsResponse;
   /** Pre-populate the input form values. */

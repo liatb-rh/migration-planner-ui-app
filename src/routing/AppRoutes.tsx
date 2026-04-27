@@ -11,6 +11,7 @@ import { CustomersScreen } from "../ui/partner/partner/views/CustomersScreen";
 import { PartnersScreen } from "../ui/partner/regularUser/views/PartnersScreen";
 import { PartnerViewRequireRole } from "../ui/partner/views/PartnerViewRequireRole";
 import { IdentityWrapper } from "./IdentityWrapper";
+import { routes } from "./Routes";
 
 const Report = lazy(
   () => import(/* webpackChunkName: "Report" */ "../ui/report/views/Report"),
@@ -48,7 +49,7 @@ export const AppRoutes: React.FC = () => (
   <Routes>
     {/* Identity wrapper loads current identity and renders child routes */}
     <Route element={<IdentityWrapper />}>
-      <Route index element={<Navigate to="assessments" replace />} />
+      <Route index element={<Navigate to={routes.assessments} replace />} />
 
       {/* Pathless layout route — HomeScreen renders the shell + <Outlet /> */}
       <Route element={<HomeScreen />} errorElement={<InvalidObject />}>

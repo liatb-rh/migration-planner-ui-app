@@ -4,7 +4,13 @@ import type {
 } from "@openshift-migration-advisor/planner-sdk";
 import { ResponseError } from "@openshift-migration-advisor/planner-sdk";
 import { useInjection } from "@y0n1/react-ioc";
-import { useCallback, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useAsyncFn } from "react-use";
 
 import { Symbols } from "../../../config/Dependencies";
@@ -64,9 +70,33 @@ export interface ClusterSizingWizardViewModel {
 // Hook
 // ---------------------------------------------------------------------------
 
+/**
+ * Options for pre-populating the sizing wizard with existing data.
+ *
+ * **Capture-once contract**: `useClusterSizingWizardViewModel` freezes these
+ * options on the first render via `useMemo(() => ({ ... }), [])` (see
+ * `initialValues` in the hook body). Any changes to option values after the
+ * first render are silently ignored — subsequent renders will continue using
+ * the snapshot taken on mount. If you need the wizard to reflect new initial
+ * values, remount the component by changing its React `key` prop.
+ */
+interface UseClusterSizingWizardOptions {
+  /** Pre-populate the sizing result (bypasses the API call). */
+  initialSizerOutput?: ClusterRequirementsResponse;
+  /** Pre-populate the input form values. */
+  initialFormValues?: SizingFormValues;
+  /** Pre-populate the time estimation result (bypasses the API call). */
+  initialMigrationEstimation?: MigrationEstimationResponse;
+  /** Pre-populate the complexity estimation result (bypasses the API call). */
+  initialComplexityEstimation?: MigrationComplexityResponse;
+  /** Pre-populate the estimation-by-complexity result (bypasses the API call). */
+  initialEstimationByComplexity?: MigrationEstimationByComplexityResponse;
+}
+
 export const useClusterSizingWizardViewModel = (
   assessmentId: string,
   clusterId: string,
+  options?: UseClusterSizingWizardOptions,
 ): ClusterSizingWizardViewModel => {
   const assessmentsStore = useInjection<IAssessmentsStore>(
     Symbols.AssessmentsStore,
@@ -76,18 +106,38 @@ export const useClusterSizingWizardViewModel = (
     assessmentsStore.getSnapshot.bind(assessmentsStore),
   );
 
-  const [formValues, setFormValues] =
-    useState<SizingFormValues>(DEFAULT_FORM_VALUES);
+  // Capture initial option values once so reset() can restore them.
+  const initialValues = useMemo(
+    () => ({
+      formValues: options?.initialFormValues ?? DEFAULT_FORM_VALUES,
+      sizerOutput: options?.initialSizerOutput ?? null,
+      migrationEstimation: options?.initialMigrationEstimation ?? null,
+      complexityEstimation: options?.initialComplexityEstimation ?? null,
+      estimationByComplexity: options?.initialEstimationByComplexity ?? null,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
+  const [formValues, setFormValues] = useState<SizingFormValues>(
+    initialValues.formValues,
+  );
   const [estimationFormValues, setEstimationFormValues] =
     useState<EstimationFormValues>(DEFAULT_ESTIMATION_FORM_VALUES);
   const [sizerOutput, setSizerOutput] =
-    useState<ClusterRequirementsResponse | null>(null);
+    useState<ClusterRequirementsResponse | null>(initialValues.sizerOutput);
   const [migrationEstimation, setMigrationEstimation] =
-    useState<MigrationEstimationResponse | null>(null);
+    useState<MigrationEstimationResponse | null>(
+      initialValues.migrationEstimation,
+    );
   const [complexityEstimation, setComplexityEstimation] =
-    useState<MigrationComplexityResponse | null>(null);
+    useState<MigrationComplexityResponse | null>(
+      initialValues.complexityEstimation,
+    );
   const [estimationByComplexity, setEstimationByComplexity] =
-    useState<MigrationEstimationByComplexityResponse | null>(null);
+    useState<MigrationEstimationByComplexityResponse | null>(
+      initialValues.estimationByComplexity,
+    );
   const [manualCalculateError, setManualCalculateError] = useState<
     Error | undefined
   >(undefined);
@@ -302,18 +352,18 @@ export const useClusterSizingWizardViewModel = (
   );
 
   const reset = useCallback(() => {
-    setFormValues(DEFAULT_FORM_VALUES);
+    setFormValues(initialValues.formValues);
     setEstimationFormValues(DEFAULT_ESTIMATION_FORM_VALUES);
-    setSizerOutput(null);
-    setMigrationEstimation(null);
-    setComplexityEstimation(null);
-    setEstimationByComplexity(null);
+    setSizerOutput(initialValues.sizerOutput);
+    setMigrationEstimation(initialValues.migrationEstimation);
+    setComplexityEstimation(initialValues.complexityEstimation);
+    setEstimationByComplexity(initialValues.estimationByComplexity);
     setManualCalculateError(undefined);
     setManualEstimationError(undefined);
     setManualComplexityError(undefined);
     setManualEstByComplexityError(undefined);
     setResetCounter((prev) => prev + 1);
-  }, []);
+  }, [initialValues]);
 
   const showWorkerNode =
     formValues.clusterMode === "full-ha" ||

@@ -20,7 +20,13 @@ import { SizingInputForm } from "./SizingInputForm";
 import { SizingResult } from "./SizingResult";
 import { TimeEstimationForm } from "./TimeEstimationForm";
 import { TimeEstimationResult } from "./TimeEstimationResult";
-import type { ClusterRequirementsResponse, SizingFormValues } from "./types";
+import type {
+  ClusterRequirementsResponse,
+  MigrationComplexityResponse,
+  MigrationEstimationByComplexityResponse,
+  MigrationEstimationResponse,
+  SizingFormValues,
+} from "./types";
 
 interface ClusterSizingWizardProps {
   isOpen: boolean;
@@ -37,6 +43,18 @@ interface ClusterSizingWizardProps {
     result: ClusterRequirementsResponse,
     formValues: SizingFormValues,
   ) => void;
+  /** Pre-populate the sizing result (used in the example report). */
+  initialSizerOutput?: ClusterRequirementsResponse;
+  /** Pre-populate the input form values (used in the example report). */
+  initialFormValues?: SizingFormValues;
+  /** Pre-populate the time estimation result (used in the example report). */
+  initialMigrationEstimation?: MigrationEstimationResponse;
+  /** Pre-populate the complexity estimation result (used in the example report). */
+  initialComplexityEstimation?: MigrationComplexityResponse;
+  /** Pre-populate the estimation-by-complexity result (used in the example report). */
+  initialEstimationByComplexity?: MigrationEstimationByComplexityResponse;
+  /** When true, collapses and disables the preferences panel (used in the example report). */
+  isReadOnly?: boolean;
 }
 
 type MenuItem = "architecture" | "time-estimation" | "complexity" | "plan";
@@ -101,8 +119,20 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
   clusterId,
   assessmentId,
   onCalculated,
+  initialSizerOutput,
+  initialFormValues,
+  initialMigrationEstimation,
+  initialComplexityEstimation,
+  initialEstimationByComplexity,
+  isReadOnly = false,
 }) => {
-  const vm = useClusterSizingWizardViewModel(assessmentId, clusterId);
+  const vm = useClusterSizingWizardViewModel(assessmentId, clusterId, {
+    initialSizerOutput,
+    initialFormValues,
+    initialMigrationEstimation,
+    initialComplexityEstimation,
+    initialEstimationByComplexity,
+  });
   const [selectedMenuItem, setSelectedMenuItem] =
     useState<MenuItem>("architecture");
 
@@ -189,6 +219,8 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
             )}
             generateButtonText="Generate recommendation"
             hasError={Boolean(vm.calculateError)}
+            isPreferencesInitiallyExpanded={!isReadOnly}
+            isPreferencesDisabled={isReadOnly}
             headerAction={
               vm.sizerOutput ? (
                 <Button
@@ -232,6 +264,8 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
             resultsTitle=""
             showAlert={false}
             hasError={Boolean(vm.estimationError)}
+            isPreferencesInitiallyExpanded={!isReadOnly}
+            isPreferencesDisabled={isReadOnly}
           />
         );
       case "complexity":

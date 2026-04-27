@@ -63,3 +63,56 @@ export const createAssessmentModel = (raw: Assessment): AssessmentModel => ({
   hasUsefulData: hasUsefulData(raw.snapshots),
   snapshotsSorted: sortSnapshotsDesc(raw.snapshots),
 });
+
+// ---------------------------------------------------------------------------
+// Cost Estimation types
+// ---------------------------------------------------------------------------
+
+export type Discounts = {
+  vcfDiscountPct: number;
+  vvfDiscountPct: number;
+  redhatDiscountPct: number;
+  aapDiscountPct: number;
+};
+
+export type CalculateCostEstimationRequest = {
+  assessmentId: string;
+  clusterId: string;
+  discounts: Discounts;
+};
+
+export type CostEstimationBreakdown = {
+  softwareSubscriptions: number;
+  ansibleAutomationPlatform: number;
+  migrationConsultingServices: number;
+  swingHardwareUpgrades: number;
+  additionalStorageCosts: number;
+  thirdPartyIsvCosts: number;
+};
+
+export type CostEstimationScenario = {
+  totalThreeYearCostEstimation: number;
+  breakdown: CostEstimationBreakdown;
+};
+
+export type SavingsVsReference = {
+  absoluteThreeYearUsd: number;
+  percentage: number;
+};
+
+export type CostEstimateSavings = {
+  vsVcf?: SavingsVsReference;
+  vsVvf?: SavingsVsReference;
+};
+
+export type CostEstimateResults = {
+  vmwareVcf: CostEstimationScenario;
+  vmwareVvf: CostEstimationScenario;
+  openshiftVirtualization: CostEstimationScenario;
+};
+
+export type CostEstimationResponse = {
+  calculatorVersion: string;
+  results: CostEstimateResults;
+  savings: CostEstimateSavings;
+};

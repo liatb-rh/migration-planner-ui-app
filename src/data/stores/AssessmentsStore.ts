@@ -8,12 +8,18 @@ import {
   ResponseError,
 } from "@openshift-migration-advisor/planner-sdk";
 import { type Assessment } from "@openshift-migration-advisor/planner-sdk";
-import { type InitOverrideFunction } from "@openshift-migration-advisor/planner-sdk";
+import {
+  type Configuration,
+  type InitOverrideFunction,
+  type Middleware,
+} from "@openshift-migration-advisor/planner-sdk";
 
 import { parseApiError } from "../../lib/common/ErrorParser";
 import { PollableStoreBase } from "../../lib/mvvm/PollableStore";
 import {
   type AssessmentModel,
+  type CalculateCostEstimationRequest,
+  type CostEstimationResponse,
   createAssessmentModel,
 } from "../../models/AssessmentModel";
 import type { IAssessmentsStore } from "./interfaces/IAssessmentsStore";
@@ -248,6 +254,71 @@ export class AssessmentsStore
       requestParameters,
       initOverrides,
     );
+  }
+
+  async calculateCostEstimation(
+    requestParameters: CalculateCostEstimationRequest,
+    initOverrides?: RequestInit,
+  ): Promise<CostEstimationResponse> {
+    try {
+      // Access SDK configuration to use basePath and middleware
+      // AssessmentApi extends BaseAPI which has a protected configuration property
+      const apiWithConfig = this.api as unknown as {
+        configuration: Configuration;
+      };
+      const config = apiWithConfig.configuration;
+      const basePath = config.basePath || "";
+      const middleware: Middleware[] = config.middleware || [];
+      const fetchApi = config.fetchApi || fetch;
+
+      // Build the full URL using SDK's basePath
+      const url = `${basePath}/api/v1/cost-estimation`;
+
+      // Prepare request configuration
+      let init: RequestInit = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestParameters),
+      };
+
+      // Apply initOverrides if provided (only RequestInit, not function overrides)
+      if (initOverrides && typeof initOverrides !== "function") {
+        init = { ...init, ...initOverrides };
+      }
+
+      // Apply middleware (auth headers) using SDK's middleware chain
+      let requestContext = {
+        fetch: (url: string, init?: RequestInit) => fetchApi(url, init),
+        url,
+        init,
+      };
+      for (const mw of middleware) {
+        if (mw.pre) {
+          const result = await mw.pre(requestContext);
+          if (result) {
+            requestContext = { ...requestContext, ...result };
+          }
+        }
+      }
+
+      const response = await requestContext.fetch(
+        requestContext.url,
+        requestContext.init,
+      );
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => ({}))) as {
+          message?: string;
+        };
+        throw new ResponseError(response, errorData.message);
+      }
+
+      return (await response.json()) as CostEstimationResponse;
+    } catch (err) {
+      throw await parseApiError(err, "Failed to calculate cost estimation");
+    }
   }
 
   override getSnapshot(): AssessmentModel[] {

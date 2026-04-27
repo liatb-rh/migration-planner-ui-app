@@ -18,6 +18,11 @@ import {
   useClusterSizingWizardViewModel,
 } from "../../view-models/useClusterSizingWizardViewModel";
 import { ComplexityResult } from "./ComplexityResult";
+import {
+  CostEstimationResult,
+  CostEstimationResultSkeleton,
+} from "./CostEstimationResult";
+import RecommendationTabContent from "./RecommendationTabContent";
 import { RecommendationTemplate } from "./RecommendationTemplate";
 import { SizingInputForm } from "./SizingInputForm";
 import { SizingResult } from "./SizingResult";
@@ -46,12 +51,17 @@ interface ClusterSizingWizardProps {
   isReadOnly?: boolean;
 }
 
-type MenuItem = "architecture" | "time-estimation" | "complexity" | "plan";
+type MenuItem =
+  | "architecture"
+  | "cost-estimation"
+  | "time-estimation"
+  | "complexity"
+  | "plan";
 
 const modalBodyStyle = css`
   display: flex;
   flex-direction: column;
-  height: 680px;
+  min-height: 60vh;
 `;
 
 const tabsContainerStyle = css`
@@ -98,7 +108,6 @@ const tabsContainerStyle = css`
 const contentContainerStyle = css`
   flex: 1;
   overflow: auto;
-  padding: var(--pf-t--global--spacer--300);
 `;
 
 export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
@@ -214,6 +223,20 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
             }
           />
         );
+      case "cost-estimation":
+        if (!vm.isCostEstimationTabVisible) return null;
+        return (
+          <RecommendationTabContent
+            id="cost-estimation"
+            title="Cost estimation"
+            content={
+              <CostEstimationResult costEstimation={vm.costEstimation} />
+            }
+            isLoading={vm.isLoadingCostEstimation}
+            loadingComponent={<CostEstimationResultSkeleton />}
+            errorMessage={vm.costEstimationError}
+          />
+        );
       case "time-estimation":
         return (
           <RecommendationTemplate
@@ -314,6 +337,12 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
                 <TabTitleText>OpenShift Cluster Architecture</TabTitleText>
               }
             />
+            {vm.isCostEstimationTabVisible && (
+              <Tab
+                eventKey="cost-estimation"
+                title={<TabTitleText>Cost Estimation</TabTitleText>}
+              />
+            )}
             <Tab
               eventKey="time-estimation"
               title={<TabTitleText>Migration Time Estimation</TabTitleText>}

@@ -5,8 +5,8 @@ import type {
   SnapshotLike,
 } from "../../services/html-export/types";
 import type {
-  PdfExtraPage,
   PdfExportService,
+  PdfExtraPage,
 } from "../../services/pdf-export/PdfExportService";
 import type { IReportStore, ReportStoreState } from "./interfaces/IReportStore";
 

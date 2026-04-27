@@ -41,13 +41,13 @@ import {
   type ClusterViewModel,
   compareClustersByVmCount,
 } from "../helpers/clusterViewModel";
+import type { SizingFormValues } from "../views/cluster-sizer/types";
 import {
   formatNumber,
   formatRatio,
   getCpuOvercommitLabel,
   getMemoryOvercommitLabel,
 } from "./ClusterSizingHelpers";
-import type { SizingFormValues } from "../views/cluster-sizer/types";
 
 // ---------------------------------------------------------------------------
 // Sizing → PDF page builder

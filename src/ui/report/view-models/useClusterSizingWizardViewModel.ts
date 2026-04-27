@@ -14,7 +14,9 @@ import {
 import { useAsyncFn } from "react-use";
 
 import { Symbols } from "../../../config/Dependencies";
+import type { IAccountStore } from "../../../data/stores/interfaces/IAccountStore";
 import type { IAssessmentsStore } from "../../../data/stores/interfaces/IAssessmentsStore";
+import type { CostEstimationResponse } from "../../../models/AssessmentModel";
 import {
   DEFAULT_ESTIMATION_FORM_VALUES,
   DEFAULT_FORM_VALUES,
@@ -64,6 +66,11 @@ export interface ClusterSizingWizardViewModel {
   isFormValid: boolean;
   ensureEstimationForMenu: (menuItem: string | null) => void;
   reset: () => void;
+  isCostEstimationTabVisible: boolean;
+  getCostEstimation: () => void;
+  costEstimation: CostEstimationResponse | null;
+  isLoadingCostEstimation: boolean;
+  costEstimationError: Error | undefined;
 }
 
 // ---------------------------------------------------------------------------
@@ -106,6 +113,12 @@ export const useClusterSizingWizardViewModel = (
     assessmentsStore.getSnapshot.bind(assessmentsStore),
   );
 
+  const accountStore = useInjection<IAccountStore>(Symbols.AccountStore);
+  const identity = useSyncExternalStore(
+    accountStore.subscribe.bind(accountStore),
+    accountStore.getSnapshot.bind(accountStore),
+  );
+
   // Capture initial option values once so reset() can restore them.
   const initialValues = useMemo(
     () => ({
@@ -138,10 +151,15 @@ export const useClusterSizingWizardViewModel = (
     useState<MigrationEstimationByComplexityResponse | null>(
       initialValues.estimationByComplexity,
     );
+  const [costEstimation, setCostEstimation] =
+    useState<CostEstimationResponse | null>(null);
   const [manualCalculateError, setManualCalculateError] = useState<
     Error | undefined
   >(undefined);
   const [manualEstimationError, setManualEstimationError] = useState<
+    Error | undefined
+  >(undefined);
+  const [manualCostEstimationError, setManualCostEstimationError] = useState<
     Error | undefined
   >(undefined);
   const [manualComplexityError, setManualComplexityError] = useState<
@@ -320,8 +338,42 @@ export const useClusterSizingWizardViewModel = (
       }
     }, [assessmentId, assessmentsStore, clusterId]);
 
+  const [costEstimationState, doGetCostEstimation] = useAsyncFn(
+    async () => {
+      setManualCostEstimationError(undefined);
+      const costEstimation = await assessmentsStore.calculateCostEstimation({
+        assessmentId,
+        clusterId,
+        discounts: {
+          vcfDiscountPct: 0,
+          vvfDiscountPct: 0,
+          redhatDiscountPct: 0,
+          aapDiscountPct: 0,
+        },
+      });
+      setCostEstimation(costEstimation);
+    },
+    [assessmentId, assessmentsStore, clusterId],
+    { loading: true },
+  );
+
+  const getCostEstimation = () => {
+    void doGetCostEstimation().catch((err: unknown) => {
+      setManualCostEstimationError(
+        err instanceof Error
+          ? err
+          : new Error("Failed to calculate cost estimation"),
+      );
+    });
+  };
+
   const ensureEstimationForMenu = useCallback(
     (menuItem: string | null) => {
+      if (menuItem === "cost-estimation") {
+        if (!costEstimation && !costEstimationState.error) {
+          void doGetCostEstimation();
+        }
+      }
       if (menuItem === "complexity") {
         if (
           !complexityEstimation &&
@@ -340,6 +392,9 @@ export const useClusterSizingWizardViewModel = (
       }
     },
     [
+      costEstimation,
+      costEstimationState.error,
+      doGetCostEstimation,
       complexityEstimation,
       complexityState.loading,
       manualComplexityError,
@@ -358,6 +413,8 @@ export const useClusterSizingWizardViewModel = (
     setMigrationEstimation(initialValues.migrationEstimation);
     setComplexityEstimation(initialValues.complexityEstimation);
     setEstimationByComplexity(initialValues.estimationByComplexity);
+    setCostEstimation(null);
+    setManualCostEstimationError(undefined);
     setManualCalculateError(undefined);
     setManualEstimationError(undefined);
     setManualComplexityError(undefined);
@@ -411,5 +468,10 @@ export const useClusterSizingWizardViewModel = (
     isFormValid,
     ensureEstimationForMenu,
     reset,
+    isCostEstimationTabVisible: identity?.kind === "partner",
+    getCostEstimation,
+    costEstimation,
+    isLoadingCostEstimation: costEstimationState.loading,
+    costEstimationError: manualCostEstimationError ?? costEstimationState.error,
   };
 };

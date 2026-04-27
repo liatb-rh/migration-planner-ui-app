@@ -59,6 +59,16 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3000,
       proxy: {
+        [`${env.MIGRATION_PLANNER_API_BASE_URL}/api/v1/cost-estimation`]: {
+          target: "http://localhost:9205",
+          secure: false,
+          changeOrigin: true,
+          rewrite: (path) =>
+            path.replace(
+              new RegExp(`^${env.MIGRATION_PLANNER_API_BASE_URL}`),
+              "",
+            ),
+        },
         [env.MIGRATION_PLANNER_API_BASE_URL]: {
           target,
           secure: false,

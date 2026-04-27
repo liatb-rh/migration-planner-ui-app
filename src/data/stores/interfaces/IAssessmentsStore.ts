@@ -13,7 +13,11 @@ import type {
 } from "@openshift-migration-advisor/planner-sdk";
 
 import type { ExternalStore } from "../../../lib/mvvm/ExternalStore";
-import type { AssessmentModel } from "../../../models/AssessmentModel";
+import type {
+  AssessmentModel,
+  CalculateCostEstimationRequest,
+  CostEstimationResponse,
+} from "../../../models/AssessmentModel";
 type AssessmentCreateForm = {
   name: string;
   sourceType?: string;
@@ -60,6 +64,10 @@ export interface IAssessmentsStore extends ExternalStore<AssessmentModel[]> {
     requestParameters: CalculateMigrationComplexityRequest,
     initOverrides?: RequestInit | InitOverrideFunction,
   ): Promise<MigrationComplexityResponse>;
+  calculateCostEstimation(
+    requestParameters: CalculateCostEstimationRequest,
+    initOverrides?: RequestInit | InitOverrideFunction,
+  ): Promise<CostEstimationResponse>;
   calculateEstimationByComplexity(
     requestParameters: CalculateMigrationEstimationByComplexityRequest,
     initOverrides?: RequestInit | InitOverrideFunction,

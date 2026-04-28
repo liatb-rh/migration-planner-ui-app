@@ -7,8 +7,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 /**
  * Re-import Routes with a specific MIGRATION_PLANNER_APP_BASENAME value.
  *
- * Because APP_BASENAME is a module-level constant (computed once on import),
- * we must reset the module registry and re-import after stubbing the env var.
+ * Because the basename is lazily cached on the first routes.* access, we must
+ * reset the module registry so that the cache (_cachedBasename) starts as null
+ * again, then stub the env var before the first access.
  */
 async function importRoutesWithBasename(basename: string) {
   vi.resetModules();
@@ -31,14 +32,9 @@ afterEach(() => {
 
 describe("Standalone mode (dev) — APP_BASENAME is empty", () => {
   let routes: Awaited<ReturnType<typeof importRoutesWithBasename>>["routes"];
-  let APP_BASENAME: string;
 
   beforeEach(async () => {
-    ({ routes, APP_BASENAME } = await importRoutesWithBasename(""));
-  });
-
-  it("APP_BASENAME is empty", () => {
-    expect(APP_BASENAME).toBe("");
+    ({ routes } = await importRoutesWithBasename(""));
   });
 
   it("routes.root returns /", () => {
@@ -84,14 +80,9 @@ describe("Microfrontend mode (stage/prod) — APP_BASENAME is /openshift/migrati
   const BASE = "/openshift/migration-advisor";
 
   let routes: Awaited<ReturnType<typeof importRoutesWithBasename>>["routes"];
-  let APP_BASENAME: string;
 
   beforeEach(async () => {
-    ({ routes, APP_BASENAME } = await importRoutesWithBasename(BASE));
-  });
-
-  it("APP_BASENAME matches the app slug", () => {
-    expect(APP_BASENAME).toBe(BASE);
+    ({ routes } = await importRoutesWithBasename(BASE));
   });
 
   it("routes.root returns the basename", () => {
@@ -143,11 +134,10 @@ describe("Microfrontend mode (stage/prod) — APP_BASENAME is /openshift/migrati
 // Fallback — env var not injected by DefinePlugin (e.g. misconfigured build)
 // ---------------------------------------------------------------------------
 
-describe("Fallback — env var absent, basename detected from window.location", () => {
+describe("Fallback — env var absent, basename detected lazily from window.location", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
     vi.resetModules();
-    // Restore jsdom's default location (avoids cross-test pollution)
     Object.defineProperty(window, "location", {
       value: { ...window.location, pathname: "/" },
       writable: true,
@@ -155,8 +145,10 @@ describe("Fallback — env var absent, basename detected from window.location", 
     });
   });
 
-  it("detects /openshift/migration-advisor from window.location.pathname", async () => {
+  it("detects /openshift/migration-advisor when routes are first accessed", async () => {
     const BASE = "/openshift/migration-advisor";
+
+    // Set the URL to simulate Chrome shell having already navigated here
     Object.defineProperty(window, "location", {
       value: { ...window.location, pathname: `${BASE}/assessments` },
       writable: true,
@@ -166,10 +158,11 @@ describe("Fallback — env var absent, basename detected from window.location", 
     // Do NOT stub env var — simulate DefinePlugin not having injected it
     vi.resetModules();
     vi.unstubAllEnvs();
-    const { APP_BASENAME, routes } = await import("../Routes");
+    const { routes } = await import("../Routes");
 
-    expect(APP_BASENAME).toBe(BASE);
+    // First routes.* access triggers lazy detection
     expect(routes.assessments).toBe(`${BASE}/assessments`);
+    expect(routes.root).toBe(BASE);
   });
 
   it("strips /preview prefix before detecting the slug", async () => {
@@ -185,12 +178,12 @@ describe("Fallback — env var absent, basename detected from window.location", 
 
     vi.resetModules();
     vi.unstubAllEnvs();
-    const { APP_BASENAME } = await import("../Routes");
+    const { routes } = await import("../Routes");
 
-    expect(APP_BASENAME).toBe(BASE);
+    expect(routes.assessments).toBe(`${BASE}/assessments`);
   });
 
-  it("returns empty string when pathname does not match any known slug", async () => {
+  it("returns root-relative paths when pathname does not match any known slug", async () => {
     Object.defineProperty(window, "location", {
       value: { ...window.location, pathname: "/" },
       writable: true,
@@ -199,33 +192,34 @@ describe("Fallback — env var absent, basename detected from window.location", 
 
     vi.resetModules();
     vi.unstubAllEnvs();
-    const { APP_BASENAME } = await import("../Routes");
+    const { routes } = await import("../Routes");
 
-    expect(APP_BASENAME).toBe("");
+    expect(routes.assessments).toBe("/assessments");
+    expect(routes.root).toBe("/");
   });
 });
 
 // ---------------------------------------------------------------------------
-// Stability — routes never change mid-session (no window.location dependency)
+// Stability — once cached the value never changes regardless of URL changes
 // ---------------------------------------------------------------------------
 
-describe("Stability — APP_BASENAME is a static constant", () => {
-  it("routes stay stable regardless of window.location changes", async () => {
+describe("Stability — basename is cached after first access", () => {
+  it("routes stay stable when window.location changes after first access", async () => {
     const BASE = "/openshift/migration-advisor";
     const { routes } = await importRoutesWithBasename(BASE);
 
-    // Routes are correct when the app is active.
+    // First access — cache is populated
     expect(routes.assessments).toBe(`${BASE}/assessments`);
 
     // Simulate Chrome updating window.location before React finishes rendering
-    // (back-button race condition). With a static constant this has no effect.
+    // (back-button race condition). With lazy caching this has no effect.
     Object.defineProperty(window, "location", {
       value: { ...window.location, pathname: "/openshift/" },
       writable: true,
       configurable: true,
     });
 
-    // Routes must be unchanged — they do not read window.location.
+    // Cached value must be unchanged
     expect(routes.assessments).toBe(`${BASE}/assessments`);
   });
 });

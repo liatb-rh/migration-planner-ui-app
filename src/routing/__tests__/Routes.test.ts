@@ -140,6 +140,72 @@ describe("Microfrontend mode (stage/prod) — APP_BASENAME is /openshift/migrati
 });
 
 // ---------------------------------------------------------------------------
+// Fallback — env var not injected by DefinePlugin (e.g. misconfigured build)
+// ---------------------------------------------------------------------------
+
+describe("Fallback — env var absent, basename detected from window.location", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.resetModules();
+    // Restore jsdom's default location (avoids cross-test pollution)
+    Object.defineProperty(window, "location", {
+      value: { ...window.location, pathname: "/" },
+      writable: true,
+      configurable: true,
+    });
+  });
+
+  it("detects /openshift/migration-advisor from window.location.pathname", async () => {
+    const BASE = "/openshift/migration-advisor";
+    Object.defineProperty(window, "location", {
+      value: { ...window.location, pathname: `${BASE}/assessments` },
+      writable: true,
+      configurable: true,
+    });
+
+    // Do NOT stub env var — simulate DefinePlugin not having injected it
+    vi.resetModules();
+    vi.unstubAllEnvs();
+    const { APP_BASENAME, routes } = await import("../Routes");
+
+    expect(APP_BASENAME).toBe(BASE);
+    expect(routes.assessments).toBe(`${BASE}/assessments`);
+  });
+
+  it("strips /preview prefix before detecting the slug", async () => {
+    const BASE = "/openshift/migration-advisor";
+    Object.defineProperty(window, "location", {
+      value: {
+        ...window.location,
+        pathname: `/preview${BASE}/assessments`,
+      },
+      writable: true,
+      configurable: true,
+    });
+
+    vi.resetModules();
+    vi.unstubAllEnvs();
+    const { APP_BASENAME } = await import("../Routes");
+
+    expect(APP_BASENAME).toBe(BASE);
+  });
+
+  it("returns empty string when pathname does not match any known slug", async () => {
+    Object.defineProperty(window, "location", {
+      value: { ...window.location, pathname: "/" },
+      writable: true,
+      configurable: true,
+    });
+
+    vi.resetModules();
+    vi.unstubAllEnvs();
+    const { APP_BASENAME } = await import("../Routes");
+
+    expect(APP_BASENAME).toBe("");
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Stability — routes never change mid-session (no window.location dependency)
 // ---------------------------------------------------------------------------
 

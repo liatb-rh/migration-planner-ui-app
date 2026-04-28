@@ -14,6 +14,14 @@ import { createPortal } from "react-dom";
 // Styles
 // ---------------------------------------------------------------------------
 
+const offScreenHost = css`
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  z-index: -1;
+  pointer-events: none;
+`;
+
 const offScreenContainer = css`
   position: absolute;
   left: -9999px;
@@ -72,6 +80,7 @@ export const OffScreenRenderer = forwardRef<
   const [host] = useState(() => {
     const el = document.createElement("div");
     el.id = "pdf-hidden-container";
+    el.className = offScreenHost;
     return el;
   });
 

@@ -75,13 +75,17 @@ export const Columns = {
   Networks: "Networks",
   Datastores: "Datastores",
   AssessmentReport: "Assessment report",
+  SharingStatus: "Sharing status",
   Actions: "",
 } as const;
 
 export type ColumnKey = keyof typeof Columns;
 export const DEFAULT_VISIBLE_COLUMNS = Object.keys(Columns) as ColumnKey[];
 export const MANDATORY_COLUMNS: ColumnKey[] = ["Name", "Actions"];
-export type SortableColumn = Exclude<ColumnKey, "AssessmentReport" | "Actions">;
+export type SortableColumn = Exclude<
+  ColumnKey,
+  "AssessmentReport" | "SharingStatus" | "Actions"
+>;
 export const SORTABLE_COLUMNS: SortableColumn[] = [
   "Name",
   "SourceType",
@@ -136,6 +140,7 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
       const permissions = Array.isArray(assessment.permissions)
         ? assessment.permissions
         : [];
+      const isShared = assessment.sharing?.isShared || false;
 
       // Use pre-computed model properties
       const snapshotData = assessment.latestSnapshot;
@@ -169,6 +174,7 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
         snapshots,
         hasData,
         permissions,
+        isShared,
       };
     });
 
@@ -423,6 +429,9 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
           {isColumnVisible("AssessmentReport") && (
             <Th modifier="nowrap">{Columns.AssessmentReport}</Th>
           )}
+          {isColumnVisible("SharingStatus") && (
+            <Th modifier="nowrap">{Columns.SharingStatus}</Th>
+          )}
           {isColumnVisible("Actions") && (
             <Th modifier="fitContent" screenReaderText="Actions">
               {Columns.Actions}
@@ -560,6 +569,11 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
                 </TableText>
               </Td>
             )}
+            {isColumnVisible("SharingStatus") && (
+              <Td dataLabel={Columns.SharingStatus}>
+                {row.isShared ? "Shared with partner" : "Not shared"}
+              </Td>
+            )}
             {isColumnVisible("Actions") && (
               <Td dataLabel={Columns.Actions} modifier="fitContent">
                 <Dropdown
@@ -592,20 +606,16 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
                         !row.hasData || !row.permissions.includes("read")
                       }
                     >
-                      Show assessment report
-                    </DropdownItem>
-                    <DropdownItem
-                      onClick={() => alert("Edit functionality coming soon!")}
-                      isDisabled={true}
-                    >
-                      Edit assessment
+                      View assessment report
                     </DropdownItem>
                     <DropdownItem
                       onClick={() => {
                         toggleDropdown(row.id);
                         return onShareAssessment(row.id);
                       }}
-                      isDisabled={!row.permissions.includes("share")}
+                      isDisabled={
+                        !row.permissions.includes("share") || row.isShared
+                      }
                     >
                       Share assessment
                     </DropdownItem>

@@ -181,9 +181,11 @@ export const useAssessmentPageViewModel = (): AssessmentPageViewModel => {
   // ---- Column visibility and sorting --------------------------------------
 
   const [isColumnSelectOpen, setIsColumnSelectOpen] = useState(false);
+
+  const userSelectedColumnsVersion = 2;
   const [userSelectedColumns, setUserSelectedColumns] = useLocalStorage<
     ColumnKey[]
-  >(VISIBLE_COLUMNS_KEY, DEFAULT_VISIBLE_COLUMNS);
+  >(VISIBLE_COLUMNS_KEY, DEFAULT_VISIBLE_COLUMNS, userSelectedColumnsVersion);
 
   const [sortBy, setSortBy] = useState<
     { columnKey: SortableColumn; direction: "asc" | "desc" } | undefined

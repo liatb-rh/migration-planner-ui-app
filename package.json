@@ -19,7 +19,8 @@
     "postinstall": "ts-patch install && rimraf .cache",
     "start:standalone": "make run-standalone",
     "build:standalone": "make build-standalone",
-    "preview:standalone": "make preview-standalone"
+    "preview:standalone": "make preview-standalone",
+    "build-local-sdk": "./scripts/build_sdk.sh ../migration-planner/api/v1alpha1/openapi.yaml"
   },
   "dependencies": {
     "@emotion/css": "^11.13.5",
@@ -50,6 +51,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
+    "@openapitools/openapi-generator-cli": "^2.32.0",
     "@redhat-cloud-services/eslint-config-redhat-cloud-services": "^3.0.33",
     "@redhat-cloud-services/frontend-components-config": "^6.8.4",
     "@redhat-cloud-services/tsc-transform-imports": "^1.0.58",

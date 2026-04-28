@@ -5,36 +5,40 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 // ---------------------------------------------------------------------------
 
 /**
- * Re-import Routes with a specific MIGRATION_PLANNER_APP_BASENAME value.
+ * Set window.location.pathname, reset the module registry so that the lazy
+ * cache (_cachedBasename) starts as null, then re-import Routes.
  *
- * Because the basename is lazily cached on the first routes.* access, we must
- * reset the module registry so that the cache (_cachedBasename) starts as null
- * again, then stub the env var before the first access.
+ * The pathname must be set BEFORE import so that the first routes.* access
+ * (which triggers lazy detection) reads the correct value.
  */
-async function importRoutesWithBasename(basename: string) {
+async function importRoutesAtPathname(pathname: string) {
+  Object.defineProperty(window, "location", {
+    value: { ...window.location, pathname },
+    writable: true,
+    configurable: true,
+  });
   vi.resetModules();
-  vi.stubEnv("MIGRATION_PLANNER_APP_BASENAME", basename);
   return import("../Routes");
 }
 
-// ---------------------------------------------------------------------------
-// Setup / teardown
-// ---------------------------------------------------------------------------
-
 afterEach(() => {
-  vi.unstubAllEnvs();
+  Object.defineProperty(window, "location", {
+    value: { ...window.location, pathname: "/" },
+    writable: true,
+    configurable: true,
+  });
   vi.resetModules();
 });
 
 // ---------------------------------------------------------------------------
-// Standalone mode (dev) — env var is "" (Vite sets it to empty string)
+// Standalone mode — URL is "/" (no Console Chrome prefix)
 // ---------------------------------------------------------------------------
 
-describe("Standalone mode (dev) — APP_BASENAME is empty", () => {
-  let routes: Awaited<ReturnType<typeof importRoutesWithBasename>>["routes"];
+describe("Standalone mode — pathname is /", () => {
+  let routes: Awaited<ReturnType<typeof importRoutesAtPathname>>["routes"];
 
   beforeEach(async () => {
-    ({ routes } = await importRoutesWithBasename(""));
+    ({ routes } = await importRoutesAtPathname("/"));
   });
 
   it("routes.root returns /", () => {
@@ -73,16 +77,16 @@ describe("Standalone mode (dev) — APP_BASENAME is empty", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Microfrontend mode (stage/prod) — Webpack injects the full slug
+// Microfrontend mode — URL starts with /openshift/migration-advisor
 // ---------------------------------------------------------------------------
 
-describe("Microfrontend mode (stage/prod) — APP_BASENAME is /openshift/migration-advisor", () => {
+describe("Microfrontend mode — pathname starts with /openshift/migration-advisor", () => {
   const BASE = "/openshift/migration-advisor";
 
-  let routes: Awaited<ReturnType<typeof importRoutesWithBasename>>["routes"];
+  let routes: Awaited<ReturnType<typeof importRoutesAtPathname>>["routes"];
 
   beforeEach(async () => {
-    ({ routes } = await importRoutesWithBasename(BASE));
+    ({ routes } = await importRoutesAtPathname(`${BASE}/assessments`));
   });
 
   it("routes.root returns the basename", () => {
@@ -131,88 +135,48 @@ describe("Microfrontend mode (stage/prod) — APP_BASENAME is /openshift/migrati
 });
 
 // ---------------------------------------------------------------------------
-// Fallback — env var not injected by DefinePlugin (e.g. misconfigured build)
+// Legacy slug — /openshift/migration-assessment
 // ---------------------------------------------------------------------------
 
-describe("Fallback — env var absent, basename detected lazily from window.location", () => {
-  afterEach(() => {
-    vi.unstubAllEnvs();
-    vi.resetModules();
-    Object.defineProperty(window, "location", {
-      value: { ...window.location, pathname: "/" },
-      writable: true,
-      configurable: true,
-    });
-  });
-
-  it("detects /openshift/migration-advisor when routes are first accessed", async () => {
-    const BASE = "/openshift/migration-advisor";
-
-    // Set the URL to simulate Chrome shell having already navigated here
-    Object.defineProperty(window, "location", {
-      value: { ...window.location, pathname: `${BASE}/assessments` },
-      writable: true,
-      configurable: true,
-    });
-
-    // Do NOT stub env var — simulate DefinePlugin not having injected it
-    vi.resetModules();
-    vi.unstubAllEnvs();
-    const { routes } = await import("../Routes");
-
-    // First routes.* access triggers lazy detection
-    expect(routes.assessments).toBe(`${BASE}/assessments`);
-    expect(routes.root).toBe(BASE);
-  });
-
-  it("strips /preview prefix before detecting the slug", async () => {
-    const BASE = "/openshift/migration-advisor";
-    Object.defineProperty(window, "location", {
-      value: {
-        ...window.location,
-        pathname: `/preview${BASE}/assessments`,
-      },
-      writable: true,
-      configurable: true,
-    });
-
-    vi.resetModules();
-    vi.unstubAllEnvs();
-    const { routes } = await import("../Routes");
-
-    expect(routes.assessments).toBe(`${BASE}/assessments`);
-  });
-
-  it("returns root-relative paths when pathname does not match any known slug", async () => {
-    Object.defineProperty(window, "location", {
-      value: { ...window.location, pathname: "/" },
-      writable: true,
-      configurable: true,
-    });
-
-    vi.resetModules();
-    vi.unstubAllEnvs();
-    const { routes } = await import("../Routes");
-
-    expect(routes.assessments).toBe("/assessments");
-    expect(routes.root).toBe("/");
+describe("Legacy slug — pathname starts with /openshift/migration-assessment", () => {
+  it("routes.assessments uses the legacy basename", async () => {
+    const { routes } = await importRoutesAtPathname(
+      "/openshift/migration-assessment/assessments",
+    );
+    expect(routes.assessments).toBe(
+      "/openshift/migration-assessment/assessments",
+    );
   });
 });
 
 // ---------------------------------------------------------------------------
-// Stability — once cached the value never changes regardless of URL changes
+// /preview prefix — stage environments use /preview/openshift/...
 // ---------------------------------------------------------------------------
 
-describe("Stability — basename is cached after first access", () => {
-  it("routes stay stable when window.location changes after first access", async () => {
+describe("/preview prefix — stage pathname includes /preview", () => {
+  it("strips /preview and detects the correct basename", async () => {
     const BASE = "/openshift/migration-advisor";
-    const { routes } = await importRoutesWithBasename(BASE);
+    const { routes } = await importRoutesAtPathname(
+      `/preview${BASE}/assessments`,
+    );
+    expect(routes.assessments).toBe(`${BASE}/assessments`);
+    expect(routes.root).toBe(BASE);
+  });
+});
 
-    // First access — cache is populated
+// ---------------------------------------------------------------------------
+// Stability — cached value never recomputed after first access
+// ---------------------------------------------------------------------------
+
+describe("Stability — basename is cached after the first routes.* access", () => {
+  it("routes remain stable when window.location changes after first access", async () => {
+    const BASE = "/openshift/migration-advisor";
+    const { routes } = await importRoutesAtPathname(`${BASE}/assessments`);
+
     expect(routes.assessments).toBe(`${BASE}/assessments`);
 
-    // Simulate Chrome updating window.location before React finishes rendering
-    // (back-button race condition). With lazy caching this has no effect.
+    // Simulate Chrome synchronously updating window.location before React
+    // finishes rendering (the Back-button race condition).
     Object.defineProperty(window, "location", {
       value: { ...window.location, pathname: "/openshift/" },
       writable: true,
@@ -221,5 +185,6 @@ describe("Stability — basename is cached after first access", () => {
 
     // Cached value must be unchanged
     expect(routes.assessments).toBe(`${BASE}/assessments`);
+    expect(routes.root).toBe(BASE);
   });
 });

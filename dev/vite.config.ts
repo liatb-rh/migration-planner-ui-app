@@ -37,10 +37,6 @@ export default defineConfig(({ mode }) => {
       "process.env.MIGRATION_PLANNER_UI_VERSION": JSON.stringify(
         env.MIGRATION_PLANNER_UI_VERSION,
       ),
-      // Standalone dev mode — app is served at "/", no mount-path prefix.
-      // The microfrontend (Webpack) build sets this to "/openshift/migration-advisor"
-      // via fec.config.js DefinePlugin. See src/routing/Routes.ts.
-      "process.env.MIGRATION_PLANNER_APP_BASENAME": JSON.stringify(""),
     },
     resolve: {
       alias: {

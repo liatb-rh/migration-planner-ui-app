@@ -76,6 +76,12 @@ fi
 mkdir -p "$(dirname "$SDK_NODE_MODULES_PATH")"
 mv "$SDK_OUTPUT_DIR" "$SDK_NODE_MODULES_PATH"
 
+# Clear Vite cache to ensure the new SDK is loaded
+if [ -d "node_modules/.vite" ]; then
+  echo "🧹 Clearing Vite cache..."
+  rm -rf node_modules/.vite
+fi
+
 # Clean up openapitools.json if it was created
 if [ -f "openapitools.json" ]; then
   echo "🧹 Cleaning up openapitools.json..."

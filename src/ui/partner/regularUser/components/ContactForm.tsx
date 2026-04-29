@@ -15,18 +15,31 @@ interface ContactFormProps {
 const validationSchema: yup.ObjectSchema<PartnerRequestCreate> = yup
   .object()
   .shape({
-    name: yup.string().trim().required("Your company name is required"),
+    name: yup
+      .string()
+      .trim()
+      .required("Your company name is required")
+      .max(100, "Company name must be 100 characters or less"),
     contactName: yup
       .string()
       .trim()
-      .required("Primary contact name is required"),
-    contactPhone: yup.string().trim().default(""),
+      .required("Primary contact name is required")
+      .max(100, "Contact name must be 100 characters or less"),
+    contactPhone: yup
+      .string()
+      .trim()
+      .default("")
+      .max(20, "Phone number must be 20 characters or less"),
     email: yup
       .string()
       .trim()
       .required("Email is required")
       .email("Please enter a valid email address"),
-    location: yup.string().trim().default(""),
+    location: yup
+      .string()
+      .trim()
+      .default("")
+      .max(100, "Location must be 100 characters or less"),
   });
 
 export const ContactForm: React.FC<ContactFormProps> = ({ id, onSubmit }) => {

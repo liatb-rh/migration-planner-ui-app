@@ -182,4 +182,30 @@ describe("ContactForm", () => {
       expect(getByText("Your company name is required")).toBeInTheDocument();
     });
   });
+
+  it("validates company name maximum length", async () => {
+    const mockOnSubmit = vi.fn();
+    const user = userEvent.setup();
+    const { getByRole, getByText } = render(
+      <>
+        <ContactForm id="contact-form" onSubmit={mockOnSubmit} />
+        <Button variant="primary" type="submit" form="contact-form">
+          Contact
+        </Button>
+      </>,
+    );
+
+    const name = getByRole("textbox", { name: /Your company name/i });
+    // Create a string with 101 characters
+    const longName = "A".repeat(101);
+    await user.type(name, longName);
+
+    const contactButton = getByRole("button", { name: /Contact/i });
+    await user.click(contactButton);
+
+    expect(mockOnSubmit).not.toHaveBeenCalled();
+    expect(
+      getByText("Company name must be 100 characters or less"),
+    ).toBeInTheDocument();
+  });
 });

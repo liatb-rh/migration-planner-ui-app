@@ -85,7 +85,6 @@ export const AssessmentsPage: React.FC<AssessmentsPageProps> = ({
   rvtoolsOpenToken,
 }) => {
   const {
-    identity,
     isCreatingJob,
     jobCreateError,
     isJobProcessing,
@@ -508,7 +507,6 @@ export const AssessmentsPage: React.FC<AssessmentsPageProps> = ({
             selectedSourceTypes={selectedSourceTypes}
             selectedOwners={selectedOwners}
             visibleColumns={visibleColumns}
-            canShareAssessment={identity?.kind === "customer"}
           />
         </div>
       )}

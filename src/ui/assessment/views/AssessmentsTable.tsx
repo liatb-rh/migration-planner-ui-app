@@ -62,7 +62,6 @@ type AssessmentsTableProps = {
   onDelete?: (assessmentId: string) => void;
   onUpdate?: (assessmentId: string) => void;
   visibleColumns?: ColumnKey[];
-  canShareAssessment: boolean;
   onShareAssessment: (assessmentId: string) => void;
 };
 
@@ -105,7 +104,6 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
   onSort,
   onDelete,
   visibleColumns = Object.keys(Columns) as ColumnKey[],
-  canShareAssessment,
   onShareAssessment,
 }) => {
   const navigate = useNavigate();
@@ -135,6 +133,9 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
       const id = String(assessment.id ?? "");
       const sourceType = assessment.sourceType || "Unknown";
       const snapshots = assessment.snapshots ?? [];
+      const permissions = Array.isArray(assessment.permissions)
+        ? assessment.permissions
+        : [];
 
       // Use pre-computed model properties
       const snapshotData = assessment.latestSnapshot;
@@ -167,6 +168,7 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
         datastores: snapshotData.datastores,
         snapshots,
         hasData,
+        permissions,
       };
     });
 
@@ -539,8 +541,15 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
                   >
                     <Button
                       variant="link"
-                      isAriaDisabled={!row.hasData}
-                      onClick={() => navigate(routes.assessmentReport(row.id))}
+                      isAriaDisabled={
+                        !row.hasData || !row.permissions.includes("read")
+                      }
+                      onClick={
+                        row.hasData && row.permissions.includes("read")
+                          ? (): void =>
+                              navigate(routes.assessmentReport(row.id))
+                          : undefined
+                      }
                       icon={<MonitoringIcon />}
                       aria-label="View assessment report"
                       style={{ padding: 0 }}
@@ -579,7 +588,9 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
                   <DropdownList>
                     <DropdownItem
                       onClick={() => navigate(routes.assessmentReport(row.id))}
-                      isDisabled={!row.hasData}
+                      isDisabled={
+                        !row.hasData || !row.permissions.includes("read")
+                      }
                     >
                       Show assessment report
                     </DropdownItem>
@@ -589,16 +600,15 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
                     >
                       Edit assessment
                     </DropdownItem>
-                    {canShareAssessment && (
-                      <DropdownItem
-                        onClick={() => {
-                          toggleDropdown(row.id);
-                          return onShareAssessment(row.id);
-                        }}
-                      >
-                        Share with partner
-                      </DropdownItem>
-                    )}
+                    <DropdownItem
+                      onClick={() => {
+                        toggleDropdown(row.id);
+                        return onShareAssessment(row.id);
+                      }}
+                      isDisabled={!row.permissions.includes("share")}
+                    >
+                      Share assessment
+                    </DropdownItem>
                     <DropdownItem
                       onClick={openAssistedInstaller}
                       isDisabled={!row.hasData}
@@ -610,6 +620,9 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
                         toggleDropdown(row.id);
                         return handleDelete(row.id);
                       }}
+                      isDisabled={
+                        !onDelete || !row.permissions.includes("delete")
+                      }
                     >
                       Delete assessment
                     </DropdownItem>

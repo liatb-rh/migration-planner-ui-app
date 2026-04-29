@@ -15,9 +15,8 @@ import {
   Title,
 } from "@patternfly/react-core";
 import { SearchIcon } from "@patternfly/react-icons";
-import React, { useState } from "react";
+import React from "react";
 
-import type { Partner } from "../../../../models/PartnerModel";
 import { LoadingSpinner } from "../../../core/components/LoadingSpinner";
 import { ContactFormModal } from "../components/ContactFormModal";
 import { usePartnersViewModel } from "../view-models/usePartnersViewModel";
@@ -28,15 +27,6 @@ const introStyle = css`
 
 export const PartnersListSection: React.FC = () => {
   const vm = usePartnersViewModel();
-  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
-
-  const handleSubmitRequest = async (values: PartnerRequestCreate) => {
-    if (!selectedPartner) {
-      return;
-    }
-    await vm.createPartnerRequest(selectedPartner.id, values);
-    setSelectedPartner(null);
-  };
 
   return (
     <PageSection>
@@ -86,7 +76,7 @@ export const PartnersListSection: React.FC = () => {
                 <Button
                   variant="primary"
                   isBlock
-                  onClick={() => setSelectedPartner(partner)}
+                  onClick={() => vm.openContactFormModal(partner)}
                 >
                   Request assignment
                 </Button>
@@ -96,11 +86,14 @@ export const PartnersListSection: React.FC = () => {
         </Gallery>
       )}
 
-      {selectedPartner !== null && (
+      {vm.isContactFormModalOpen && (
         <ContactFormModal
           isOpen
-          onClose={() => setSelectedPartner(null)}
-          onSubmit={(values) => void handleSubmitRequest(values)}
+          onClose={vm.closeContactFormModal}
+          onSubmit={(values: PartnerRequestCreate) =>
+            void vm.createPartnerRequest(values)
+          }
+          error={vm.createError}
         />
       )}
     </PageSection>

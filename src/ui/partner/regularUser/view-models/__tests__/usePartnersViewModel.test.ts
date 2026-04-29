@@ -2,6 +2,7 @@ import type { PartnerRequestCreate } from "@openshift-migration-advisor/planner-
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { Partner } from "../../../../../models/PartnerModel";
 import { usePartnersViewModel } from "../usePartnersViewModel";
 
 // ---------------------------------------------------------------------------
@@ -65,11 +66,14 @@ describe("usePartnersViewModel - createPartnerRequest", () => {
       await Promise.resolve();
     });
 
+    // Open the contact form modal to select the partner
+    act(() => {
+      result.current.openContactFormModal({ id: partnerId } as Partner);
+    });
+
+    // Create the partner request
     await act(async () => {
-      await result.current.createPartnerRequest(
-        partnerId,
-        mockPartnerRequestCreate,
-      );
+      await result.current.createPartnerRequest(mockPartnerRequestCreate);
     });
 
     expect(mockPartnerRequestsStore.create).toHaveBeenCalledWith(

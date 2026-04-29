@@ -14,7 +14,6 @@ import {
 import { useAsyncFn } from "react-use";
 
 import { Symbols } from "../../../config/Dependencies";
-import type { IAccountStore } from "../../../data/stores/interfaces/IAccountStore";
 import type { IAssessmentsStore } from "../../../data/stores/interfaces/IAssessmentsStore";
 import type { CostEstimationResponse } from "../../../models/AssessmentModel";
 import {
@@ -111,12 +110,6 @@ export const useClusterSizingWizardViewModel = (
   useSyncExternalStore(
     assessmentsStore.subscribe.bind(assessmentsStore),
     assessmentsStore.getSnapshot.bind(assessmentsStore),
-  );
-
-  const accountStore = useInjection<IAccountStore>(Symbols.AccountStore);
-  const identity = useSyncExternalStore(
-    accountStore.subscribe.bind(accountStore),
-    accountStore.getSnapshot.bind(accountStore),
   );
 
   // Capture initial option values once so reset() can restore them.
@@ -468,7 +461,7 @@ export const useClusterSizingWizardViewModel = (
     isFormValid,
     ensureEstimationForMenu,
     reset,
-    isCostEstimationTabVisible: identity?.kind === "partner",
+    isCostEstimationTabVisible: false,
     getCostEstimation,
     costEstimation,
     isLoadingCostEstimation: costEstimationState.loading,

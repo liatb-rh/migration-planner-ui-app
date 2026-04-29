@@ -450,7 +450,7 @@ export const DiscoverySourceSetupModal: React.FC<
         labelId="discovery-source-setup-modal-title"
         description={
           !showUrl
-            ? "To add a new environment create a discovery OVA image. Then download and import the OVA file into your VMWare environment"
+            ? "To add a new environment, create a discovery OVA image. Then, download and import the OVA file into your VMware environment."
             : ""
         }
       />

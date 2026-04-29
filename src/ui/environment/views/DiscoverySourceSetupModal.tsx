@@ -369,6 +369,7 @@ export const DiscoverySourceSetupModal: React.FC<
       httpProxy,
       httpsProxy,
       noProxy,
+      enableProxy,
       vm,
       sourceName,
       onStartDownload,

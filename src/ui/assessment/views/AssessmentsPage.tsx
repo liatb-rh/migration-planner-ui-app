@@ -546,13 +546,12 @@ export const AssessmentsPage: React.FC<AssessmentsPageProps> = ({
           void handleConfirmShare();
         }}
         isDisabled={isSharingAssessment}
-        title="Share Assessment"
+        title="Share assessment with partner"
         primaryButtonVariant="primary"
         confirmButtonText="Share"
       >
-        Are you sure you want to share{" "}
-        <b>{(selectedAssessment as AssessmentModel)?.name}</b> with your
-        partner?
+        Your partner will receive access to the{" "}
+        <b>{(selectedAssessment as AssessmentModel)?.name}</b> assessment.
       </ConfirmationModal>
 
       <ConfirmationModal

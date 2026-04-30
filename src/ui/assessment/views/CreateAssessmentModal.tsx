@@ -201,6 +201,7 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
     setFileValidationError("");
     setSelectedFile(file);
     setFilename(file.name);
+    onClearError?.();
   };
 
   const handleFileClear = (): void => {

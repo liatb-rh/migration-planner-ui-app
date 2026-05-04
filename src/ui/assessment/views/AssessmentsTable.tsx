@@ -141,6 +141,7 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
         ? assessment.permissions
         : [];
       const isShared = assessment.sharing?.isShared || false;
+      const sharedBy = assessment.sharing?.sharedBy || null;
 
       // Use pre-computed model properties
       const snapshotData = assessment.latestSnapshot;
@@ -175,6 +176,7 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
         hasData,
         permissions,
         isShared,
+        sharedBy,
       };
     });
 
@@ -571,7 +573,11 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
             )}
             {isColumnVisible("SharingStatus") && (
               <Td dataLabel={Columns.SharingStatus}>
-                {row.isShared ? "Shared with partner" : "Not shared"}
+                {row.isShared
+                  ? row.sharedBy
+                    ? "Shared by customer"
+                    : "Shared with partner"
+                  : "Not shared"}
               </Td>
             )}
             {isColumnVisible("Actions") && (

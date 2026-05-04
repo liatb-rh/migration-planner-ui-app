@@ -202,8 +202,23 @@ export class AssessmentsStore
     return deletedAssessment;
   }
 
-  async share(id: string) {
-    await this.api.shareAssessment({ id });
+  async share(
+    id: string,
+    initOverrides?: RequestInit | InitOverrideFunction,
+  ): Promise<AssessmentModel> {
+    try {
+      await this.api.shareAssessment({ id }, initOverrides);
+    } catch (err) {
+      throw await parseApiError(err, "Failed to share assessment");
+    }
+    // Fetch the updated assessment to get the sharedBy information
+    const updated = await this.api.getAssessment({ id }, initOverrides);
+    const model = createAssessmentModel(updated);
+    this.assessments = this.assessments.map((assessment) =>
+      assessment.id === model.id ? model : assessment,
+    );
+    this.notify();
+    return model;
   }
 
   calculateAssessmentClusterRequirements(

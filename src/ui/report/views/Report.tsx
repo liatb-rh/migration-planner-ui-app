@@ -31,6 +31,7 @@ import { AgentStatusView } from "../../environment/views/AgentStatusView";
 import { useReportPageViewModel } from "../view-models/useReportPageViewModel";
 import type { ClusterOption } from "./assessment-report/ClusterView";
 import { Dashboard } from "./assessment-report/Dashboard";
+import { DeployOvaBanner } from "./DeployOvaBanner";
 import { ClusterSizingWizard } from "./cluster-sizer/ClusterSizingWizard";
 import { ExportReportButton } from "./ExportReportButton";
 
@@ -324,6 +325,8 @@ const ReportContent: React.FC = () => {
         ) : undefined
       }
     >
+      {vm.assessment.sourceType === "rvtools" && <DeployOvaBanner />}
+
       {vm.scopedClusterView ? (
         <Dashboard
           infra={vm.scopedClusterView.viewInfra}

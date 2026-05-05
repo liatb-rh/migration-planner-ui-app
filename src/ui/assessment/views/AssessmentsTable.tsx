@@ -575,7 +575,9 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
               <Td dataLabel={Columns.SharingStatus}>
                 {row.isShared
                   ? row.sharedBy
-                    ? "Shared by customer"
+                    ? row.sharedBy.name
+                      ? `Shared by ${row.sharedBy.name}`
+                      : "Shared by customer"
                     : "Shared with partner"
                   : "Not shared"}
               </Td>

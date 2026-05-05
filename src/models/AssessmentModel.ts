@@ -111,8 +111,16 @@ export type CostEstimateResults = {
   openshiftVirtualization: CostEstimationScenario;
 };
 
+export type CustomerEnvironment = {
+  coresPerSocket: number;
+  socketsPerHost: number;
+  totalEsxiHosts: number;
+  totalVirtualMachines: number;
+};
+
 export type CostEstimationResponse = {
   calculatorVersion: string;
+  customerEnvironment: CustomerEnvironment;
   results: CostEstimateResults;
   savings: CostEstimateSavings;
 };

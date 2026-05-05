@@ -4,13 +4,18 @@ import {
   CardBody,
   Flex,
   FlexItem,
-  Gallery,
+  Grid,
+  GridItem,
   Label,
   Skeleton,
   Stack,
   StackItem,
   Title,
 } from "@patternfly/react-core";
+import CpuIcon from "@patternfly/react-icons/dist/esm/icons/cpu-icon";
+import ServerGroupIcon from "@patternfly/react-icons/dist/esm/icons/server-group-icon";
+import ServerIcon from "@patternfly/react-icons/dist/esm/icons/server-icon";
+import VirtualMachineIcon from "@patternfly/react-icons/dist/esm/icons/virtual-machine-icon";
 import React from "react";
 
 import type { CostEstimationResponse } from "../../../../models/AssessmentModel";
@@ -20,10 +25,7 @@ interface CostEstimationResultProps {
 }
 
 const heroCardStyle = css`
-  background: var(--pf-t--global--background--color--primary--default);
-  border: 1px solid var(--pf-t--global--border--color--default);
   text-align: center;
-  padding: var(--pf-t--global--spacer--md);
 `;
 
 const heroTitleStyle = css`
@@ -58,7 +60,7 @@ const breakdownCardStyle = css`
 `;
 
 const breakdownLabelStyle = css`
-  font-size: var(--pf-t--global--font--size--body--sm);
+  font-size: var(--pf-t--global--font--size--body--md);
   color: var(--pf-t--global--text--color--subtle);
   margin-bottom: var(--pf-t--global--spacer--sm);
 `;
@@ -100,6 +102,34 @@ const formatCurrency = (value: number): string => {
   return `${sign}$${abs.toFixed(0)}`;
 };
 
+interface MetricCardProps {
+  icon?: React.ReactNode;
+  label: string;
+  value?: React.ReactNode;
+}
+
+const MetricCard: React.FC<MetricCardProps> = ({ icon, label, value }) => (
+  <Card className={breakdownCardStyle}>
+    <CardBody>
+      <div className={breakdownLabelStyle}>
+        {icon && <>{icon} </>}
+        {label}
+      </div>
+      <div
+        className={value ? breakdownValueStyle : breakdownPriceSkeletonStyle}
+      >
+        {value ?? (
+          <Skeleton
+            fontSize="2xl"
+            width="30%"
+            screenreaderText={`Loading ${label}`}
+          />
+        )}
+      </div>
+    </CardBody>
+  </Card>
+);
+
 export const CostEstimationResult: React.FC<CostEstimationResultProps> = ({
   costEstimation,
 }) => {
@@ -107,14 +137,14 @@ export const CostEstimationResult: React.FC<CostEstimationResultProps> = ({
     return null;
   }
 
-  const { results, savings } = costEstimation;
+  const { results, savings, customerEnvironment } = costEstimation;
   const ovTotal = results.openshiftVirtualization.totalThreeYearCostEstimation;
   const breakdown = results.openshiftVirtualization.breakdown;
 
   return (
     <Stack hasGutter>
       <StackItem>
-        <Title headingLevel="h2">Cost Estimation</Title>
+        <Title headingLevel="h2">Cost estimation</Title>
       </StackItem>
 
       <StackItem>
@@ -130,36 +160,64 @@ export const CostEstimationResult: React.FC<CostEstimationResultProps> = ({
 
       <StackItem>
         <Title headingLevel="h3" className={sectionTitleStyle}>
+          Customer environment
+        </Title>
+        <Grid hasGutter md={6} lg={3}>
+          <GridItem>
+            <MetricCard
+              icon={<ServerIcon />}
+              label="Total ESXi hosts"
+              value={customerEnvironment.totalEsxiHosts}
+            />
+          </GridItem>
+          <GridItem>
+            <MetricCard
+              icon={<ServerGroupIcon />}
+              label="Sockets per host"
+              value={customerEnvironment.socketsPerHost}
+            />
+          </GridItem>
+          <GridItem>
+            <MetricCard
+              icon={<CpuIcon />}
+              label="Cores per socket"
+              value={customerEnvironment.coresPerSocket}
+            />
+          </GridItem>
+          <GridItem>
+            <MetricCard
+              icon={<VirtualMachineIcon />}
+              label="Total virtual machines"
+              value={customerEnvironment.totalVirtualMachines}
+            />
+          </GridItem>
+        </Grid>
+      </StackItem>
+
+      <StackItem>
+        <Title headingLevel="h3" className={sectionTitleStyle}>
           Breakdown
         </Title>
-        <Gallery hasGutter minWidths={{ default: "300px" }}>
-          <Card className={breakdownCardStyle}>
-            <CardBody>
-              <div className={breakdownLabelStyle}>Software Subscriptions</div>
-              <div className={breakdownValueStyle}>
-                {formatCurrency(breakdown.softwareSubscriptions)}
-              </div>
-            </CardBody>
-          </Card>
-          <Card className={breakdownCardStyle}>
-            <CardBody>
-              <div className={breakdownLabelStyle}>
-                Migration Consulting Services
-              </div>
-              <div className={breakdownValueStyle}>
-                {formatCurrency(breakdown.migrationConsultingServices)}
-              </div>
-            </CardBody>
-          </Card>
-          <Card className={breakdownCardStyle}>
-            <CardBody>
-              <div className={breakdownLabelStyle}>Swing Hardware Upgrades</div>
-              <div className={breakdownValueStyle}>
-                {formatCurrency(breakdown.swingHardwareUpgrades)}
-              </div>
-            </CardBody>
-          </Card>
-        </Gallery>
+        <Grid hasGutter md={6} lg={4}>
+          <GridItem>
+            <MetricCard
+              label="Software subscriptions"
+              value={formatCurrency(breakdown.softwareSubscriptions)}
+            />
+          </GridItem>
+          <GridItem>
+            <MetricCard
+              label="Migration consulting services"
+              value={formatCurrency(breakdown.migrationConsultingServices)}
+            />
+          </GridItem>
+          <GridItem>
+            <MetricCard
+              label="Swing hardware upgrades"
+              value={formatCurrency(breakdown.swingHardwareUpgrades)}
+            />
+          </GridItem>
+        </Grid>
       </StackItem>
 
       {(savings.vsVcf || savings.vsVvf) && (
@@ -167,56 +225,60 @@ export const CostEstimationResult: React.FC<CostEstimationResultProps> = ({
           <Title headingLevel="h3" className={sectionTitleStyle}>
             Savings summary
           </Title>
-          <Gallery hasGutter minWidths={{ default: "400px" }}>
+          <Grid hasGutter md={12} lg={6}>
             {savings.vsVcf && (
-              <Card className={savingsCardStyle}>
-                <CardBody>
-                  <Flex
-                    justifyContent={{ default: "justifyContentSpaceBetween" }}
-                    alignItems={{ default: "alignItemsCenter" }}
-                  >
-                    <FlexItem>
-                      <div className={savingsAmountStyle}>
-                        {formatCurrency(savings.vsVcf.absoluteThreeYearUsd)}
-                      </div>
-                      <Label color="green">
-                        {savings.vsVcf.percentage.toFixed(1)}% Saved
-                      </Label>
-                    </FlexItem>
-                    <FlexItem>
-                      <div className={savingsTitleStyle}>
-                        Savings vs VMware VCF
-                      </div>
-                    </FlexItem>
-                  </Flex>
-                </CardBody>
-              </Card>
+              <GridItem>
+                <Card className={savingsCardStyle}>
+                  <CardBody>
+                    <Flex
+                      justifyContent={{ default: "justifyContentSpaceBetween" }}
+                      alignItems={{ default: "alignItemsCenter" }}
+                    >
+                      <FlexItem>
+                        <div className={savingsAmountStyle}>
+                          {formatCurrency(savings.vsVcf.absoluteThreeYearUsd)}
+                        </div>
+                        <Label color="green">
+                          {savings.vsVcf.percentage.toFixed(1)}% Saved
+                        </Label>
+                      </FlexItem>
+                      <FlexItem>
+                        <div className={savingsTitleStyle}>
+                          Savings vs VMware VCF
+                        </div>
+                      </FlexItem>
+                    </Flex>
+                  </CardBody>
+                </Card>
+              </GridItem>
             )}
             {savings.vsVvf && (
-              <Card className={savingsCardStyle}>
-                <CardBody>
-                  <Flex
-                    justifyContent={{ default: "justifyContentSpaceBetween" }}
-                    alignItems={{ default: "alignItemsCenter" }}
-                  >
-                    <FlexItem>
-                      <div className={savingsAmountStyle}>
-                        {formatCurrency(savings.vsVvf.absoluteThreeYearUsd)}
-                      </div>
-                      <Label color="green">
-                        {savings.vsVvf.percentage.toFixed(1)}% Saved
-                      </Label>
-                    </FlexItem>
-                    <FlexItem>
-                      <div className={savingsTitleStyle}>
-                        Savings vs VMware VVF
-                      </div>
-                    </FlexItem>
-                  </Flex>
-                </CardBody>
-              </Card>
+              <GridItem>
+                <Card className={savingsCardStyle}>
+                  <CardBody>
+                    <Flex
+                      justifyContent={{ default: "justifyContentSpaceBetween" }}
+                      alignItems={{ default: "alignItemsCenter" }}
+                    >
+                      <FlexItem>
+                        <div className={savingsAmountStyle}>
+                          {formatCurrency(savings.vsVvf.absoluteThreeYearUsd)}
+                        </div>
+                        <Label color="green">
+                          {savings.vsVvf.percentage.toFixed(1)}% Saved
+                        </Label>
+                      </FlexItem>
+                      <FlexItem>
+                        <div className={savingsTitleStyle}>
+                          Savings vs VMware VVF
+                        </div>
+                      </FlexItem>
+                    </Flex>
+                  </CardBody>
+                </Card>
+              </GridItem>
             )}
-          </Gallery>
+          </Grid>
         </StackItem>
       )}
     </Stack>
@@ -229,7 +291,7 @@ export const CostEstimationResultSkeleton: React.FC = () => {
   return (
     <Stack hasGutter>
       <StackItem>
-        <Title headingLevel="h2">Cost Estimation</Title>
+        <Title headingLevel="h2">Cost estimation</Title>
       </StackItem>
 
       <StackItem>
@@ -252,48 +314,42 @@ export const CostEstimationResultSkeleton: React.FC = () => {
 
       <StackItem>
         <Title headingLevel="h3" className={sectionTitleStyle}>
+          Customer environment
+        </Title>
+        <Grid hasGutter md={6} lg={3}>
+          <GridItem>
+            <MetricCard icon={<ServerIcon />} label="Total ESXi hosts" />
+          </GridItem>
+          <GridItem>
+            <MetricCard icon={<ServerGroupIcon />} label="Sockets per host" />
+          </GridItem>
+          <GridItem>
+            <MetricCard icon={<CpuIcon />} label="Cores per socket" />
+          </GridItem>
+          <GridItem>
+            <MetricCard
+              icon={<VirtualMachineIcon />}
+              label="Total virtual machines"
+            />
+          </GridItem>
+        </Grid>
+      </StackItem>
+
+      <StackItem>
+        <Title headingLevel="h3" className={sectionTitleStyle}>
           Breakdown
         </Title>
-        <Gallery hasGutter minWidths={{ default: "300px" }}>
-          <Card className={breakdownCardStyle}>
-            <CardBody>
-              <div className={breakdownLabelStyle}>Software Subscriptions</div>
-              <div className={breakdownPriceSkeletonStyle}>
-                <Skeleton
-                  fontSize="2xl"
-                  width="30%"
-                  screenreaderText="Loading Software Subscriptions"
-                />
-              </div>
-            </CardBody>
-          </Card>
-          <Card className={breakdownCardStyle}>
-            <CardBody>
-              <div className={breakdownLabelStyle}>
-                Migration Consulting Services
-              </div>
-              <div className={breakdownPriceSkeletonStyle}>
-                <Skeleton
-                  fontSize="2xl"
-                  width="30%"
-                  screenreaderText="Loading Migration Consulting Services"
-                />
-              </div>
-            </CardBody>
-          </Card>
-          <Card className={breakdownCardStyle}>
-            <CardBody>
-              <div className={breakdownLabelStyle}>Swing Hardware Upgrades</div>
-              <div className={breakdownPriceSkeletonStyle}>
-                <Skeleton
-                  fontSize="2xl"
-                  width="30%"
-                  screenreaderText="Loading Swing Hardware Upgrades"
-                />
-              </div>
-            </CardBody>
-          </Card>
-        </Gallery>
+        <Grid hasGutter md={6} lg={4}>
+          <GridItem>
+            <MetricCard label="Software subscriptions" />
+          </GridItem>
+          <GridItem>
+            <MetricCard label="Migration consulting services" />
+          </GridItem>
+          <GridItem>
+            <MetricCard label="Swing hardware upgrades" />
+          </GridItem>
+        </Grid>
       </StackItem>
     </Stack>
   );

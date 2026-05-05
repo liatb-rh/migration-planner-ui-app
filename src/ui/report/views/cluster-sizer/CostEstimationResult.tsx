@@ -144,16 +144,6 @@ export const CostEstimationResult: React.FC<CostEstimationResultProps> = ({
           <Card className={breakdownCardStyle}>
             <CardBody>
               <div className={breakdownLabelStyle}>
-                Ansible Automation Platform
-              </div>
-              <div className={breakdownValueStyle}>
-                {formatCurrency(breakdown.ansibleAutomationPlatform)}
-              </div>
-            </CardBody>
-          </Card>
-          <Card className={breakdownCardStyle}>
-            <CardBody>
-              <div className={breakdownLabelStyle}>
                 Migration Consulting Services
               </div>
               <div className={breakdownValueStyle}>
@@ -166,24 +156,6 @@ export const CostEstimationResult: React.FC<CostEstimationResultProps> = ({
               <div className={breakdownLabelStyle}>Swing Hardware Upgrades</div>
               <div className={breakdownValueStyle}>
                 {formatCurrency(breakdown.swingHardwareUpgrades)}
-              </div>
-            </CardBody>
-          </Card>
-          <Card className={breakdownCardStyle}>
-            <CardBody>
-              <div className={breakdownLabelStyle}>
-                Additional Storage Costs
-              </div>
-              <div className={breakdownValueStyle}>
-                {formatCurrency(breakdown.additionalStorageCosts)}
-              </div>
-            </CardBody>
-          </Card>
-          <Card className={breakdownCardStyle}>
-            <CardBody>
-              <div className={breakdownLabelStyle}>Third Party ISV Costs</div>
-              <div className={breakdownValueStyle}>
-                {formatCurrency(breakdown.thirdPartyIsvCosts)}
               </div>
             </CardBody>
           </Card>
@@ -298,20 +270,6 @@ export const CostEstimationResultSkeleton: React.FC = () => {
           <Card className={breakdownCardStyle}>
             <CardBody>
               <div className={breakdownLabelStyle}>
-                Ansible Automation Platform
-              </div>
-              <div className={breakdownPriceSkeletonStyle}>
-                <Skeleton
-                  fontSize="2xl"
-                  width="30%"
-                  screenreaderText="Loading Ansible Automation Platform"
-                />
-              </div>
-            </CardBody>
-          </Card>
-          <Card className={breakdownCardStyle}>
-            <CardBody>
-              <div className={breakdownLabelStyle}>
                 Migration Consulting Services
               </div>
               <div className={breakdownPriceSkeletonStyle}>
@@ -331,32 +289,6 @@ export const CostEstimationResultSkeleton: React.FC = () => {
                   fontSize="2xl"
                   width="30%"
                   screenreaderText="Loading Swing Hardware Upgrades"
-                />
-              </div>
-            </CardBody>
-          </Card>
-          <Card className={breakdownCardStyle}>
-            <CardBody>
-              <div className={breakdownLabelStyle}>
-                Additional Storage Costs
-              </div>
-              <div className={breakdownPriceSkeletonStyle}>
-                <Skeleton
-                  fontSize="2xl"
-                  width="30%"
-                  screenreaderText="Loading Additional Storage Costs"
-                />
-              </div>
-            </CardBody>
-          </Card>
-          <Card className={breakdownCardStyle}>
-            <CardBody>
-              <div className={breakdownLabelStyle}>Third Party ISV Costs</div>
-              <div className={breakdownPriceSkeletonStyle}>
-                <Skeleton
-                  fontSize="2xl"
-                  width="30%"
-                  screenreaderText="Loading Third Party ISV Costs"
                 />
               </div>
             </CardBody>

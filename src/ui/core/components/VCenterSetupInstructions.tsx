@@ -64,7 +64,7 @@ export const VCenterSetupInstructions: React.FC = () => {
               Select your preference for sharing aggregated data with
               console.redhat.com (read more{" "}
               <a
-                href="https://kubev2v.github.io/openshift-migration-advisor-docs/docs/tutorial/#discovery-agent-flow"
+                href="https://kubev2v.github.io/openshift-migration-advisor-docs/docs/aggregated-data-report/"
                 target="_blank"
                 rel="noopener noreferrer"
               >

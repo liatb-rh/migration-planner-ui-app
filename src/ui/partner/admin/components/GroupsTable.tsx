@@ -71,13 +71,13 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
         <Tbody>
           {sortedGroups.map((group) => (
             <Tr key={group.id}>
-              <Td dataLabel="Group icon" textCenter>
+              <Td dataLabel="Group icon" isActionCell>
                 {Boolean(group.icon) && (
                   <img
                     src={group.icon}
                     alt={`${group.name} icon`}
                     style={{
-                      height: "60px",
+                      height: "40px",
                     }}
                   />
                 )}

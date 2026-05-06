@@ -111,7 +111,16 @@ export const HowDoesItWork: React.FC = () => {
                   onClick={() => navigate(routes.exampleReport)}
                   className={linkButtonStyle}
                 >
-                  See example report
+                  See RVtools example report
+                </Button>{" "}
+                or{" "}
+                <Button
+                  isInline
+                  variant="link"
+                  onClick={() => navigate(routes.discoveryOvaExampleReport)}
+                  className={linkButtonStyle}
+                >
+                  Discovery OVA example report
                 </Button>
               </Content>
             </FlexItem>

@@ -24,6 +24,13 @@ const ExampleReport = lazy(
     ),
 );
 
+const DiscoveryOvaExampleReport = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "DiscoveryOvaExampleReport" */ "../ui/report/views/DiscoveryOvaExampleReport"
+    ),
+);
+
 const CreateFromOva = lazy(
   () =>
     import(
@@ -86,6 +93,10 @@ export const AppRoutes: React.FC = () => (
       {/* Independent routes — they have their own page layout */}
       <Route path="assessments/:id/report" element={<Report />} />
       <Route path="assessments/example-report" element={<ExampleReport />} />
+      <Route
+        path="assessments/discovery-ova-example-report"
+        element={<DiscoveryOvaExampleReport />}
+      />
       <Route path="assessments/create" element={<CreateFromOva />} />
       <Route path="assessments/:id" element={<AssessmentDetails />} />
     </Route>

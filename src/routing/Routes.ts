@@ -78,6 +78,9 @@ export const routes = {
   get exampleReport() {
     return `${getAppBasename()}/assessments/example-report`;
   },
+  get discoveryOvaExampleReport() {
+    return `${getAppBasename()}/assessments/discovery-ova-example-report`;
+  },
   get environments() {
     return `${getAppBasename()}/environments`;
   },

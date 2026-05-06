@@ -1,6 +1,9 @@
 import { type Infra, type VMs } from "@openshift-migration-advisor/planner-sdk";
 import {
   Button,
+  Content,
+  Flex,
+  FlexItem,
   Icon,
   MenuToggle,
   type MenuToggleElement,
@@ -11,9 +14,12 @@ import {
   SplitItem,
   Stack,
   StackItem,
+  Tab,
+  Tabs,
+  TabTitleText,
+  Title,
 } from "@patternfly/react-core";
 import { CheckCircleIcon } from "@patternfly/react-icons";
-import { t_global_color_status_success_default as globalSuccessColor100 } from "@patternfly/react-tokens/dist/js/t_global_color_status_success_default";
 import React, { useMemo, useState } from "react";
 
 import { routes } from "../../../routing/Routes";
@@ -24,25 +30,27 @@ import {
 } from "./assessment-report/ClusterView";
 import { Dashboard } from "./assessment-report/Dashboard";
 import { ClusterSizingWizard } from "./cluster-sizer/ClusterSizingWizard";
+import { ExampleStorageOffloadTab } from "./discovery-ova-example/ExampleStorageOffloadTab";
+import { ExampleVMTable } from "./discovery-ova-example/ExampleVMTable";
 import {
   EXAMPLE_FORM_VALUES,
   EXAMPLE_SIZING_MAP,
 } from "./example-data/clusterSizingFixture";
 import { getExampleInventory } from "./example-data/inventoryFixture";
+import { EXAMPLE_OVA_VMS } from "./example-data/ovaVmFixture";
 
-const ExampleReport: React.FC = () => {
+const DiscoveryOvaExampleReport: React.FC = () => {
   const inventory = getExampleInventory();
   const infra = inventory.vcenter?.infra as Infra;
   const vms = inventory.vcenter?.vms as VMs;
   const clusters = inventory.clusters;
 
-  // State for cluster selection
   const [userSelectedClusterId, setUserSelectedClusterId] = useState<
     string | null
   >(null);
   const [isClusterSelectOpen, setIsClusterSelectOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<string | number>(0);
 
-  // Compute effective selection - default to "all"
   const selectedClusterId = useMemo(() => {
     if (userSelectedClusterId !== null) {
       return userSelectedClusterId;
@@ -50,7 +58,6 @@ const ExampleReport: React.FC = () => {
     return "all";
   }, [userSelectedClusterId]);
 
-  // Build cluster view model
   const clusterView = useMemo(
     () =>
       buildClusterViewModel({
@@ -69,20 +76,31 @@ const ExampleReport: React.FC = () => {
     if (typeof value === "string") {
       setUserSelectedClusterId(value);
       setIsClusterSelectOpen(false);
+      setActiveTab(0);
     }
+  };
+
+  const handleTabSelect = (
+    _event: React.MouseEvent<HTMLElement, MouseEvent>,
+    tabIndex: string | number,
+  ) => {
+    setActiveTab(tabIndex);
   };
 
   const clusterCount = clusters ? Object.keys(clusters).length : 0;
   const clusterSelectDisabled = clusterCount <= 0;
 
-  // Sizing wizard state
   const [isSizingWizardOpen, setIsSizingWizardOpen] = useState(false);
 
-  // Example sizing data for the currently selected cluster (if any)
   const exampleSizing =
     selectedClusterId !== "all"
       ? (EXAMPLE_SIZING_MAP[selectedClusterId] ?? null)
       : null;
+
+  const filteredVMs = useMemo(() => {
+    if (selectedClusterId === "all") return EXAMPLE_OVA_VMS;
+    return EXAMPLE_OVA_VMS.filter((vm) => vm.cluster === selectedClusterId);
+  }, [selectedClusterId]);
 
   return (
     <AppPage
@@ -98,11 +116,11 @@ const ExampleReport: React.FC = () => {
         },
         {
           key: 3,
-          children: "RVtools example report",
+          children: "Discovery OVA example report",
           isActive: true,
         },
       ]}
-      title="Rvtools example report"
+      title=""
       headerActions={
         exampleSizing ? (
           <Split hasGutter>
@@ -119,37 +137,65 @@ const ExampleReport: React.FC = () => {
       }
       caption={
         <Stack hasGutter>
+          {/* Header matching agent-UI Header component */}
           <StackItem>
-            Discovery VM status :{" "}
-            <Icon size="md" isInline>
-              <CheckCircleIcon color={globalSuccessColor100.var} />
-            </Icon>{" "}
-            Ready
-            <br />
-            This is an example report showcasing the migration advisor dashboard
-            for RVtools file upload.
-          </StackItem>
-          <StackItem>
-            {clusterCount > 0 ? (
-              typeof vms?.total === "number" ? (
-                <>
-                  Detected <strong>{vms?.total} VMs</strong> in{" "}
+            <Flex direction={{ default: "column" }} gap={{ default: "gapSm" }}>
+              <FlexItem>
+                <Title headingLevel="h1" size="2xl">
+                  Migration Advisor Report
+                </Title>
+              </FlexItem>
+
+              <FlexItem>
+                <Flex
+                  gap={{ default: "gapSm" }}
+                  alignItems={{ default: "alignItemsCenter" }}
+                >
+                  <FlexItem>
+                    <Content component="small">
+                      <strong>Discovery VM status:</strong>
+                    </Content>
+                  </FlexItem>
+                  <FlexItem>
+                    <Flex
+                      gap={{ default: "gapXs" }}
+                      alignItems={{ default: "alignItemsCenter" }}
+                    >
+                      <Icon status="success">
+                        <CheckCircleIcon />
+                      </Icon>
+                      <Content component="small">Connected</Content>
+                    </Flex>
+                  </FlexItem>
+                </Flex>
+              </FlexItem>
+
+              <FlexItem>
+                <Content component="p">
+                  Presenting the information we were able to fetch from the
+                  discovery process
+                </Content>
+              </FlexItem>
+
+              <FlexItem>
+                <Content component="small">
+                  This is an example report showcasing the migration advisor
+                  dashboard for discovery OVA deployment.
+                </Content>
+              </FlexItem>
+
+              <FlexItem>
+                <Content component="p">
+                  Detected <strong>{vms?.total ?? 0} VMs</strong> in{" "}
                   <strong>
                     {clusterCount} {clusterCount === 1 ? "cluster" : "clusters"}
                   </strong>
-                </>
-              ) : (
-                <>
-                  Detected{" "}
-                  <strong>
-                    {clusterCount} {clusterCount === 1 ? "cluster" : "clusters"}
-                  </strong>
-                </>
-              )
-            ) : (
-              "No clusters detected"
-            )}
+                </Content>
+              </FlexItem>
+            </Flex>
           </StackItem>
+
+          {/* Cluster selector */}
           <StackItem>
             <Select
               isScrollable
@@ -187,15 +233,35 @@ const ExampleReport: React.FC = () => {
         </Stack>
       }
     >
-      <Dashboard
-        infra={clusterView.viewInfra as Infra}
-        cpuCores={clusterView.cpuCores!}
-        ramGB={clusterView.ramGB!}
-        vms={clusterView.viewVms as VMs}
-        clusters={clusterView.viewClusters}
-        isAggregateView={clusterView.isAggregateView}
-        clusterFound={clusterView.clusterFound}
-      />
+      {/* Tabbed layout matching agent-UI ReportContainer */}
+      <Tabs activeKey={activeTab} onSelect={handleTabSelect}>
+        <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>}>
+          <div style={{ marginTop: "24px" }}>
+            <Dashboard
+              infra={clusterView.viewInfra as Infra}
+              cpuCores={clusterView.cpuCores!}
+              ramGB={clusterView.ramGB!}
+              vms={clusterView.viewVms as VMs}
+              clusters={clusterView.viewClusters}
+              isAggregateView={clusterView.isAggregateView}
+              clusterFound={clusterView.clusterFound}
+            />
+          </div>
+        </Tab>
+
+        <Tab eventKey={1} title={<TabTitleText>Virtual Machines</TabTitleText>}>
+          <div style={{ marginTop: "24px" }}>
+            <ExampleVMTable vms={filteredVMs} />
+          </div>
+        </Tab>
+
+        <Tab
+          eventKey={2}
+          title={<TabTitleText>Storage offload estimator</TabTitleText>}
+        >
+          <ExampleStorageOffloadTab />
+        </Tab>
+      </Tabs>
 
       {exampleSizing && (
         <ClusterSizingWizard
@@ -219,6 +285,6 @@ const ExampleReport: React.FC = () => {
   );
 };
 
-ExampleReport.displayName = "ExampleReport";
+DiscoveryOvaExampleReport.displayName = "DiscoveryOvaExampleReport";
 
-export default ExampleReport;
+export default DiscoveryOvaExampleReport;

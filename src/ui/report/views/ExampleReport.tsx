@@ -1,3 +1,4 @@
+import { css } from "@emotion/css";
 import {
   Button,
   Content,
@@ -23,6 +24,10 @@ import type { ClusterOption } from "./assessment-report/ClusterView";
 import { Dashboard } from "./assessment-report/Dashboard";
 import { ClusterSizingWizard } from "./cluster-sizer/ClusterSizingWizard";
 import { EXAMPLE_FORM_VALUES } from "./example-data/clusterSizingFixture";
+
+const clusterToggleStyle = css`
+  min-width: 422px;
+`;
 
 const ExampleReport: React.FC = () => {
   const vm = useExampleReportViewModel();
@@ -72,29 +77,7 @@ const ExampleReport: React.FC = () => {
             This is an example report showcasing the migration advisor dashboard
             for RVTools file upload.
           </StackItem>
-          <StackItem>
-            {vm.clusterCount > 0 ? (
-              typeof vm.vms?.total === "number" ? (
-                <>
-                  Detected <strong>{vm.vms.total} VMs</strong> in{" "}
-                  <strong>
-                    {vm.clusterCount}{" "}
-                    {vm.clusterCount === 1 ? "cluster" : "clusters"}
-                  </strong>
-                </>
-              ) : (
-                <>
-                  Detected{" "}
-                  <strong>
-                    {vm.clusterCount}{" "}
-                    {vm.clusterCount === 1 ? "cluster" : "clusters"}
-                  </strong>
-                </>
-              )
-            ) : (
-              "No clusters detected"
-            )}
-          </StackItem>
+          <StackItem>{vm.detectedSummaryText}</StackItem>
           <StackItem>
             <Select
               isScrollable
@@ -115,7 +98,7 @@ const ExampleReport: React.FC = () => {
                     }
                   }}
                   isDisabled={vm.clusterSelectDisabled}
-                  style={{ minWidth: "422px" }}
+                  className={clusterToggleStyle}
                 >
                   {vm.clusterView.selectionLabel}
                 </MenuToggle>

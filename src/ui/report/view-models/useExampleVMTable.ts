@@ -31,13 +31,16 @@ export function useExampleVMTable(
     );
   }, [vms, searchTerm]);
 
+  const lastPage = Math.max(1, Math.ceil(filteredVMs.length / pageSize));
+  const effectivePage = Math.min(page, lastPage);
+
   const paginatedVMs = useMemo(() => {
-    const start = (page - 1) * pageSize;
+    const start = (effectivePage - 1) * pageSize;
     return filteredVMs.slice(start, start + pageSize);
-  }, [filteredVMs, page, pageSize]);
+  }, [filteredVMs, effectivePage, pageSize]);
 
   return {
-    page,
+    page: effectivePage,
     setPage,
     pageSize,
     setPageSize,

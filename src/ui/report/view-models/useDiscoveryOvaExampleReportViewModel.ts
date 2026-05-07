@@ -87,11 +87,10 @@ export function useDiscoveryOvaExampleReportViewModel(): DiscoveryOvaExampleRepo
     _event: React.MouseEvent<Element, MouseEvent> | undefined,
     value: string | number | undefined,
   ) => {
-    if (typeof value === "string") {
-      setUserSelectedClusterId(value);
-      setIsClusterSelectOpen(false);
-      setActiveTab(0);
-    }
+    if (value == null) return;
+    setUserSelectedClusterId(String(value));
+    setIsClusterSelectOpen(false);
+    setActiveTab(0);
   };
 
   const handleTabSelect = (

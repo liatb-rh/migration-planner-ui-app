@@ -20,6 +20,7 @@ export interface ExampleReportVM {
   clusters: { [key: string]: InventoryData } | undefined;
   clusterCount: number;
   clusterSelectDisabled: boolean;
+  detectedSummaryText: string;
 
   selectedClusterId: string;
   clusterView: ClusterViewModel;
@@ -67,14 +68,23 @@ export function useExampleReportViewModel(): ExampleReportVM {
       ? (EXAMPLE_SIZING_MAP[selectedClusterId] ?? null)
       : null;
 
+  const detectedSummaryText = useMemo(() => {
+    if (clusterCount <= 0) return "No clusters detected";
+    const clusterLabel = clusterCount === 1 ? "cluster" : "clusters";
+    const totalVMs = vms?.total;
+    if (typeof totalVMs === "number") {
+      return `Detected ${totalVMs} VMs in ${clusterCount} ${clusterLabel}`;
+    }
+    return `Detected ${clusterCount} ${clusterLabel}`;
+  }, [vms?.total, clusterCount]);
+
   const handleClusterSelect = (
     _event: React.MouseEvent<Element, MouseEvent> | undefined,
     value: string | number | undefined,
   ) => {
-    if (typeof value === "string") {
-      setUserSelectedClusterId(value);
-      setIsClusterSelectOpen(false);
-    }
+    if (value == null) return;
+    setUserSelectedClusterId(String(value));
+    setIsClusterSelectOpen(false);
   };
 
   return {
@@ -83,6 +93,7 @@ export function useExampleReportViewModel(): ExampleReportVM {
     clusters,
     clusterCount,
     clusterSelectDisabled,
+    detectedSummaryText,
     selectedClusterId,
     clusterView,
     isClusterSelectOpen,

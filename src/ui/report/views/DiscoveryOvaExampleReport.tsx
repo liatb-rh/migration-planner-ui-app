@@ -1,3 +1,4 @@
+import { css } from "@emotion/css";
 import {
   Button,
   Content,
@@ -20,6 +21,10 @@ import {
 } from "@patternfly/react-core";
 import { CheckCircleIcon } from "@patternfly/react-icons";
 import React from "react";
+
+const clusterToggleStyle = css`
+  min-width: 422px;
+`;
 
 import { routes } from "../../../routing/Routes";
 import { AppPage } from "../../core/components/AppPage";
@@ -147,7 +152,7 @@ const DiscoveryOvaExampleReport: React.FC = () => {
                     }
                   }}
                   isDisabled={vm.clusterSelectDisabled}
-                  style={{ minWidth: "422px" }}
+                  className={clusterToggleStyle}
                 >
                   {vm.clusterView.selectionLabel}
                 </MenuToggle>

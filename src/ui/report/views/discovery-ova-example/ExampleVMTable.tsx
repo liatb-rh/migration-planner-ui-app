@@ -13,8 +13,9 @@ import {
   ExclamationTriangleIcon,
 } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import React, { useMemo, useState } from "react";
+import React from "react";
 
+import { useExampleVMTable } from "../../view-models/useExampleVMTable";
 import type { MockVirtualMachine } from "../example-data/ovaVmFixture";
 
 const MB_IN_GB = 1024;
@@ -51,29 +52,45 @@ const tableStyle = css`
   }
 `;
 
+const MigrationReadinessCell: React.FC<{
+  vm: MockVirtualMachine;
+}> = ({ vm }) => {
+  if (vm.issueCount > 0) {
+    return (
+      <Label color="orange" icon={<ExclamationTriangleIcon />} isCompact>
+        With warnings
+      </Label>
+    );
+  }
+  if (vm.migratable) {
+    return (
+      <Label color="green" icon={<CheckCircleIcon />} isCompact>
+        Ready
+      </Label>
+    );
+  }
+  return (
+    <Label color="red" icon={<ExclamationCircleIcon />} isCompact>
+      Not ready
+    </Label>
+  );
+};
+
 interface ExampleVMTableProps {
   vms: MockVirtualMachine[];
 }
 
 export const ExampleVMTable: React.FC<ExampleVMTableProps> = ({ vms }) => {
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const filteredVMs = useMemo(() => {
-    if (!searchTerm.trim()) return vms;
-    const lowerSearch = searchTerm.toLowerCase();
-    return vms.filter(
-      (vm) =>
-        vm.name.toLowerCase().includes(lowerSearch) ||
-        vm.id.toLowerCase().includes(lowerSearch),
-    );
-  }, [vms, searchTerm]);
-
-  const paginatedVMs = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return filteredVMs.slice(start, start + pageSize);
-  }, [filteredVMs, page, pageSize]);
+  const {
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    searchTerm,
+    setSearchTerm,
+    filteredVMs,
+    paginatedVMs,
+  } = useExampleVMTable(vms);
 
   return (
     <>
@@ -134,23 +151,7 @@ export const ExampleVMTable: React.FC<ExampleVMTableProps> = ({ vms }) => {
                 </Label>
               </Td>
               <Td dataLabel="Migration Readiness">
-                {vm.migratable ? (
-                  <Label color="green" icon={<CheckCircleIcon />} isCompact>
-                    Ready
-                  </Label>
-                ) : vm.issueCount > 0 ? (
-                  <Label
-                    color="orange"
-                    icon={<ExclamationTriangleIcon />}
-                    isCompact
-                  >
-                    With warnings
-                  </Label>
-                ) : (
-                  <Label color="red" icon={<ExclamationCircleIcon />} isCompact>
-                    Not ready
-                  </Label>
-                )}
+                <MigrationReadinessCell vm={vm} />
               </Td>
               <Td dataLabel="Cluster">{vm.cluster}</Td>
               <Td dataLabel="Disk size">{formatDiskSize(vm.diskSize)}</Td>

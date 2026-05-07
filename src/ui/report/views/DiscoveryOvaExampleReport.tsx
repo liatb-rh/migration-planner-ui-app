@@ -1,4 +1,3 @@
-import { type Infra, type VMs } from "@openshift-migration-advisor/planner-sdk";
 import {
   Button,
   Content,
@@ -20,87 +19,20 @@ import {
   Title,
 } from "@patternfly/react-core";
 import { CheckCircleIcon } from "@patternfly/react-icons";
-import React, { useMemo, useState } from "react";
+import React from "react";
 
 import { routes } from "../../../routing/Routes";
 import { AppPage } from "../../core/components/AppPage";
-import {
-  buildClusterViewModel,
-  type ClusterOption,
-} from "./assessment-report/ClusterView";
+import { useDiscoveryOvaExampleReportViewModel } from "../view-models/useDiscoveryOvaExampleReportViewModel";
+import type { ClusterOption } from "./assessment-report/ClusterView";
 import { Dashboard } from "./assessment-report/Dashboard";
 import { ClusterSizingWizard } from "./cluster-sizer/ClusterSizingWizard";
 import { ExampleStorageOffloadTab } from "./discovery-ova-example/ExampleStorageOffloadTab";
 import { ExampleVMTable } from "./discovery-ova-example/ExampleVMTable";
-import {
-  EXAMPLE_FORM_VALUES,
-  EXAMPLE_SIZING_MAP,
-} from "./example-data/clusterSizingFixture";
-import { getExampleInventory } from "./example-data/inventoryFixture";
-import { EXAMPLE_OVA_VMS } from "./example-data/ovaVmFixture";
+import { EXAMPLE_FORM_VALUES } from "./example-data/clusterSizingFixture";
 
 const DiscoveryOvaExampleReport: React.FC = () => {
-  const inventory = getExampleInventory();
-  const infra = inventory.vcenter?.infra as Infra;
-  const vms = inventory.vcenter?.vms as VMs;
-  const clusters = inventory.clusters;
-
-  const [userSelectedClusterId, setUserSelectedClusterId] = useState<
-    string | null
-  >(null);
-  const [isClusterSelectOpen, setIsClusterSelectOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<string | number>(0);
-
-  const selectedClusterId = useMemo(() => {
-    if (userSelectedClusterId !== null) {
-      return userSelectedClusterId;
-    }
-    return "all";
-  }, [userSelectedClusterId]);
-
-  const clusterView = useMemo(
-    () =>
-      buildClusterViewModel({
-        infra,
-        vms,
-        clusters,
-        selectedClusterId,
-      }),
-    [infra, vms, clusters, selectedClusterId],
-  );
-
-  const handleClusterSelect = (
-    _event: React.MouseEvent<Element, MouseEvent> | undefined,
-    value: string | number | undefined,
-  ) => {
-    if (typeof value === "string") {
-      setUserSelectedClusterId(value);
-      setIsClusterSelectOpen(false);
-      setActiveTab(0);
-    }
-  };
-
-  const handleTabSelect = (
-    _event: React.MouseEvent<HTMLElement, MouseEvent>,
-    tabIndex: string | number,
-  ) => {
-    setActiveTab(tabIndex);
-  };
-
-  const clusterCount = clusters ? Object.keys(clusters).length : 0;
-  const clusterSelectDisabled = clusterCount <= 0;
-
-  const [isSizingWizardOpen, setIsSizingWizardOpen] = useState(false);
-
-  const exampleSizing =
-    selectedClusterId !== "all"
-      ? (EXAMPLE_SIZING_MAP[selectedClusterId] ?? null)
-      : null;
-
-  const filteredVMs = useMemo(() => {
-    if (selectedClusterId === "all") return EXAMPLE_OVA_VMS;
-    return EXAMPLE_OVA_VMS.filter((vm) => vm.cluster === selectedClusterId);
-  }, [selectedClusterId]);
+  const vm = useDiscoveryOvaExampleReportViewModel();
 
   return (
     <AppPage
@@ -122,14 +54,14 @@ const DiscoveryOvaExampleReport: React.FC = () => {
       ]}
       title=""
       headerActions={
-        exampleSizing ? (
+        vm.exampleSizing ? (
           <Split hasGutter>
             <SplitItem>
               <Button
                 variant="primary"
-                onClick={() => setIsSizingWizardOpen(true)}
+                onClick={() => vm.setIsSizingWizardOpen(true)}
               >
-                View recommendation for {exampleSizing.clusterName}
+                View recommendation for {vm.exampleSizing.clusterName}
               </Button>
             </SplitItem>
           </Split>
@@ -137,7 +69,6 @@ const DiscoveryOvaExampleReport: React.FC = () => {
       }
       caption={
         <Stack hasGutter>
-          {/* Header matching agent-UI Header component */}
           <StackItem>
             <Flex direction={{ default: "column" }} gap={{ default: "gapSm" }}>
               <FlexItem>
@@ -186,43 +117,44 @@ const DiscoveryOvaExampleReport: React.FC = () => {
 
               <FlexItem>
                 <Content component="p">
-                  Detected <strong>{vms?.total ?? 0} VMs</strong> in{" "}
+                  Detected <strong>{vm.vms?.total ?? 0} VMs</strong> in{" "}
                   <strong>
-                    {clusterCount} {clusterCount === 1 ? "cluster" : "clusters"}
+                    {vm.clusterCount}{" "}
+                    {vm.clusterCount === 1 ? "cluster" : "clusters"}
                   </strong>
                 </Content>
               </FlexItem>
             </Flex>
           </StackItem>
 
-          {/* Cluster selector */}
           <StackItem>
             <Select
               isScrollable
-              isOpen={isClusterSelectOpen}
-              selected={clusterView.selectionId}
-              onSelect={handleClusterSelect}
+              isOpen={vm.isClusterSelectOpen}
+              selected={vm.clusterView.selectionId}
+              onSelect={vm.handleClusterSelect}
               onOpenChange={(isOpen: boolean) => {
-                if (!clusterSelectDisabled) setIsClusterSelectOpen(isOpen);
+                if (!vm.clusterSelectDisabled)
+                  vm.setIsClusterSelectOpen(isOpen);
               }}
               toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
                 <MenuToggle
                   ref={toggleRef}
-                  isExpanded={isClusterSelectOpen}
+                  isExpanded={vm.isClusterSelectOpen}
                   onClick={() => {
-                    if (!clusterSelectDisabled) {
-                      setIsClusterSelectOpen((prev) => !prev);
+                    if (!vm.clusterSelectDisabled) {
+                      vm.setIsClusterSelectOpen(!vm.isClusterSelectOpen);
                     }
                   }}
-                  isDisabled={clusterSelectDisabled}
+                  isDisabled={vm.clusterSelectDisabled}
                   style={{ minWidth: "422px" }}
                 >
-                  {clusterView.selectionLabel}
+                  {vm.clusterView.selectionLabel}
                 </MenuToggle>
               )}
             >
               <SelectList>
-                {clusterView.clusterOptions.map((option: ClusterOption) => (
+                {vm.clusterView.clusterOptions.map((option: ClusterOption) => (
                   <SelectOption key={option.id} value={option.id}>
                     {option.label}
                   </SelectOption>
@@ -233,25 +165,33 @@ const DiscoveryOvaExampleReport: React.FC = () => {
         </Stack>
       }
     >
-      {/* Tabbed layout matching agent-UI ReportContainer */}
-      <Tabs activeKey={activeTab} onSelect={handleTabSelect}>
+      <Tabs activeKey={vm.activeTab} onSelect={vm.handleTabSelect}>
         <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>}>
           <div style={{ marginTop: "24px" }}>
-            <Dashboard
-              infra={clusterView.viewInfra as Infra}
-              cpuCores={clusterView.cpuCores!}
-              ramGB={clusterView.ramGB!}
-              vms={clusterView.viewVms as VMs}
-              clusters={clusterView.viewClusters}
-              isAggregateView={clusterView.isAggregateView}
-              clusterFound={clusterView.clusterFound}
-            />
+            {vm.clusterView.viewInfra &&
+            vm.clusterView.viewVms &&
+            vm.clusterView.cpuCores &&
+            vm.clusterView.ramGB ? (
+              <Dashboard
+                infra={vm.clusterView.viewInfra}
+                cpuCores={vm.clusterView.cpuCores}
+                ramGB={vm.clusterView.ramGB}
+                vms={vm.clusterView.viewVms}
+                clusters={vm.clusterView.viewClusters}
+                isAggregateView={vm.clusterView.isAggregateView}
+                clusterFound={vm.clusterView.clusterFound}
+              />
+            ) : (
+              <Content component="p">
+                No data is available for the selected cluster.
+              </Content>
+            )}
           </div>
         </Tab>
 
         <Tab eventKey={1} title={<TabTitleText>Virtual Machines</TabTitleText>}>
           <div style={{ marginTop: "24px" }}>
-            <ExampleVMTable vms={filteredVMs} />
+            <ExampleVMTable vms={vm.filteredVMs} />
           </div>
         </Tab>
 
@@ -263,20 +203,21 @@ const DiscoveryOvaExampleReport: React.FC = () => {
         </Tab>
       </Tabs>
 
-      {exampleSizing && (
+      {vm.exampleSizing && (
         <ClusterSizingWizard
-          key={selectedClusterId}
-          isOpen={isSizingWizardOpen}
-          onClose={() => setIsSizingWizardOpen(false)}
-          clusterName={exampleSizing.clusterName}
-          clusterId={selectedClusterId}
+          key={vm.selectedClusterId}
+          isOpen={vm.isSizingWizardOpen}
+          onClose={() => vm.setIsSizingWizardOpen(false)}
+          clusterName={vm.exampleSizing.clusterName}
+          clusterId={vm.selectedClusterId}
           assessmentId="example"
           options={{
-            initialSizerOutput: exampleSizing.result,
+            initialSizerOutput: vm.exampleSizing.result,
             initialFormValues: EXAMPLE_FORM_VALUES,
-            initialMigrationEstimation: exampleSizing.migrationEstimation,
-            initialComplexityEstimation: exampleSizing.complexityEstimation,
-            initialEstimationByComplexity: exampleSizing.estimationByComplexity,
+            initialMigrationEstimation: vm.exampleSizing.migrationEstimation,
+            initialComplexityEstimation: vm.exampleSizing.complexityEstimation,
+            initialEstimationByComplexity:
+              vm.exampleSizing.estimationByComplexity,
           }}
           isReadOnly
         />

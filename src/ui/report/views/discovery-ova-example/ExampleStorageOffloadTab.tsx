@@ -62,7 +62,6 @@ const ExampleStorageOffloadTab: React.FC = () => (
                 </>
               }
               position="top"
-              withFocusTrap={false}
             >
               <Label
                 style={{ cursor: "pointer" }}

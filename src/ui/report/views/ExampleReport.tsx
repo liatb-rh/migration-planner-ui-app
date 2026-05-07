@@ -1,6 +1,6 @@
-import { type Infra, type VMs } from "@openshift-migration-advisor/planner-sdk";
 import {
   Button,
+  Content,
   Icon,
   MenuToggle,
   type MenuToggleElement,
@@ -14,75 +14,18 @@ import {
 } from "@patternfly/react-core";
 import { CheckCircleIcon } from "@patternfly/react-icons";
 import { t_global_color_status_success_default as globalSuccessColor100 } from "@patternfly/react-tokens/dist/js/t_global_color_status_success_default";
-import React, { useMemo, useState } from "react";
+import React from "react";
 
 import { routes } from "../../../routing/Routes";
 import { AppPage } from "../../core/components/AppPage";
-import {
-  buildClusterViewModel,
-  type ClusterOption,
-} from "./assessment-report/ClusterView";
+import { useExampleReportViewModel } from "../view-models/useExampleReportViewModel";
+import type { ClusterOption } from "./assessment-report/ClusterView";
 import { Dashboard } from "./assessment-report/Dashboard";
 import { ClusterSizingWizard } from "./cluster-sizer/ClusterSizingWizard";
-import {
-  EXAMPLE_FORM_VALUES,
-  EXAMPLE_SIZING_MAP,
-} from "./example-data/clusterSizingFixture";
-import { getExampleInventory } from "./example-data/inventoryFixture";
+import { EXAMPLE_FORM_VALUES } from "./example-data/clusterSizingFixture";
 
 const ExampleReport: React.FC = () => {
-  const inventory = getExampleInventory();
-  const infra = inventory.vcenter?.infra as Infra;
-  const vms = inventory.vcenter?.vms as VMs;
-  const clusters = inventory.clusters;
-
-  // State for cluster selection
-  const [userSelectedClusterId, setUserSelectedClusterId] = useState<
-    string | null
-  >(null);
-  const [isClusterSelectOpen, setIsClusterSelectOpen] = useState(false);
-
-  // Compute effective selection - default to "all"
-  const selectedClusterId = useMemo(() => {
-    if (userSelectedClusterId !== null) {
-      return userSelectedClusterId;
-    }
-    return "all";
-  }, [userSelectedClusterId]);
-
-  // Build cluster view model
-  const clusterView = useMemo(
-    () =>
-      buildClusterViewModel({
-        infra,
-        vms,
-        clusters,
-        selectedClusterId,
-      }),
-    [infra, vms, clusters, selectedClusterId],
-  );
-
-  const handleClusterSelect = (
-    _event: React.MouseEvent<Element, MouseEvent> | undefined,
-    value: string | number | undefined,
-  ) => {
-    if (typeof value === "string") {
-      setUserSelectedClusterId(value);
-      setIsClusterSelectOpen(false);
-    }
-  };
-
-  const clusterCount = clusters ? Object.keys(clusters).length : 0;
-  const clusterSelectDisabled = clusterCount <= 0;
-
-  // Sizing wizard state
-  const [isSizingWizardOpen, setIsSizingWizardOpen] = useState(false);
-
-  // Example sizing data for the currently selected cluster (if any)
-  const exampleSizing =
-    selectedClusterId !== "all"
-      ? (EXAMPLE_SIZING_MAP[selectedClusterId] ?? null)
-      : null;
+  const vm = useExampleReportViewModel();
 
   return (
     <AppPage
@@ -98,20 +41,20 @@ const ExampleReport: React.FC = () => {
         },
         {
           key: 3,
-          children: "RVtools example report",
+          children: "RVTools example report",
           isActive: true,
         },
       ]}
-      title="Rvtools example report"
+      title="RVTools example report"
       headerActions={
-        exampleSizing ? (
+        vm.exampleSizing ? (
           <Split hasGutter>
             <SplitItem>
               <Button
                 variant="primary"
-                onClick={() => setIsSizingWizardOpen(true)}
+                onClick={() => vm.setIsSizingWizardOpen(true)}
               >
-                View recommendation for {exampleSizing.clusterName}
+                View recommendation for {vm.exampleSizing.clusterName}
               </Button>
             </SplitItem>
           </Split>
@@ -127,22 +70,24 @@ const ExampleReport: React.FC = () => {
             Ready
             <br />
             This is an example report showcasing the migration advisor dashboard
-            for RVtools file upload.
+            for RVTools file upload.
           </StackItem>
           <StackItem>
-            {clusterCount > 0 ? (
-              typeof vms?.total === "number" ? (
+            {vm.clusterCount > 0 ? (
+              typeof vm.vms?.total === "number" ? (
                 <>
-                  Detected <strong>{vms?.total} VMs</strong> in{" "}
+                  Detected <strong>{vm.vms.total} VMs</strong> in{" "}
                   <strong>
-                    {clusterCount} {clusterCount === 1 ? "cluster" : "clusters"}
+                    {vm.clusterCount}{" "}
+                    {vm.clusterCount === 1 ? "cluster" : "clusters"}
                   </strong>
                 </>
               ) : (
                 <>
                   Detected{" "}
                   <strong>
-                    {clusterCount} {clusterCount === 1 ? "cluster" : "clusters"}
+                    {vm.clusterCount}{" "}
+                    {vm.clusterCount === 1 ? "cluster" : "clusters"}
                   </strong>
                 </>
               )
@@ -153,30 +98,31 @@ const ExampleReport: React.FC = () => {
           <StackItem>
             <Select
               isScrollable
-              isOpen={isClusterSelectOpen}
-              selected={clusterView.selectionId}
-              onSelect={handleClusterSelect}
+              isOpen={vm.isClusterSelectOpen}
+              selected={vm.clusterView.selectionId}
+              onSelect={vm.handleClusterSelect}
               onOpenChange={(isOpen: boolean) => {
-                if (!clusterSelectDisabled) setIsClusterSelectOpen(isOpen);
+                if (!vm.clusterSelectDisabled)
+                  vm.setIsClusterSelectOpen(isOpen);
               }}
               toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
                 <MenuToggle
                   ref={toggleRef}
-                  isExpanded={isClusterSelectOpen}
+                  isExpanded={vm.isClusterSelectOpen}
                   onClick={() => {
-                    if (!clusterSelectDisabled) {
-                      setIsClusterSelectOpen((prev) => !prev);
+                    if (!vm.clusterSelectDisabled) {
+                      vm.setIsClusterSelectOpen(!vm.isClusterSelectOpen);
                     }
                   }}
-                  isDisabled={clusterSelectDisabled}
+                  isDisabled={vm.clusterSelectDisabled}
                   style={{ minWidth: "422px" }}
                 >
-                  {clusterView.selectionLabel}
+                  {vm.clusterView.selectionLabel}
                 </MenuToggle>
               )}
             >
               <SelectList>
-                {clusterView.clusterOptions.map((option: ClusterOption) => (
+                {vm.clusterView.clusterOptions.map((option: ClusterOption) => (
                   <SelectOption key={option.id} value={option.id}>
                     {option.label}
                   </SelectOption>
@@ -187,30 +133,40 @@ const ExampleReport: React.FC = () => {
         </Stack>
       }
     >
-      <Dashboard
-        infra={clusterView.viewInfra as Infra}
-        cpuCores={clusterView.cpuCores!}
-        ramGB={clusterView.ramGB!}
-        vms={clusterView.viewVms as VMs}
-        clusters={clusterView.viewClusters}
-        isAggregateView={clusterView.isAggregateView}
-        clusterFound={clusterView.clusterFound}
-      />
+      {vm.clusterView.viewInfra &&
+      vm.clusterView.viewVms &&
+      vm.clusterView.cpuCores &&
+      vm.clusterView.ramGB ? (
+        <Dashboard
+          infra={vm.clusterView.viewInfra}
+          cpuCores={vm.clusterView.cpuCores}
+          ramGB={vm.clusterView.ramGB}
+          vms={vm.clusterView.viewVms}
+          clusters={vm.clusterView.viewClusters}
+          isAggregateView={vm.clusterView.isAggregateView}
+          clusterFound={vm.clusterView.clusterFound}
+        />
+      ) : (
+        <Content component="p">
+          No data is available for the selected cluster.
+        </Content>
+      )}
 
-      {exampleSizing && (
+      {vm.exampleSizing && (
         <ClusterSizingWizard
-          key={selectedClusterId}
-          isOpen={isSizingWizardOpen}
-          onClose={() => setIsSizingWizardOpen(false)}
-          clusterName={exampleSizing.clusterName}
-          clusterId={selectedClusterId}
+          key={vm.selectedClusterId}
+          isOpen={vm.isSizingWizardOpen}
+          onClose={() => vm.setIsSizingWizardOpen(false)}
+          clusterName={vm.exampleSizing.clusterName}
+          clusterId={vm.selectedClusterId}
           assessmentId="example"
           options={{
-            initialSizerOutput: exampleSizing.result,
+            initialSizerOutput: vm.exampleSizing.result,
             initialFormValues: EXAMPLE_FORM_VALUES,
-            initialMigrationEstimation: exampleSizing.migrationEstimation,
-            initialComplexityEstimation: exampleSizing.complexityEstimation,
-            initialEstimationByComplexity: exampleSizing.estimationByComplexity,
+            initialMigrationEstimation: vm.exampleSizing.migrationEstimation,
+            initialComplexityEstimation: vm.exampleSizing.complexityEstimation,
+            initialEstimationByComplexity:
+              vm.exampleSizing.estimationByComplexity,
           }}
           isReadOnly
         />

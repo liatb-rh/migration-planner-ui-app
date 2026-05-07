@@ -120,7 +120,7 @@ export const HowDoesItWork: React.FC = () => {
                   onClick={() => navigate(routes.discoveryOvaExampleReport)}
                   className={linkButtonStyle}
                 >
-                  Discovery OVA example report
+                  See Discovery OVA example report
                 </Button>
               </Content>
             </FlexItem>

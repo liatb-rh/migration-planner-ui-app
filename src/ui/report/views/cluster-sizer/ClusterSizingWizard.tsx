@@ -179,6 +179,7 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
       case "architecture":
         return (
           <RecommendationTemplate
+            key="architecture"
             preferencesTitle="Migration preferences"
             preferencesContent={
               <SizingInputForm
@@ -228,6 +229,7 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
         return (
           <RecommendationTabContent
             id="cost-estimation"
+            key="cost-estimation"
             title="Cost estimation"
             content={
               <CostEstimationResult costEstimation={vm.costEstimation} />
@@ -240,6 +242,7 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
       case "time-estimation":
         return (
           <RecommendationTemplate
+            key="time-estimation"
             preferencesTitle="Migration preferences"
             preferencesContent={
               <TimeEstimationForm
@@ -273,6 +276,7 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
       case "complexity":
         return (
           <RecommendationTemplate
+            key="complexity"
             preferencesTitle="Complexity analysis parameters"
             preferencesContent={<div>Analysis parameters (coming soon)</div>}
             resultsContent={

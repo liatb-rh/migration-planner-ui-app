@@ -9,8 +9,8 @@ import {
 } from "@patternfly/react-core";
 import { InfoCircleIcon, QuestionCircleIcon } from "@patternfly/react-icons";
 import { t_global_color_status_success_default as globalSuccessColor } from "@patternfly/react-tokens/dist/js/t_global_color_status_success_default";
-import { t_global_color_status_warning_default as globalWarningColor } from "@patternfly/react-tokens/dist/js/t_global_color_status_warning_default";
 import { t_global_icon_color_status_info_default as globalInfoColor } from "@patternfly/react-tokens/dist/js/t_global_icon_color_status_info_default";
+import { t_global_text_color_status_warning_default as globalTextWarningColor } from "@patternfly/react-tokens/dist/js/t_global_text_color_status_warning_default";
 import React from "react";
 
 import { VCenterSetupInstructions } from "../../core/components/VCenterSetupInstructions";
@@ -31,7 +31,7 @@ const latestStyle = css`
 `;
 
 const outdatedStyle = css`
-  color: ${globalWarningColor.var};
+  color: ${globalTextWarningColor.var};
 `;
 
 const ovaDownloadingStyle = css`
@@ -142,7 +142,7 @@ const VersionWarning: React.FC<{ warning: string }> = ({ warning }) => (
           className={popoverButton}
         >
           <Icon isInline>
-            <InfoCircleIcon color={globalWarningColor.var} />
+            <QuestionCircleIcon color={globalTextWarningColor.var} />
           </Icon>
         </Button>
       </Popover>

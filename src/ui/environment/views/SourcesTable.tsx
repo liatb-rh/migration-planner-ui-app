@@ -510,7 +510,7 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
               <Th className={tableHeaderWide}>{Columns.Networks}</Th>
               <Th className={tableHeaderWide}>{Columns.Datastores}</Th>
               <Th className={tableHeaderNormal}>{Columns.LastSeen}</Th>
-              <Th className={tableHeaderWide} screenReaderText="Actions">
+              <Th modifier="fitContent" screenReaderText="Actions">
                 {Columns.Actions}
               </Th>
             </Tr>
@@ -595,7 +595,7 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
                       "-"
                     )}
                   </Td>
-                  <Td dataLabel={Columns.Actions} className={tableCellTop}>
+                  <Td dataLabel={Columns.Actions} modifier="fitContent">
                     {uploadOnly ? (
                       <>
                         {isUploadAllowed && source.name !== "Example" && (
@@ -626,9 +626,9 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
                                 [source.id]: !prev[source.id],
                               }))
                             }
-                          >
-                            <EllipsisVIcon />
-                          </MenuToggle>
+                            icon={<EllipsisVIcon />}
+                            style={{ padding: 0, width: "fit-content" }}
+                          ></MenuToggle>
                         )}
                       >
                         <DropdownList>

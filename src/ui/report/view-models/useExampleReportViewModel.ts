@@ -70,7 +70,8 @@ export function useExampleReportViewModel(): ExampleReportVM {
 
   const detectedSummaryText = useMemo(() => {
     if (clusterCount <= 0) return "No clusters detected";
-    const clusterLabel = clusterCount === 1 ? "cluster" : "clusters";
+    const clusterLabel =
+      clusterCount === 1 ? "vSphere cluster" : "vSphere clusters";
     const totalVMs = vms?.total;
     if (typeof totalVMs === "number") {
       return `Detected ${totalVMs} VMs in ${clusterCount} ${clusterLabel}`;

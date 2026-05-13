@@ -125,7 +125,9 @@ const DiscoveryOvaExampleReport: React.FC = () => {
                   Detected <strong>{vm.vms?.total ?? 0} VMs</strong> in{" "}
                   <strong>
                     {vm.clusterCount}{" "}
-                    {vm.clusterCount === 1 ? "cluster" : "clusters"}
+                    {vm.clusterCount === 1
+                      ? "vSphere cluster"
+                      : "vSphere clusters"}
                   </strong>
                 </Content>
               </FlexItem>

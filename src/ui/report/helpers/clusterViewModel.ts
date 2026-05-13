@@ -44,7 +44,7 @@ export const getClusterOptions = (clusters?: {
     compareClustersByVmCount(a, b, clusters),
   );
   return [
-    { id: "all", label: "All clusters" },
+    { id: "all", label: "All vSphere clusters" },
     ...sortedKeys.map((key) => ({ id: key, label: key })),
   ];
 };
@@ -89,7 +89,7 @@ export const buildClusterViewModel = ({
       viewClusters: clusters,
       isAggregateView: true,
       selectionId: "all",
-      selectionLabel: "All clusters",
+      selectionLabel: "All vSphere clusters",
       clusterOptions: options,
       clusterFound: true,
     };

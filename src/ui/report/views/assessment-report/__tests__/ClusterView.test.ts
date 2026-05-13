@@ -57,7 +57,7 @@ describe("buildClusterViewModel", () => {
 
     expect(model.isAggregateView).toBe(true);
     expect(model.selectionId).toBe("all");
-    expect(model.selectionLabel).toBe("All clusters");
+    expect(model.selectionLabel).toBe("All vSphere clusters");
     expect(model.viewInfra).toBe(baseInfra);
     expect(model.viewVms).toBe(baseVms);
     expect(
@@ -126,7 +126,7 @@ describe("buildClusterViewModel", () => {
     expect(model.viewVms).toBeUndefined();
   });
 
-  it("returns cluster options with 'All clusters' first followed by cluster keys", () => {
+  it("returns cluster options with 'All vSphere clusters' first followed by cluster keys", () => {
     const clusters = {
       "Cluster A": { infra: baseInfra, vms: baseVms },
       "Cluster B": { infra: baseInfra, vms: baseVms },
@@ -140,7 +140,7 @@ describe("buildClusterViewModel", () => {
     });
 
     expect(model.clusterOptions[0].id).toBe("all");
-    expect(model.clusterOptions[0].label).toBe("All clusters");
+    expect(model.clusterOptions[0].label).toBe("All vSphere clusters");
     expect(model.clusterOptions[1].id).toBe("Cluster A");
     expect(model.clusterOptions[2].id).toBe("Cluster B");
   });

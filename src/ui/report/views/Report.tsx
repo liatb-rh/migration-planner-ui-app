@@ -31,8 +31,8 @@ import { AgentStatusView } from "../../environment/views/AgentStatusView";
 import { useReportPageViewModel } from "../view-models/useReportPageViewModel";
 import type { ClusterOption } from "./assessment-report/ClusterView";
 import { Dashboard } from "./assessment-report/Dashboard";
-import { DeployOvaBanner } from "./DeployOvaBanner";
 import { ClusterSizingWizard } from "./cluster-sizer/ClusterSizingWizard";
+import { DeployOvaBanner } from "./DeployOvaBanner";
 import { ExportReportButton } from "./ExportReportButton";
 
 const alertSpacing = css`
@@ -166,7 +166,9 @@ const ReportContent: React.FC = () => {
                   Detected <strong>{vm.vms?.total} VMS</strong> in{" "}
                   <strong>
                     {vm.clusterCount}{" "}
-                    {vm.clusterCount === 1 ? "cluster" : "clusters"}
+                    {vm.clusterCount === 1
+                      ? "vSphere cluster"
+                      : "vSphere clusters"}
                   </strong>
                 </>
               ) : (
@@ -174,12 +176,14 @@ const ReportContent: React.FC = () => {
                   Detected{" "}
                   <strong>
                     {vm.clusterCount}{" "}
-                    {vm.clusterCount === 1 ? "cluster" : "clusters"}
+                    {vm.clusterCount === 1
+                      ? "vSphere cluster"
+                      : "vSphere clusters"}
                   </strong>
                 </>
               )
             ) : (
-              "No clusters detected"
+              "No vSphere clusters detected"
             )}
           </StackItem>
           <StackItem>

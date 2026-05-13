@@ -63,7 +63,15 @@ interface RecommendationTemplateProps {
   resultsTitle?: string;
   /** Whether to show the info alert in the results section (defaults to true) */
   showAlert?: boolean;
-  /** Initial expanded state for preferences section (defaults to true) */
+  /**
+   * Controlled expanded state for the preferences section.
+   * When provided together with `onPreferencesExpandedChange`, the component
+   * becomes controlled and `isPreferencesInitiallyExpanded` is ignored.
+   */
+  isPreferencesExpanded?: boolean;
+  /** Callback fired when the user toggles the preferences section (controlled mode). */
+  onPreferencesExpandedChange?: (expanded: boolean) => void;
+  /** Initial expanded state for preferences section (defaults to true). Ignored when controlled. */
   isPreferencesInitiallyExpanded?: boolean;
   /** Whether the preferences section is disabled (defaults to false) */
   isPreferencesDisabled?: boolean;
@@ -87,6 +95,8 @@ export const RecommendationTemplate: React.FC<RecommendationTemplateProps> = ({
   generateButtonText = "Generate recommendation",
   resultsTitle = "Cluster recommendations",
   showAlert = true,
+  isPreferencesExpanded: controlledExpanded,
+  onPreferencesExpandedChange,
   isPreferencesInitiallyExpanded = true,
   isPreferencesDisabled = false,
   isGenerateDisabled = false,
@@ -94,9 +104,21 @@ export const RecommendationTemplate: React.FC<RecommendationTemplateProps> = ({
   headerAction,
   hasError = false,
 }) => {
-  const [manualExpanded, setManualExpanded] = useState(
+  const isControlled =
+    controlledExpanded !== undefined &&
+    onPreferencesExpandedChange !== undefined;
+
+  const [uncontrolledExpanded, setUncontrolledExpanded] = useState(
     isPreferencesInitiallyExpanded,
   );
+
+  const manualExpanded = isControlled
+    ? controlledExpanded
+    : uncontrolledExpanded;
+  const setManualExpanded = isControlled
+    ? onPreferencesExpandedChange
+    : setUncontrolledExpanded;
+
   const isPreferencesExpanded = hasError || manualExpanded;
 
   const handleGenerate = () => {

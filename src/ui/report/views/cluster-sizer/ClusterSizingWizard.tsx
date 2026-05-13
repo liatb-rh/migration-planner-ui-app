@@ -124,6 +124,25 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
   const [selectedMenuItem, setSelectedMenuItem] =
     useState<MenuItem>("architecture");
 
+  const [preferencesExpanded, setPreferencesExpanded] = useState<
+    Record<string, boolean>
+  >({
+    architecture: !isReadOnly,
+    "time-estimation": !isReadOnly,
+  });
+
+  const getPreferencesExpanded = useCallback(
+    (tab: string) => preferencesExpanded[tab] ?? !isReadOnly,
+    [preferencesExpanded, isReadOnly],
+  );
+
+  const setPreferencesExpandedForTab = useCallback(
+    (tab: string) => (expanded: boolean) => {
+      setPreferencesExpanded((prev) => ({ ...prev, [tab]: expanded }));
+    },
+    [],
+  );
+
   useEffect(() => {
     if (vm.sizerOutput && onCalculated) {
       onCalculated(vm.sizerOutput, vm.formValues);
@@ -135,8 +154,12 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
   const handleClose = useCallback(() => {
     vm.reset();
     setSelectedMenuItem("architecture");
+    setPreferencesExpanded({
+      architecture: !isReadOnly,
+      "time-estimation": !isReadOnly,
+    });
     onClose();
-  }, [onClose, vm]);
+  }, [onClose, vm, isReadOnly]);
 
   const handleCalculate = useCallback(() => {
     void vm.calculate();
@@ -208,7 +231,10 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
             )}
             generateButtonText="Generate recommendation"
             hasError={Boolean(vm.calculateError)}
-            isPreferencesInitiallyExpanded={!isReadOnly}
+            isPreferencesExpanded={getPreferencesExpanded("architecture")}
+            onPreferencesExpandedChange={setPreferencesExpandedForTab(
+              "architecture",
+            )}
             isPreferencesDisabled={isReadOnly}
             headerAction={
               vm.sizerOutput ? (
@@ -269,7 +295,10 @@ export const ClusterSizingWizard: React.FC<ClusterSizingWizardProps> = ({
             resultsTitle=""
             showAlert={false}
             hasError={Boolean(vm.estimationError)}
-            isPreferencesInitiallyExpanded={!isReadOnly}
+            isPreferencesExpanded={getPreferencesExpanded("time-estimation")}
+            onPreferencesExpandedChange={setPreferencesExpandedForTab(
+              "time-estimation",
+            )}
             isPreferencesDisabled={isReadOnly}
           />
         );

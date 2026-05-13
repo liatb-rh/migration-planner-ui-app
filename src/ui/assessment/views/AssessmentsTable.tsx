@@ -1,3 +1,4 @@
+import { css } from "@emotion/css";
 import {
   Button,
   Dropdown,
@@ -30,6 +31,19 @@ import { useNavigate } from "react-router-dom";
 import type { AssessmentModel } from "../../../models/AssessmentModel";
 import { routes } from "../../../routing/Routes";
 import { EmptySearchResults } from "../../core/components/EmptySearchResults";
+
+const themedTooltipStyle = css`
+  .pf-v6-c-tooltip__content {
+    background-color: var(--pf-t--global--background--color--primary--default);
+    color: var(--pf-t--global--text--color--regular);
+    box-shadow: var(--pf-t--global--box-shadow--md);
+  }
+  .pf-v6-c-tooltip__arrow {
+    --pf-v6-c-tooltip__arrow--BackgroundColor: var(
+      --pf-t--global--background--color--primary--default
+    );
+  }
+`;
 
 const openAssistedInstaller = (): void => {
   const currentHost = window.location.hostname;
@@ -453,7 +467,7 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
           <Tr key={row.key}>
             {isColumnVisible("Name") && (
               <Td dataLabel={Columns.Name}>
-                <TableText>
+                <TableText wrapModifier="truncate">
                   <div
                     style={{
                       display: "flex",
@@ -461,18 +475,21 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
                       gap: "8px",
                     }}
                   >
-                    <Button
-                      variant={row.hasData ? "link" : "plain"}
-                      style={{ padding: 0 }}
-                      isDisabled={!row.hasData}
-                      onClick={
-                        row.hasData
-                          ? (): void => navigate(routes.assessmentById(row.id))
-                          : undefined
-                      }
-                    >
-                      <Truncate content={row.name} />
-                    </Button>
+                    <Tooltip content={row.name} className={themedTooltipStyle}>
+                      <Button
+                        variant={row.hasData ? "link" : "plain"}
+                        style={{ padding: 0 }}
+                        isDisabled={!row.hasData}
+                        onClick={
+                          row.hasData
+                            ? (): void =>
+                                navigate(routes.assessmentById(row.id))
+                            : undefined
+                        }
+                      >
+                        {row.name}
+                      </Button>
+                    </Tooltip>
                     {!row.hasData && (
                       <Tooltip
                         content={

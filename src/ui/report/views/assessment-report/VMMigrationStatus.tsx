@@ -26,16 +26,16 @@ export const VMMigrationStatus: React.FC<VmMigrationStatusProps> = ({
       legendCategory: "Migratable",
     },
     {
-      name: "Unready for migration",
+      name: "Not ready for migration",
       count: data.nonMigratable,
       countDisplay: `${data.nonMigratable} VMs`,
-      legendCategory: "Unready for migration",
+      legendCategory: "Not ready for migration",
     },
   ];
 
   const legend = {
     Migratable: chartColorSuccess,
-    "Unready for migration": chartColorFailure,
+    "Not ready for migration": chartColorFailure,
   };
 
   return (

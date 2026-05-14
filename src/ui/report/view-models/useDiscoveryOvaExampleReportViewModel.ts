@@ -10,8 +10,6 @@ import {
   buildClusterViewModel,
   type ClusterViewModel,
 } from "../views/assessment-report/ClusterView";
-import type { ExampleClusterData } from "../views/example-data/clusterSizingFixture";
-import { EXAMPLE_SIZING_MAP } from "../views/example-data/clusterSizingFixture";
 import { getExampleInventory } from "../views/example-data/inventoryFixture";
 import type { MockVirtualMachine } from "../views/example-data/ovaVmFixture";
 import { EXAMPLE_OVA_VMS } from "../views/example-data/ovaVmFixture";
@@ -40,10 +38,6 @@ export interface DiscoveryOvaExampleReportVM {
     value: string | number | undefined,
   ) => void;
 
-  isSizingWizardOpen: boolean;
-  setIsSizingWizardOpen: (open: boolean) => void;
-  exampleSizing: ExampleClusterData | null;
-
   filteredVMs: MockVirtualMachine[];
 }
 
@@ -58,7 +52,6 @@ export function useDiscoveryOvaExampleReportViewModel(): DiscoveryOvaExampleRepo
   >(null);
   const [isClusterSelectOpen, setIsClusterSelectOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string | number>(0);
-  const [isSizingWizardOpen, setIsSizingWizardOpen] = useState(false);
 
   const selectedClusterId = useMemo(
     () => userSelectedClusterId ?? "all",
@@ -72,11 +65,6 @@ export function useDiscoveryOvaExampleReportViewModel(): DiscoveryOvaExampleRepo
 
   const clusterCount = clusters ? Object.keys(clusters).length : 0;
   const clusterSelectDisabled = clusterCount <= 0;
-
-  const exampleSizing =
-    selectedClusterId !== "all"
-      ? (EXAMPLE_SIZING_MAP[selectedClusterId] ?? null)
-      : null;
 
   const filteredVMs = useMemo(() => {
     if (selectedClusterId === "all") return EXAMPLE_OVA_VMS;
@@ -113,9 +101,6 @@ export function useDiscoveryOvaExampleReportViewModel(): DiscoveryOvaExampleRepo
     activeTab,
     handleTabSelect,
     handleClusterSelect,
-    isSizingWizardOpen,
-    setIsSizingWizardOpen,
-    exampleSizing,
     filteredVMs,
   };
 }

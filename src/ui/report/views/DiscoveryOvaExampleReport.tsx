@@ -1,6 +1,5 @@
 import { css } from "@emotion/css";
 import {
-  Button,
   Content,
   Flex,
   FlexItem,
@@ -10,8 +9,6 @@ import {
   Select,
   SelectList,
   SelectOption,
-  Split,
-  SplitItem,
   Stack,
   StackItem,
   Tab,
@@ -31,10 +28,8 @@ import { AppPage } from "../../core/components/AppPage";
 import { useDiscoveryOvaExampleReportViewModel } from "../view-models/useDiscoveryOvaExampleReportViewModel";
 import type { ClusterOption } from "./assessment-report/ClusterView";
 import { Dashboard } from "./assessment-report/Dashboard";
-import { ClusterSizingWizard } from "./cluster-sizer/ClusterSizingWizard";
 import { ExampleStorageOffloadTab } from "./discovery-ova-example/ExampleStorageOffloadTab";
 import { ExampleVMTable } from "./discovery-ova-example/ExampleVMTable";
-import { EXAMPLE_FORM_VALUES } from "./example-data/clusterSizingFixture";
 
 const DiscoveryOvaExampleReport: React.FC = () => {
   const vm = useDiscoveryOvaExampleReportViewModel();
@@ -58,20 +53,6 @@ const DiscoveryOvaExampleReport: React.FC = () => {
         },
       ]}
       title=""
-      headerActions={
-        vm.exampleSizing ? (
-          <Split hasGutter>
-            <SplitItem>
-              <Button
-                variant="primary"
-                onClick={() => vm.setIsSizingWizardOpen(true)}
-              >
-                View recommendation for {vm.exampleSizing.clusterName}
-              </Button>
-            </SplitItem>
-          </Split>
-        ) : undefined
-      }
       caption={
         <Stack hasGutter>
           <StackItem>
@@ -209,26 +190,6 @@ const DiscoveryOvaExampleReport: React.FC = () => {
           <ExampleStorageOffloadTab />
         </Tab>
       </Tabs>
-
-      {vm.exampleSizing && (
-        <ClusterSizingWizard
-          key={vm.selectedClusterId}
-          isOpen={vm.isSizingWizardOpen}
-          onClose={() => vm.setIsSizingWizardOpen(false)}
-          clusterName={vm.exampleSizing.clusterName}
-          clusterId={vm.selectedClusterId}
-          assessmentId="example"
-          options={{
-            initialSizerOutput: vm.exampleSizing.result,
-            initialFormValues: EXAMPLE_FORM_VALUES,
-            initialMigrationEstimation: vm.exampleSizing.migrationEstimation,
-            initialComplexityEstimation: vm.exampleSizing.complexityEstimation,
-            initialEstimationByComplexity:
-              vm.exampleSizing.estimationByComplexity,
-          }}
-          isReadOnly
-        />
-      )}
     </AppPage>
   );
 };

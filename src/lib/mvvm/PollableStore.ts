@@ -5,6 +5,23 @@ import { ExternalStoreBase } from "./ExternalStore";
 export const DEFAULT_POLLING_DELAY = 60 * Time.Second;
 
 /**
+ * Detect an AbortError regardless of how the runtime throws it.
+ *
+ * Browsers may throw a `DOMException` (which doesn't always extend `Error`
+ * in jsdom), a plain `Error` with `name === "AbortError"`, or the native
+ * `AbortError` type. This helper covers all variants.
+ */
+function isAbortError(err: unknown): boolean {
+  if (err instanceof DOMException && err.name === "AbortError") {
+    return true;
+  }
+  if (err instanceof Error && err.name === "AbortError") {
+    return true;
+  }
+  return false;
+}
+
+/**
  * Store base class with built-in polling support.
  *
  * Subclasses implement {@link poll} which is called on each interval tick.
@@ -16,6 +33,7 @@ export abstract class PollableStoreBase<
 > extends ExternalStoreBase<TSnapshot> {
   private pollingTimer: number | null = null;
   private pollAbortController: AbortController | null = null;
+  private pollInFlight = false;
 
   /** Start polling at the given interval (milliseconds). Restarts if already polling. */
   startPolling(intervalMs = DEFAULT_POLLING_DELAY): void {
@@ -48,15 +66,23 @@ export abstract class PollableStoreBase<
   protected abstract poll(signal: AbortSignal): Promise<void>;
 
   private async executePoll(): Promise<void> {
+    if (this.pollInFlight) {
+      return;
+    }
+
+    this.pollAbortController?.abort();
+    this.pollAbortController = new AbortController();
+    this.pollInFlight = true;
+
     try {
-      this.pollAbortController?.abort();
-      this.pollAbortController = new AbortController();
       await this.poll(this.pollAbortController.signal);
     } catch (err: unknown) {
-      if (err instanceof DOMException && err.name === "AbortError") {
+      if (isAbortError(err)) {
         return;
       }
       console.error(`Polling failed in ${this.constructor.name}:`, err);
+    } finally {
+      this.pollInFlight = false;
     }
   }
 }

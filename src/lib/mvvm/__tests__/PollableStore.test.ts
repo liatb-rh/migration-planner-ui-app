@@ -92,25 +92,33 @@ describe("PollableStoreBase", () => {
     store.stopPolling();
   });
 
-  it("aborts the previous signal when a new poll tick fires", async () => {
+  it("skips a tick when the previous poll is still in flight", async () => {
     const store = new TestPollableStore();
 
     // Make poll take longer than the interval so ticks overlap
     store.pollImplementation = () =>
-      new Promise((resolve) => setTimeout(resolve, 200));
+      new Promise((resolve) => setTimeout(resolve, 250));
 
     store.startPolling(100);
 
+    // t=100ms: first poll starts (completes at t=350ms)
     await vi.advanceTimersByTimeAsync(100);
     expect(store.pollCalls).toHaveLength(1);
     const firstSignal = store.pollCalls[0];
     expect(firstSignal.aborted).toBe(false);
 
-    // Second tick fires — first signal should be aborted
+    // t=200ms: second tick fires while first is in flight — should be skipped
+    await vi.advanceTimersByTimeAsync(100);
+    expect(store.pollCalls).toHaveLength(1);
+    expect(firstSignal.aborted).toBe(false);
+
+    // t=300ms: third tick fires while first is still in flight — also skipped
+    await vi.advanceTimersByTimeAsync(100);
+    expect(store.pollCalls).toHaveLength(1);
+
+    // t=400ms: first poll completed at t=350ms, so the fourth tick starts a new poll
     await vi.advanceTimersByTimeAsync(100);
     expect(store.pollCalls).toHaveLength(2);
-    expect(firstSignal.aborted).toBe(true);
-    expect(store.pollCalls[1].aborted).toBe(false);
 
     store.stopPolling();
   });
@@ -177,7 +185,7 @@ describe("PollableStoreBase", () => {
     consoleErrorSpy.mockRestore();
   });
 
-  it("silently swallows AbortError without logging", async () => {
+  it("silently swallows AbortError (DOMException) without logging", async () => {
     const store = new TestPollableStore();
     const consoleErrorSpy = vi
       .spyOn(console, "error")
@@ -185,6 +193,26 @@ describe("PollableStoreBase", () => {
 
     store.pollImplementation = () =>
       Promise.reject(new DOMException("Aborted", "AbortError"));
+
+    store.startPolling(100);
+    await vi.advanceTimersByTimeAsync(100);
+
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+    expect(store.isPolling).toBe(true);
+
+    store.stopPolling();
+    consoleErrorSpy.mockRestore();
+  });
+
+  it("silently swallows AbortError (plain Error with name) without logging", async () => {
+    const store = new TestPollableStore();
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+
+    const abortError = new Error("signal is aborted without reason");
+    abortError.name = "AbortError";
+    store.pollImplementation = () => Promise.reject(abortError);
 
     store.startPolling(100);
     await vi.advanceTimersByTimeAsync(100);

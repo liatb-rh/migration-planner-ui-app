@@ -1,9 +1,9 @@
-import { css } from "@emotion/css";
 import {
   Button,
   Dropdown,
   DropdownItem,
   DropdownList,
+  Icon,
   MenuToggle,
   type MenuToggleElement,
   Tooltip,
@@ -26,24 +26,11 @@ import {
   Tr,
 } from "@patternfly/react-table";
 import React, { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import type { AssessmentModel } from "../../../models/AssessmentModel";
 import { routes } from "../../../routing/Routes";
 import { EmptySearchResults } from "../../core/components/EmptySearchResults";
-
-const themedTooltipStyle = css`
-  .pf-v6-c-tooltip__content {
-    background-color: var(--pf-t--global--background--color--primary--default);
-    color: var(--pf-t--global--text--color--regular);
-    box-shadow: var(--pf-t--global--box-shadow--md);
-  }
-  .pf-v6-c-tooltip__arrow {
-    --pf-v6-c-tooltip__arrow--BackgroundColor: var(
-      --pf-t--global--background--color--primary--default
-    );
-  }
-`;
 
 const openAssistedInstaller = (): void => {
   const currentHost = window.location.hostname;
@@ -466,49 +453,27 @@ export const AssessmentsTable: React.FC<AssessmentsTableProps> = ({
         {rows.map((row) => (
           <Tr key={row.key}>
             {isColumnVisible("Name") && (
-              <Td dataLabel={Columns.Name}>
-                <TableText wrapModifier="truncate">
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <Tooltip content={row.name} className={themedTooltipStyle}>
-                      <Button
-                        variant={row.hasData ? "link" : "plain"}
-                        style={{ padding: 0 }}
-                        isDisabled={!row.hasData}
-                        onClick={
-                          row.hasData
-                            ? (): void =>
-                                navigate(routes.assessmentById(row.id))
-                            : undefined
-                        }
-                      >
-                        {row.name}
-                      </Button>
+              <Td dataLabel={Columns.Name} modifier="truncate">
+                {row.hasData ? (
+                  <Link to={routes.assessmentById(row.id)}>{row.name}</Link>
+                ) : (
+                  <span>
+                    <Tooltip
+                      content={
+                        row.sourceType.toLowerCase().includes("rvtools")
+                          ? "No inventory data found. The uploaded file may be corrupted. Please verify and re-upload."
+                          : "No inventory data yet. Data collection may be in progress or the source connection failed."
+                      }
+                    >
+                      <Icon status="warning">
+                        <ExclamationTriangleIcon />
+                      </Icon>
+                    </Tooltip>{" "}
+                    <Tooltip content={row.name}>
+                      <span>{row.name}</span>
                     </Tooltip>
-                    {!row.hasData && (
-                      <Tooltip
-                        content={
-                          row.sourceType.toLowerCase().includes("rvtools")
-                            ? "No inventory data found. The uploaded file may be corrupted. Please verify and re-upload."
-                            : "No inventory data yet. Data collection may be in progress or the source connection failed."
-                        }
-                      >
-                        <ExclamationTriangleIcon
-                          style={{
-                            color:
-                              "var(--pf-t--global--icon--color--status--warning--default)",
-                            cursor: "help",
-                          }}
-                        />
-                      </Tooltip>
-                    )}
-                  </div>
-                </TableText>
+                  </span>
+                )}
               </Td>
             )}
             {isColumnVisible("SourceType") && (

@@ -1,4 +1,7 @@
 import { css } from "@emotion/css";
+import ColumnManagementModal, {
+  type ColumnManagementModalColumn,
+} from "@patternfly/react-component-groups/dist/dynamic/ColumnManagementModal";
 import {
   Button,
   Dropdown,
@@ -9,9 +12,6 @@ import {
   MenuToggle,
   type MenuToggleElement,
   SearchInput,
-  Select,
-  SelectList,
-  SelectOption,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -28,9 +28,9 @@ import { useAssessmentPageViewModel } from "../view-models/useAssessmentPageView
 import AssessmentEmptyState from "./AssessmentEmptyState";
 import {
   AssessmentsTable,
+  COLUMN_MANAGEMENT_METADATA,
   type ColumnKey,
   Columns,
-  MANDATORY_COLUMNS,
   type SortableColumn,
 } from "./AssessmentsTable";
 import CreateAssessmentModal, {
@@ -94,10 +94,10 @@ export const AssessmentsPage: React.FC<AssessmentsPageProps> = ({
     isNavigatingToReport,
     isSharingAssessment,
     isDeletingAssessment,
-    isColumnSelectOpen,
-    setIsColumnSelectOpen,
+    isColumnModalOpen,
+    setIsColumnModalOpen,
     visibleColumns,
-    toggleColumn,
+    setVisibleColumns,
     sortBy,
     setSortBy,
     createRVToolsJob,
@@ -107,6 +107,31 @@ export const AssessmentsPage: React.FC<AssessmentsPageProps> = ({
     shareAssessment,
     deleteAssessment,
   } = useAssessmentPageViewModel();
+
+  const columnManagementData = React.useMemo(
+    (): ColumnManagementModalColumn[] =>
+      (Object.keys(Columns) as ColumnKey[])
+        .filter((key) => key !== "Actions")
+        .map((key) => ({
+          key,
+          title: COLUMN_MANAGEMENT_METADATA[key].title,
+          isShownByDefault: COLUMN_MANAGEMENT_METADATA[key].isShownByDefault,
+          isShown: visibleColumns.includes(key),
+          isUntoggleable: COLUMN_MANAGEMENT_METADATA[key].isUntoggleable,
+        })),
+    [visibleColumns],
+  );
+
+  const handleApplyColumns = React.useCallback(
+    (newColumns: ColumnManagementModalColumn[]) => {
+      const selectedKeys = newColumns
+        .filter((col) => col.isShown)
+        .map((col) => col.key as ColumnKey);
+      setVisibleColumns(selectedKeys);
+      setIsColumnModalOpen(false);
+    },
+    [setVisibleColumns, setIsColumnModalOpen],
+  );
 
   const [search, setSearch] = useState("");
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
@@ -396,45 +421,13 @@ export const AssessmentsPage: React.FC<AssessmentsPageProps> = ({
               </ToolbarItem>
 
               <ToolbarItem>
-                <Select
-                  isOpen={isColumnSelectOpen}
-                  onOpenChange={(isOpen) => setIsColumnSelectOpen(isOpen)}
-                  onSelect={(_event, value) => {
-                    if (typeof value === "string") {
-                      toggleColumn(value as ColumnKey);
-                    }
-                  }}
-                  toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                    <MenuToggle
-                      ref={toggleRef}
-                      onClick={() => setIsColumnSelectOpen(!isColumnSelectOpen)}
-                      isExpanded={isColumnSelectOpen}
-                      variant="plain"
-                      icon={<ColumnsIcon />}
-                    >
-                      Manage Columns
-                    </MenuToggle>
-                  )}
+                <Button
+                  variant="control"
+                  icon={<ColumnsIcon />}
+                  onClick={() => setIsColumnModalOpen(true)}
                 >
-                  <SelectList>
-                    {(Object.keys(Columns) as ColumnKey[]).map((columnKey) => {
-                      const isMandatory = MANDATORY_COLUMNS.includes(columnKey);
-                      const isSelected = visibleColumns.includes(columnKey);
-
-                      return (
-                        <SelectOption
-                          key={columnKey}
-                          value={columnKey}
-                          hasCheckbox
-                          isSelected={isSelected}
-                          isDisabled={isMandatory}
-                        >
-                          {Columns[columnKey] || columnKey}
-                        </SelectOption>
-                      );
-                    })}
-                  </SelectList>
-                </Select>
+                  Manage Columns
+                </Button>
               </ToolbarItem>
             </ToolbarGroup>
             <ToolbarGroup align={{ default: "alignStart", lg: "alignEnd" }}>
@@ -567,6 +560,13 @@ export const AssessmentsPage: React.FC<AssessmentsPageProps> = ({
         Are you sure you want to delete{" "}
         <b>{(selectedAssessment as AssessmentModel)?.name}?</b>
       </ConfirmationModal>
+
+      <ColumnManagementModal
+        isOpen={isColumnModalOpen}
+        onClose={() => setIsColumnModalOpen(false)}
+        appliedColumns={columnManagementData}
+        applyColumns={handleApplyColumns}
+      />
     </>
   );
 };

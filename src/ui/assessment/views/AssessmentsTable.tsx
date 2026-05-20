@@ -83,6 +83,72 @@ export const Columns = {
 export type ColumnKey = keyof typeof Columns;
 export const DEFAULT_VISIBLE_COLUMNS = Object.keys(Columns) as ColumnKey[];
 export const MANDATORY_COLUMNS: ColumnKey[] = ["Name", "Actions"];
+
+export const COLUMN_MANAGEMENT_METADATA: Record<
+  ColumnKey,
+  {
+    title: string;
+    isShownByDefault: boolean;
+    isUntoggleable: boolean;
+  }
+> = {
+  Name: {
+    title: Columns.Name,
+    isShownByDefault: true,
+    isUntoggleable: true,
+  },
+  SourceType: {
+    title: Columns.SourceType,
+    isShownByDefault: true,
+    isUntoggleable: false,
+  },
+  LastUpdated: {
+    title: Columns.LastUpdated,
+    isShownByDefault: true,
+    isUntoggleable: false,
+  },
+  Owner: {
+    title: Columns.Owner,
+    isShownByDefault: true,
+    isUntoggleable: false,
+  },
+  Hosts: {
+    title: Columns.Hosts,
+    isShownByDefault: true,
+    isUntoggleable: false,
+  },
+  VMs: {
+    title: Columns.VMs,
+    isShownByDefault: true,
+    isUntoggleable: false,
+  },
+  Networks: {
+    title: Columns.Networks,
+    isShownByDefault: true,
+    isUntoggleable: false,
+  },
+  Datastores: {
+    title: Columns.Datastores,
+    isShownByDefault: true,
+    isUntoggleable: false,
+  },
+  AssessmentReport: {
+    title: Columns.AssessmentReport,
+    isShownByDefault: true,
+    isUntoggleable: false,
+  },
+  SharingStatus: {
+    title: Columns.SharingStatus,
+    isShownByDefault: true,
+    isUntoggleable: false,
+  },
+  Actions: {
+    title: Columns.Actions,
+    isShownByDefault: true,
+    isUntoggleable: true,
+  },
+};
+
 export type SortableColumn = Exclude<
   ColumnKey,
   "AssessmentReport" | "SharingStatus" | "Actions"

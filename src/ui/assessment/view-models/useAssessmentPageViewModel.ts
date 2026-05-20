@@ -117,14 +117,14 @@ export interface AssessmentPageViewModel {
 
   // -- Column visibility & sorting -------------------------------------------
 
-  /** Whether the column selection dropdown is open. */
-  isColumnSelectOpen: boolean;
-  /** Toggle the column selection dropdown. */
-  setIsColumnSelectOpen: (open: boolean) => void;
+  /** Whether the column management modal is open. */
+  isColumnModalOpen: boolean;
+  /** Toggle the column management modal. */
+  setIsColumnModalOpen: (open: boolean) => void;
   /** Visible columns (includes mandatory columns). */
   visibleColumns: ColumnKey[];
-  /** Toggle a column's visibility. */
-  toggleColumn: (columnKey: ColumnKey) => void;
+  /** Set visible columns (bulk update). */
+  setVisibleColumns: (columns: ColumnKey[]) => void;
   /** Current sort state. */
   sortBy: { columnKey: SortableColumn; direction: "asc" | "desc" } | undefined;
   /** Update the sort state. */
@@ -180,7 +180,7 @@ export const useAssessmentPageViewModel = (): AssessmentPageViewModel => {
 
   // ---- Column visibility and sorting --------------------------------------
 
-  const [isColumnSelectOpen, setIsColumnSelectOpen] = useState(false);
+  const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
 
   const userSelectedColumnsVersion = 2;
   const [userSelectedColumns, setUserSelectedColumns] = useLocalStorage<
@@ -220,13 +220,9 @@ export const useAssessmentPageViewModel = (): AssessmentPageViewModel => {
     }
   }, [sortBy, visibleColumns]);
 
-  const toggleColumn = useCallback(
-    (columnKey: ColumnKey) => {
-      setUserSelectedColumns((previousColumns) =>
-        previousColumns.includes(columnKey)
-          ? previousColumns.filter((c) => c !== columnKey)
-          : [...previousColumns, columnKey],
-      );
+  const setVisibleColumns = useCallback(
+    (columns: ColumnKey[]) => {
+      setUserSelectedColumns(columns);
     },
     [setUserSelectedColumns],
   );
@@ -366,10 +362,10 @@ export const useAssessmentPageViewModel = (): AssessmentPageViewModel => {
     deleteError: deleteState.error,
     isUpdatingAssessment: updateState.loading,
     updateError: updateState.error,
-    isColumnSelectOpen,
-    setIsColumnSelectOpen,
+    isColumnModalOpen,
+    setIsColumnModalOpen,
     visibleColumns,
-    toggleColumn,
+    setVisibleColumns,
     sortBy,
     setSortBy,
     createRVToolsJob,

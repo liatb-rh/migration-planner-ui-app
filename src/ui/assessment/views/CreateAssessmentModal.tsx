@@ -273,7 +273,9 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
 
   const progressMessage = isNavigatingToReport
     ? "Opening report..."
-    : `${jobProgressValue}% done. ${jobProgressLabel}`;
+    : isLoading
+      ? "Uploading file.."
+      : `${jobProgressValue}% done. ${jobProgressLabel}`;
 
   const actions = [
     <Button
@@ -293,7 +295,7 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
     >
       Cancel
     </Button>,
-    (isJobProcessing || isNavigatingToReport) && (
+    (isLoading || isJobProcessing || isNavigatingToReport) && (
       <div key="progress" style={{ marginRight: "auto" }}>
         {progressMessage}
       </div>

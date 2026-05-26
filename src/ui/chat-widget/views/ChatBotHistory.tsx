@@ -61,7 +61,6 @@ export const ChatBotHistory: React.FC<ChatBotHistoryProps> = ({
     const abortController = new AbortController();
     setIsLoading(true);
     setError(undefined);
-
     void (async () => {
       try {
         await fetchConversations(abortController.signal);

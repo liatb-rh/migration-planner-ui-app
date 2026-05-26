@@ -14,6 +14,8 @@ import { DeleteConversationModal } from "./DeleteConversationModal";
 const CHAT_API_BASE =
   process.env.CHAT_API_URL?.replace("/v1/query", "") ?? "/api/chat";
 
+
+
 interface ChatBotHistoryProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;

@@ -144,7 +144,7 @@ export const ChatBotHistory: React.FC<ChatBotHistoryProps> = ({
             ? {
                 bodyText: (
                   <Alert variant="danger" isInline title="Error">
-                    {error}
+                    xxxxx
                   </Alert>
                 ),
               }

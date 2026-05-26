@@ -89,7 +89,7 @@ export const ChatBotHistory: React.FC<ChatBotHistoryProps> = ({
     );
 
     if (!resp.ok) {
-      let errMsg = `Delete failed: ${resp.status}`;
+      let errMsg = `Delete fadiled: ${resp.status}`;
       try {
         const errData = await resp.json();
         if (errData.detail?.cause) {

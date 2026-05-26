@@ -5,6 +5,7 @@ import { Suspense, useMemo } from "react";
 
 import { createContainer } from "./config/Dependencies";
 import { AppRoutes } from "./routing/AppRoutes";
+import { ChatWidget } from "./ui/chat-widget";
 import { VersionInfoView } from "./ui/version-info/views/VersionInfoView";
 
 const MainApp: React.FC = () => {
@@ -23,6 +24,7 @@ const MainApp: React.FC = () => {
       <Provider container={container}>
         <VersionInfoView />
         <AppRoutes />
+        <ChatWidget />
       </Provider>
     </Suspense>
   );

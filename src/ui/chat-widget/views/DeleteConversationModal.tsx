@@ -17,9 +17,11 @@ interface DeleteConversationModalProps {
   onDelete: () => Promise<void>;
 }
 
-export const DeleteConversationModal: React.FC<
-  DeleteConversationModalProps
-> = ({ conversation, onClose, onDelete }) => {
+export const DeleteConversationModal: React.FC<DeleteConversationModalProps> = ({
+  conversation,
+  onClose,
+  onDelete,
+}) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string>();
 
@@ -39,7 +41,7 @@ export const DeleteConversationModal: React.FC<
   return (
     <Modal
       isOpen
-      onClose={isDeleting ? () => {} : onClose}
+      onClose={onClose}
       aria-label="Delete conversation"
       variant="small"
     >

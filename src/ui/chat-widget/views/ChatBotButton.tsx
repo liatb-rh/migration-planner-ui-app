@@ -2,7 +2,6 @@ import { Button, Tooltip } from "@patternfly/react-core";
 import React from "react";
 
 import LightSpeedLogo from "../assets/lightspeed-logo.svg";
-import { aiChatbotButton, chatBotButtonIcon } from "./styles";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace ChatBotButton {
@@ -23,11 +22,11 @@ export const ChatBotButton: React.FC<ChatBotButton.Props> = ({
           <img
             src={LightSpeedLogo}
             alt="Lightspeed logo"
-            className={chatBotButtonIcon}
+            style={{ height: "46px", width: "46px" }}
           />
         }
         variant="plain"
-        className={aiChatbotButton}
+        className="ai-chatbot__button"
         onClick={onClick}
         aria-label={isOpen ? "Close assistant" : "Open assistant"}
       />

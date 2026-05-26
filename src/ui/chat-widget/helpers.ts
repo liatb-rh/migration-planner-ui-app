@@ -10,3 +10,6 @@ export const getErrorMessage = (error: unknown): string => {
 
 export const generateId = (): string =>
   `msg-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+
+export const botRole = "bot" as const;
+export const userRole = "user" as const;

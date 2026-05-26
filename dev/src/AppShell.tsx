@@ -22,6 +22,7 @@ import { useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import MainApp from "../../src/MainApp";
+import { ChatWidget } from "../../src/ui/chat-widget";
 
 const DARK_CLASS = "pf-v6-theme-dark";
 const logoUrl = new URL("/oma-logo.svg", import.meta.url);
@@ -88,18 +89,21 @@ export const AppShell: React.FC = () => {
   );
 
   return (
-    <Page masthead={masthead} sidebar={sidebar} isContentFilled>
-      <PageSection aria-labelledby="section-1">
-        <BrowserRouter
-          future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-          basename="/"
-        >
-          <Routes>
-            <Route path="/*" element={<MainApp />} />
-          </Routes>
-        </BrowserRouter>
-      </PageSection>
-    </Page>
+    <>
+      <Page masthead={masthead} sidebar={sidebar} isContentFilled>
+        <PageSection aria-labelledby="section-1">
+          <BrowserRouter
+            future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+            basename="/"
+          >
+            <Routes>
+              <Route path="/*" element={<MainApp />} />
+            </Routes>
+          </BrowserRouter>
+        </PageSection>
+      </Page>
+      <ChatWidget />
+    </>
   );
 };
 AppShell.displayName = "AppShell";

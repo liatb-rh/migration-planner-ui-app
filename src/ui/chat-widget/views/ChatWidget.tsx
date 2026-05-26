@@ -1,4 +1,5 @@
 import "@patternfly/chatbot/dist/css/main.css";
+import "./ChatWidget.css";
 
 import {
   Chatbot,
@@ -25,12 +26,6 @@ import LightSpeedLogo from "../assets/lightspeed-logo.svg";
 import { useChatWidgetViewModel } from "../view-models/useChatWidgetViewModel";
 import { ChatBotButton } from "./ChatBotButton";
 import { ChatBotHistory } from "./ChatBotHistory";
-import {
-  aiChatbot,
-  aiChatbotBrand,
-  pfChatbot,
-  pfChatbotMessageAndActions,
-} from "./styles";
 
 export const ChatWidget: React.FC = () => {
   const vm = useChatWidgetViewModel();
@@ -56,10 +51,10 @@ export const ChatWidget: React.FC = () => {
   const isProcessing = vm.isStreaming || vm.isLoading;
 
   return (
-    <div className={aiChatbot}>
+    <div className="ai-chatbot">
       <ChatBotButton isOpen={vm.isOpen} onClick={vm.toggleDrawer} />
       {vm.isOpen && (
-        <Chatbot displayMode={ChatbotDisplayMode.embedded} className={pfChatbot}>
+        <Chatbot displayMode={ChatbotDisplayMode.embedded} className="pf-chatbot">
           <ChatBotHistory
             isOpen={vm.isHistoryOpen}
             setIsOpen={vm.setHistoryOpen}
@@ -76,7 +71,7 @@ export const ChatWidget: React.FC = () => {
                   <Brand
                     src={LightSpeedLogo}
                     alt="Lightspeed"
-                    className={aiChatbotBrand}
+                    className="ai-chatbot__brand"
                   />
                 </ChatbotHeaderTitle>
               </ChatbotHeaderMain>
@@ -96,8 +91,7 @@ export const ChatWidget: React.FC = () => {
                   const isLastBotMessage =
                     index === vm.messages.length - 1 &&
                     message.role === "assistant";
-                  const showLoading =
-                    isLastBotMessage && vm.isStreaming && !message.content;
+                  const showLoading = isLastBotMessage && vm.isStreaming && !message.content;
 
                   return (
                     <Message
@@ -106,7 +100,6 @@ export const ChatWidget: React.FC = () => {
                       content={message.content}
                       timestamp={message.timestamp.toLocaleTimeString()}
                       isLoading={showLoading}
-                      className={pfChatbotMessageAndActions}
                     />
                   );
                 })}

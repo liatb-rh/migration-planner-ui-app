@@ -92,3 +92,22 @@ export type StreamEvent =
   | InferenceStreamEvent
   | ToolArgStreamEvent
   | ToolResponseStreamEvent;
+
+// Type guards
+export const isStartStreamEvent = (ev: StreamEvent): ev is StartStreamEvent =>
+  ev.event === "start";
+
+export const isEndStreamEvent = (ev: StreamEvent): ev is EndStreamEvent =>
+  ev.event === "end";
+
+export const isInferenceStreamEvent = (
+  ev: StreamEvent,
+): ev is InferenceStreamEvent => ev.event === "token";
+
+export const isToolArgStreamEvent = (
+  ev: StreamEvent,
+): ev is ToolArgStreamEvent => ev.event === "tool_call";
+
+export const isToolResponseStreamEvent = (
+  ev: StreamEvent,
+): ev is ToolResponseStreamEvent => ev.event === "tool_result";

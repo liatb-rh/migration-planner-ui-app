@@ -1,5 +1,4 @@
-import useChrome from "@redhat-cloud-services/frontend-components/useChrome";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { generateId, getErrorMessage } from "../helpers";
 import type {
@@ -8,15 +7,7 @@ import type {
   StreamEvent,
 } from "../types";
 
-const getChatBaseUrl = (): string => {
-  if (process.env.OMA_LIGHTSPEED_URL) {
-    return process.env.OMA_LIGHTSPEED_URL;
-  }
-  if (process.env.CHAT_API_URL) {
-    return process.env.CHAT_API_URL.replace("/v1/query", "");
-  }
-  return "/api/chat";
-};
+const CHAT_API_BASE = process.env.CHAT_API_URL?.replace("/v1/query", "") ?? "/api/chat";
 
 interface UseMessagesResult {
   messages: ChatMessage[];
@@ -31,66 +22,42 @@ interface UseMessagesResult {
 }
 
 export const useMessages = (): UseMessagesResult => {
-  const chrome = useChrome();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string>();
   const [isStreaming, setIsStreaming] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>();
 
-  const chatBaseUrl = useMemo(() => getChatBaseUrl(), []);
+  const loadConversation = useCallback(async (convId: string) => {
+    setIsLoading(true);
+    setError(undefined);
+    setConversationId(convId);
+    setMessages([]);
 
-  const authFetch = useCallback(
-    async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-      const token = await chrome.auth.getToken();
-      return fetch(input, {
-        ...init,
-        headers: {
-          ...init?.headers,
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      });
-    },
-    [chrome.auth],
-  );
-
-  const loadConversation = useCallback(
-    async (convId: string) => {
-      setIsLoading(true);
-      setError(undefined);
-      setConversationId(convId);
-      setMessages([]);
-
-      try {
-        const resp = await authFetch(
-          `${chatBaseUrl}/v1/conversations/${convId}`,
-        );
-        if (!resp.ok) {
-          throw new Error(`Failed to load conversation: ${resp.status}`);
-        }
-
-        const conv = (await resp.json()) as ConversationHistoryResponse;
-        const msgs = conv.chat_history.flatMap(
-          ({ messages: historyMsgs, completed_at }) => {
-            const timestamp = new Date(completed_at);
-            return historyMsgs.map<ChatMessage>(({ content, type }) => ({
-              id: generateId(),
-              role: type === "assistant" ? "assistant" : "user",
-              content,
-              timestamp,
-            }));
-          },
-        );
-
-        setMessages(msgs);
-      } catch (e) {
-        setError(getErrorMessage(e));
-      } finally {
-        setIsLoading(false);
+    try {
+      const resp = await fetch(`${CHAT_API_BASE}/v1/conversations/${convId}`);
+      if (!resp.ok) {
+        throw new Error(`Failed to load conversation: ${resp.status}`);
       }
-    },
-    [authFetch, chatBaseUrl],
-  );
+
+      const conv = (await resp.json()) as ConversationHistoryResponse;
+      const msgs = conv.chat_history.flatMap(({ messages: historyMsgs, completed_at }) => {
+        const timestamp = new Date(completed_at);
+        return historyMsgs.map<ChatMessage>(({ content, type }) => ({
+          id: generateId(),
+          role: type === "assistant" ? "assistant" : "user",
+          content,
+          timestamp,
+        }));
+      });
+
+      setMessages(msgs);
+    } catch (e) {
+      setError(getErrorMessage(e));
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   const sendMessage = useCallback(
     async (message: string) => {
@@ -105,6 +72,7 @@ export const useMessages = (): UseMessagesResult => {
         timestamp,
       };
 
+      // Add user message and placeholder for bot response
       setMessages((msgs) => [
         ...msgs,
         userMessage,
@@ -119,7 +87,7 @@ export const useMessages = (): UseMessagesResult => {
       let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
 
       try {
-        const resp = await authFetch(`${chatBaseUrl}/v1/streaming_query`, {
+        const resp = await fetch(`${CHAT_API_BASE}/v1/streaming_query`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -131,14 +99,11 @@ export const useMessages = (): UseMessagesResult => {
         if (!resp.ok) {
           let errMsg = `Request failed: ${resp.status}`;
           try {
-            const errData = (await resp.json()) as {
-              detail?: string | { response?: string };
-            };
+            const errData = await resp.json();
             if (errData.detail) {
-              errMsg =
-                typeof errData.detail === "string"
-                  ? errData.detail
-                  : (errData.detail.response ?? errMsg);
+              errMsg = typeof errData.detail === "string"
+                ? errData.detail
+                : errData.detail.response || errMsg;
             }
           } catch {
             // Use default error
@@ -146,11 +111,7 @@ export const useMessages = (): UseMessagesResult => {
           throw new Error(errMsg);
         }
 
-        if (!resp.body) {
-          throw new Error("Streaming response body is unavailable");
-        }
-
-        reader = resp.body.getReader();
+        reader = resp.body?.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
         let newConvId = "";
@@ -178,15 +139,12 @@ export const useMessages = (): UseMessagesResult => {
               const ev = JSON.parse(data) as StreamEvent;
 
               if (ev.event === "start" && "data" in ev) {
-                newConvId = ev.data.conversation_id;
+                newConvId = (ev as { event: "start"; data: { conversation_id: string } }).data.conversation_id;
               } else if (ev.event === "token" && "data" in ev) {
-                const { token } = ev.data;
+                const token = (ev as { event: "token"; data: { token: string } }).data.token;
                 setMessages((msgs) => {
-                  const lastMsg = msgs[msgs.length - 1];
-                  if (!lastMsg || lastMsg.role !== "assistant") {
-                    return msgs;
-                  }
                   const allButLast = msgs.slice(0, -1);
+                  const lastMsg = msgs[msgs.length - 1];
                   return [
                     ...allButLast,
                     {
@@ -214,6 +172,7 @@ export const useMessages = (): UseMessagesResult => {
           }
         }
         setError(getErrorMessage(e));
+        // Remove the empty bot message on error
         setMessages((msgs) => {
           const lastMsg = msgs[msgs.length - 1];
           if (lastMsg?.role === "assistant" && !lastMsg.content) {
@@ -225,7 +184,7 @@ export const useMessages = (): UseMessagesResult => {
         setIsStreaming(false);
       }
     },
-    [conversationId, authFetch, chatBaseUrl],
+    [conversationId],
   );
 
   const startNewConversation = useCallback(() => {

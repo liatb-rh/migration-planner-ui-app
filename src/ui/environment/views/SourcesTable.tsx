@@ -325,7 +325,7 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
     vm.setAssessmentFromAgent?.(true);
     vm.selectSourceById?.(sourceId);
     navigate(routes.assessmentCreate, {
-      state: { reset: true, preselectedSourceId: sourceId },
+      state: { preselectedSourceId: sourceId },
     });
   };
 

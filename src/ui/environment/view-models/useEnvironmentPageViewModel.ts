@@ -1,5 +1,5 @@
 import { useInjection } from "@y0n1/react-ioc";
-import { useCallback, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import { useAsyncFn, useMount, useUnmount } from "react-use";
 
 import { Symbols } from "../../../config/Dependencies";
@@ -146,14 +146,14 @@ export const useEnvironmentPageViewModel = (): EnvironmentPageViewModel => {
   }, [sourcesStore, assessmentsStore]);
 
   // ---- Source listing ------------------------------------------------------
-  const hasInitialLoadRef = useRef(false);
+  const [hasInitialLoad, setHasInitialLoad] = useState(false);
 
   const [listSourcesState, doListSources] = useAsyncFn(
     async () => {
       try {
         return await sourcesStore.list();
       } finally {
-        hasInitialLoadRef.current = true;
+        setHasInitialLoad(true);
       }
     },
     [sourcesStore],
@@ -388,7 +388,7 @@ export const useEnvironmentPageViewModel = (): EnvironmentPageViewModel => {
     listSources: doListSources,
     isLoadingSources: listSourcesState.loading,
     errorLoadingSources: listSourcesState.error,
-    hasInitialLoad: hasInitialLoadRef.current,
+    hasInitialLoad,
 
     deleteSource: doDeleteSource,
     isDeletingSource: deleteSourceState.loading,

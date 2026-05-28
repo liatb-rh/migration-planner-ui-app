@@ -1,5 +1,5 @@
 import { useInjection } from "@y0n1/react-ioc";
-import { useRef, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useAsyncFn, useMount, useUnmount } from "react-use";
 
@@ -27,14 +27,14 @@ export const useAssessmentsScreenViewModel = (): AssessmentsScreenViewModel => {
     assessmentsStore.getSnapshot.bind(assessmentsStore),
   );
 
-  const hasInitialLoadRef = useRef(false);
+  const [hasInitialLoad, setHasInitialLoad] = useState(false);
 
   const [fetchState, fetchAssessments] = useAsyncFn(
     async () => {
       try {
         return await assessmentsStore.list();
       } finally {
-        hasInitialLoadRef.current = true;
+        setHasInitialLoad(true);
       }
     },
     [assessmentsStore],
@@ -53,7 +53,7 @@ export const useAssessmentsScreenViewModel = (): AssessmentsScreenViewModel => {
   return {
     assessments,
     isLoading: fetchState.loading,
-    hasInitialLoad: hasInitialLoadRef.current,
+    hasInitialLoad,
     rvtoolsOpenToken,
   };
 };

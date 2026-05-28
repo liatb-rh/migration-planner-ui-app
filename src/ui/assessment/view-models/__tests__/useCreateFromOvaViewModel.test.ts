@@ -324,36 +324,6 @@ describe("useCreateFromOvaViewModel", () => {
     expect(result.current.hasGeneralApiError).toBe(true);
   });
 
-  it("handleSubmit clears sessionStorage draft on success", async () => {
-    mockAssessmentsStore.create.mockResolvedValue({ id: "a-ok" });
-    mockEnvVm.sourceCreatedId = "s-1";
-
-    const { result } = renderHook(() => useCreateFromOvaViewModel());
-
-    act(() => {
-      result.current.setName("Clean Up");
-    });
-
-    await act(async () => {
-      await result.current.handleSubmit();
-    });
-
-    expect(sessionStorage.removeItem).toHaveBeenCalled();
-  });
-
-  // ---- Cancel flow ---------------------------------------------------------
-
-  it("handleCancel navigates back and clears draft", () => {
-    const { result } = renderHook(() => useCreateFromOvaViewModel());
-
-    act(() => {
-      result.current.handleCancel();
-    });
-
-    expect(sessionStorage.removeItem).toHaveBeenCalled();
-    expect(mockNavigate).toHaveBeenCalledWith(-1);
-  });
-
   // ---- Modal close flow ----------------------------------------------------
 
   it("handleSetupModalClose refreshes sources and preselects created source", async () => {
@@ -447,36 +417,19 @@ describe("useCreateFromOvaViewModel", () => {
 
   // ---- Draft persistence (restore) -----------------------------------------
 
-  it("restores form state from sessionStorage draft", () => {
-    (sessionStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue(
-      JSON.stringify({
-        name: "Saved Draft",
-        useExisting: true,
-        selectedEnvironmentId: "s-saved",
-      }),
-    );
-
-    const { result } = renderHook(() => useCreateFromOvaViewModel());
-
-    expect(result.current.name).toBe("Saved Draft");
-    expect(result.current.useExisting).toBe(true);
-    expect(result.current.selectedEnvironmentId).toBe("s-saved");
-  });
-
   it("pre-selects environment when coming from environment page with reset flag", () => {
     const preselectedSource = makeSource({
       id: "s-preselected",
       name: "Preselected",
     });
     mockEnvVm.sources = [preselectedSource];
-    mockLocationState = { reset: true, preselectedSourceId: "s-preselected" };
+    mockLocationState = { preselectedSourceId: "s-preselected" };
 
     const { result } = renderHook(() => useCreateFromOvaViewModel());
 
     expect(result.current.name).toBe("");
     expect(result.current.useExisting).toBe(true);
     expect(result.current.selectedEnvironmentId).toBe("s-preselected");
-    expect(sessionStorage.removeItem).toHaveBeenCalled();
   });
 
   it("pre-selects manually uploaded environment when coming from environment page", () => {
@@ -488,14 +441,13 @@ describe("useCreateFromOvaViewModel", () => {
       inventory: { vcenter: {} } as Source["inventory"],
     });
     mockEnvVm.sources = [manuallyUploadedSource];
-    mockLocationState = { reset: true, preselectedSourceId: "s-manual" };
+    mockLocationState = { preselectedSourceId: "s-manual" };
 
     const { result } = renderHook(() => useCreateFromOvaViewModel());
 
     expect(result.current.name).toBe("");
     expect(result.current.useExisting).toBe(true);
     expect(result.current.selectedEnvironmentId).toBe("s-manual");
-    expect(sessionStorage.removeItem).toHaveBeenCalled();
   });
 
   // ---- createdSource lookup -------------------------------------------------

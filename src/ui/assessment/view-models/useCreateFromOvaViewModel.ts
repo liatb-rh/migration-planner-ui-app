@@ -1,5 +1,5 @@
 import { useInjection } from "@y0n1/react-ioc";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAsyncFn } from "react-use";
 
@@ -9,12 +9,6 @@ import { isNameError } from "../../../lib/common/ErrorParser";
 import type { SourceModel } from "../../../models/SourceModel";
 import { routes } from "../../../routing/Routes";
 import { useEnvironmentPage } from "../../environment/view-models/EnvironmentPageContext";
-
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
-const DRAFT_KEY = "migration-assessment:create-from-ova-draft";
 
 // ---------------------------------------------------------------------------
 // Public interface
@@ -75,7 +69,7 @@ export interface CreateFromOvaViewModel {
 export const useCreateFromOvaViewModel = (): CreateFromOvaViewModel => {
   const navigate = useNavigate();
   const location = useLocation() as {
-    state?: { reset?: boolean; preselectedSourceId?: string };
+    state?: { preselectedSourceId?: string };
     pathname: string;
     search: string;
     hash?: string;
@@ -87,10 +81,15 @@ export const useCreateFromOvaViewModel = (): CreateFromOvaViewModel => {
   );
   const envVm = useEnvironmentPage();
 
-  // Form state
-  const [name, setName] = React.useState("");
-  const [useExisting, setUseExisting] = React.useState(false);
-  const [selectedEnvironmentId, setSelectedEnvironmentId] = React.useState("");
+  const preselectedSourceId = envVm.assessmentFromAgentState
+    ? envVm.sourceSelected?.id
+    : location.state?.preselectedSourceId;
+
+  const [name, setName] = useState("");
+  const [useExisting, setUseExisting] = useState(Boolean(preselectedSourceId));
+  const [selectedEnvironmentId, setSelectedEnvironmentId] = useState(
+    preselectedSourceId || "",
+  );
 
   // Modal state
   const [isSetupModalOpen, setIsSetupModalOpen] = React.useState(false);
@@ -102,9 +101,6 @@ export const useCreateFromOvaViewModel = (): CreateFromOvaViewModel => {
   // Derive upload feedback from the environment view model
   const uploadMessage = envVm.inventoryUploadResult?.message ?? null;
   const isUploadError = envVm.inventoryUploadResult?.isError ?? false;
-
-  // Init ref
-  const hasInitializedRef = React.useRef(false);
 
   // ---------------------------------------------------------------------------
   // Derived data
@@ -140,82 +136,8 @@ export const useCreateFromOvaViewModel = (): CreateFromOvaViewModel => {
   // ---------------------------------------------------------------------------
 
   React.useEffect(() => {
-    if (hasInitializedRef.current) return;
-    hasInitializedRef.current = true;
-    const shouldReset = Boolean(location.state?.reset);
-    if (shouldReset) {
-      setName("");
-      // Check if we have a pre-selected source ID from navigation state
-      const preselectedSourceId = location.state?.preselectedSourceId;
-      if (preselectedSourceId) {
-        // Pre-select the environment from navigation state
-        setUseExisting(true);
-        setSelectedEnvironmentId(preselectedSourceId);
-      } else {
-        setUseExisting(false);
-        setSelectedEnvironmentId("");
-      }
-      try {
-        sessionStorage.removeItem(DRAFT_KEY);
-      } catch {
-        // ignore
-      }
-      try {
-        navigate(
-          `${location.pathname}${location.search}${location.hash || ""}`,
-          { replace: true },
-        );
-      } catch {
-        // ignore
-      }
-      return;
-    }
-    try {
-      const raw = sessionStorage.getItem(DRAFT_KEY);
-      if (!raw) return;
-      const draft = JSON.parse(raw) as {
-        name?: string;
-        useExisting?: boolean;
-        selectedEnvironmentId?: string;
-      };
-      if (typeof draft.name === "string") setName(draft.name);
-      if (typeof draft.useExisting === "boolean")
-        setUseExisting(draft.useExisting);
-      if (typeof draft.selectedEnvironmentId === "string")
-        setSelectedEnvironmentId(draft.selectedEnvironmentId);
-    } catch {
-      // ignore
-    }
-  }, [location, navigate]);
-
-  React.useEffect(() => {
-    try {
-      const draft = { name, useExisting, selectedEnvironmentId };
-      sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-    } catch {
-      // ignore
-    }
-  }, [name, useExisting, selectedEnvironmentId]);
-
-  React.useEffect(() => {
     envVm.clearInventoryUploadResult();
   }, [selectedEnvironmentId, envVm]);
-
-  React.useEffect(() => {
-    if (envVm.assessmentFromAgentState) {
-      const preselected = envVm.sourceSelected;
-      if (preselected?.id && !useExisting && !selectedEnvironmentId) {
-        setUseExisting(true);
-        setSelectedEnvironmentId(preselected.id);
-      }
-    }
-  }, [
-    envVm.assessmentFromAgentState,
-    envVm.sourceSelected,
-    envVm.sources,
-    useExisting,
-    selectedEnvironmentId,
-  ]);
 
   // ---------------------------------------------------------------------------
   // Actions
@@ -240,11 +162,9 @@ export const useCreateFromOvaViewModel = (): CreateFromOvaViewModel => {
 
     await assessmentsStore.list();
     navigate(routes.assessmentReport(assessment.id));
-    try {
-      sessionStorage.removeItem(DRAFT_KEY);
-    } catch {
-      // ignore
-    }
+    setName("");
+    setUseExisting(false);
+    setSelectedEnvironmentId("");
   }, [
     assessmentsStore,
     envVm.sourceCreatedId,
@@ -252,16 +172,17 @@ export const useCreateFromOvaViewModel = (): CreateFromOvaViewModel => {
     navigate,
     selectedEnvironmentId,
     useExisting,
+    setName,
+    setUseExisting,
+    setSelectedEnvironmentId,
   ]);
 
   const handleCancel = useCallback(() => {
-    try {
-      sessionStorage.removeItem(DRAFT_KEY);
-    } catch {
-      // ignore
-    }
+    setName("");
+    setUseExisting(false);
+    setSelectedEnvironmentId("");
     navigate(-1);
-  }, [navigate]);
+  }, [navigate, setName, setUseExisting, setSelectedEnvironmentId]);
 
   const [refreshAfterCloseState, doRefreshAfterClose] = useAsyncFn(async () => {
     const newId = envVm.sourceCreatedId;

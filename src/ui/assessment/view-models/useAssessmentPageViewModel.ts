@@ -187,7 +187,7 @@ export const useAssessmentPageViewModel = (): AssessmentPageViewModel => {
     ColumnKey[]
   >(VISIBLE_COLUMNS_KEY, DEFAULT_VISIBLE_COLUMNS, userSelectedColumnsVersion);
 
-  const [sortBy, setSortBy] = useState<
+  const [internalSortBy, setInternalSortBy] = useState<
     { columnKey: SortableColumn; direction: "asc" | "desc" } | undefined
   >({
     columnKey: "Name",
@@ -209,16 +209,17 @@ export const useAssessmentPageViewModel = (): AssessmentPageViewModel => {
   );
 
   // Reset sort to Name column if the currently sorted column becomes hidden
-  useEffect(() => {
-    if (sortBy) {
-      const sortedColumn = sortBy.columnKey;
+  const sortBy = useMemo(() => {
+    if (internalSortBy) {
+      const sortedColumn = internalSortBy.columnKey;
       const sortedColumnNotInVisibleColumns =
         !visibleColumns.includes(sortedColumn);
       if (sortedColumn && sortedColumnNotInVisibleColumns) {
-        setSortBy({ columnKey: "Name", direction: "asc" });
+        return { columnKey: "Name" as const, direction: "asc" as const };
       }
     }
-  }, [sortBy, visibleColumns]);
+    return internalSortBy;
+  }, [internalSortBy, visibleColumns]);
 
   const setVisibleColumns = useCallback(
     (columns: ColumnKey[]) => {
@@ -367,7 +368,7 @@ export const useAssessmentPageViewModel = (): AssessmentPageViewModel => {
     visibleColumns,
     setVisibleColumns,
     sortBy,
-    setSortBy,
+    setSortBy: setInternalSortBy,
     createRVToolsJob,
     clearJobCreateError,
     cancelRVToolsJob,

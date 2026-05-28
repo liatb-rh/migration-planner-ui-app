@@ -10,7 +10,7 @@ import {
   ModalHeader,
   TextInput,
 } from "@patternfly/react-core";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 interface UpdateAssessmentProps {
   isOpen: boolean;
@@ -27,12 +27,6 @@ export const UpdateAssessment: React.FC<UpdateAssessmentProps> = ({
 }) => {
   const [assessmentName, setAssessmentName] = useState(name);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
-  // Reset form when name prop changes or modal opens
-  useEffect(() => {
-    setAssessmentName(name);
-    setSelectedFile(null);
-  }, [name, isOpen]);
 
   const handleSubmit = (): void => {
     if (assessmentName.trim()) {
@@ -51,7 +45,12 @@ export const UpdateAssessment: React.FC<UpdateAssessmentProps> = ({
   const isUpdateEnabled = assessmentName.trim();
 
   return (
-    <Modal variant="medium" isOpen={isOpen} onClose={onClose}>
+    <Modal
+      variant="medium"
+      isOpen={isOpen}
+      onClose={onClose}
+      key={`${isOpen}-${name}`}
+    >
       <ModalHeader title="Update Assessment" />
       <ModalBody>
         <Form>

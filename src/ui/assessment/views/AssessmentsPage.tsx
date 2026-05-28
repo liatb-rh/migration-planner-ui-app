@@ -205,19 +205,24 @@ export const AssessmentsPage: React.FC<AssessmentsPageProps> = ({
   }, [cancelRVToolsJob]);
 
   // Open RVTools modal when the trigger token changes
+  const prevRvtoolsTokenRef = React.useRef<string>();
   React.useEffect(() => {
-    if (rvtoolsOpenToken) {
+    if (rvtoolsOpenToken && rvtoolsOpenToken !== prevRvtoolsTokenRef.current) {
+      prevRvtoolsTokenRef.current = rvtoolsOpenToken;
       handleOpenModal("rvtools");
     }
-    // We intentionally only react to token changes
   }, [rvtoolsOpenToken]);
 
   // Close filter dropdown whenever any modal in this page opens
-  React.useEffect(() => {
-    if (isModalOpen || isUpdateModalOpen || isDeleteModalOpen) {
-      setIsFilterDropdownOpen(false);
-    }
-  }, [isModalOpen, isUpdateModalOpen, isDeleteModalOpen]);
+  const anyModalOpen =
+    isModalOpen ||
+    isUpdateModalOpen ||
+    isDeleteModalOpen ||
+    isSharingModalOpen ||
+    isColumnModalOpen;
+  if (anyModalOpen && isFilterDropdownOpen) {
+    setIsFilterDropdownOpen(false);
+  }
 
   const handleUpdateAssessment = (assessmentId: string): void => {
     const assessment = assessments.find((a) => a.id === assessmentId);

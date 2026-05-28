@@ -87,20 +87,6 @@ export const CreateAssessmentModal: React.FC<CreateAssessmentModalProps> = ({
   const [nameValidationError, setNameValidationError] = useState("");
   const [fileValidationError, setFileValidationError] = useState("");
 
-  // Reset all form state when the modal is closed — covers both explicit
-  // (Cancel / X) and programmatic closes (e.g. navigation after job completion).
-  React.useEffect(() => {
-    if (!isOpen) {
-      setAssessmentName("");
-      setSelectedFile(null);
-      setFilename("");
-      setNameValidationError("");
-      setFileValidationError("");
-      setSelectedEnvironmentId("");
-      setRvtoolsConsentChecked(false);
-    }
-  }, [isOpen]);
-
   // Disable all form inputs while the job is being created/processed or the report is loading.
   const isFormDisabled = isLoading || isJobProcessing || isNavigatingToReport;
 

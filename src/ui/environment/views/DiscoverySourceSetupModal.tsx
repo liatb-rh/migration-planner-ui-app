@@ -22,7 +22,7 @@ import {
   TextArea,
   TextInput,
 } from "@patternfly/react-core";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 
 import { VCenterSetupInstructions } from "../../core/components/VCenterSetupInstructions";
 import { getNetworkConfig } from "../helpers/networkConfig";
@@ -51,6 +51,13 @@ export const DiscoverySourceSetupModal: React.FC<
     onAfterDownload,
     editSourceId,
   } = props;
+  // Initialize form state - load from edit source if editing
+  const editSource = editSourceId
+    ? vm.getSourceById?.(editSourceId)
+    : undefined;
+  const editProxyConfig = editSource ? getProxyConfig(editSource) : null;
+  const editNetworkConfig = editSource ? getNetworkConfig(editSource) : null;
+
   const [sshKey, setSshKey] = useState("");
   const [sshKeyError, setSshKeyError] = useState<string | null>(null);
   const [ipAddressError, setIpAddressError] = useState<string | null>(null);
@@ -59,25 +66,45 @@ export const DiscoverySourceSetupModal: React.FC<
     null,
   );
   const [dnsError, setDnsError] = useState<string | null>(null);
-  const [showUrl, setShowUrl] = useState(false);
-  const [generatedUrl, setGeneratedUrl] = useState<string>("");
   const [sourceName, setSourceName] = useState<string>("");
-  const [environmentName, setEnvironmentName] = useState<string>("");
-  const [httpProxy, setHttpProxy] = useState<string>("");
-  const [httpsProxy, setHttpsProxy] = useState<string>("");
-  const [noProxy, setNoProxy] = useState<string>("");
-  const [enableProxy, setEnableProxy] = useState(false);
+  const [environmentName, setEnvironmentName] = useState<string>(
+    editSource?.name || "",
+  );
+  const [httpProxy, setHttpProxy] = useState<string>(
+    editProxyConfig?.httpProxy || "",
+  );
+  const [httpsProxy, setHttpsProxy] = useState<string>(
+    editProxyConfig?.httpsProxy || "",
+  );
+  const [noProxy, setNoProxy] = useState<string>(
+    editProxyConfig?.noProxy || "",
+  );
+  const [enableProxy, setEnableProxy] = useState(
+    editProxyConfig?.enableProxy || false,
+  );
   const [httpProxyError, setHttpProxyError] = useState<string | null>(null);
   const [httpsProxyError, setHttpsProxyError] = useState<string | null>(null);
   const [proxyGroupError, setProxyGroupError] = useState<string | null>(null);
-  const [isEditingConfiguration, setIsEditingConfiguration] = useState(false);
-  const [networkConfigType, setNetworkConfigType] = useState<"dhcp" | "static">(
-    "dhcp",
+  const [isEditingConfiguration, setIsEditingConfiguration] = useState(
+    Boolean(editSourceId),
   );
-  const [dns, setDns] = useState<string>("");
-  const [subnetMask, setSubnetMask] = useState<string>("");
-  const [defaultGateway, setDefaultGateway] = useState<string>("");
-  const [ipAddress, setIpAddress] = useState<string>("");
+  const [networkConfigType, setNetworkConfigType] = useState<"dhcp" | "static">(
+    editNetworkConfig?.networkConfigType || "dhcp",
+  );
+  const [dns, setDns] = useState<string>(editNetworkConfig?.dns || "");
+  const [subnetMask, setSubnetMask] = useState<string>(
+    editNetworkConfig?.subnetMask || "",
+  );
+  const [defaultGateway, setDefaultGateway] = useState<string>(
+    editNetworkConfig?.defaultGateway || "",
+  );
+  const [ipAddress, setIpAddress] = useState<string>(
+    editNetworkConfig?.ipAddress || "",
+  );
+
+  // Derived values from VM state
+  const showUrl = Boolean(vm.downloadSourceUrl);
+  const generatedUrl = vm.downloadSourceUrl || "";
 
   type FormValues = {
     sshKey: string;
@@ -95,16 +122,16 @@ export const DiscoverySourceSetupModal: React.FC<
 
   const [initialValues, setInitialValues] = useState<FormValues>({
     sshKey: "",
-    environmentName: "",
-    httpProxy: "",
-    httpsProxy: "",
-    noProxy: "",
-    enableProxy: false,
-    networkConfigType: "dhcp",
-    dns: "",
-    subnetMask: "",
-    defaultGateway: "",
-    ipAddress: "",
+    environmentName: editSource?.name || "",
+    httpProxy: editProxyConfig?.httpProxy || "",
+    httpsProxy: editProxyConfig?.httpsProxy || "",
+    noProxy: editProxyConfig?.noProxy || "",
+    enableProxy: editProxyConfig?.enableProxy || false,
+    networkConfigType: editNetworkConfig?.networkConfigType || "dhcp",
+    dns: editNetworkConfig?.dns || "",
+    subnetMask: editNetworkConfig?.subnetMask || "",
+    defaultGateway: editNetworkConfig?.defaultGateway || "",
+    ipAddress: editNetworkConfig?.ipAddress || "",
   });
 
   const validateIpAddress = useCallback((ip: string): string | null => {
@@ -166,15 +193,13 @@ export const DiscoverySourceSetupModal: React.FC<
     setDnsError(validateIpAddress(value));
   };
 
-  const resetForm = (): void => {
+  const resetForm = useCallback((): void => {
     setSshKey("");
     setSshKeyError(null);
     setIpAddressError(null);
     setSubnetMaskError(null);
     setDefaultGatewayError(null);
     setDnsError(null);
-    setShowUrl(false);
-    setGeneratedUrl("");
     setSourceName("");
     setEnvironmentName("");
     setHttpProxy("");
@@ -210,15 +235,14 @@ export const DiscoverySourceSetupModal: React.FC<
       updating: true,
       creating: true,
     });
-  };
+  }, [vm]);
 
-  const backToOvaConfiguration = (): void => {
-    setShowUrl(false);
+  const backToOvaConfiguration = useCallback((): void => {
     vm.setDownloadUrl?.("");
     setIsEditingConfiguration(true);
-  };
+  }, [vm]);
 
-  const clearErrors = (): void => {
+  const clearErrors = useCallback((): void => {
     setSshKeyError(null);
     setIpAddressError(null);
     setSubnetMaskError(null);
@@ -229,7 +253,7 @@ export const DiscoverySourceSetupModal: React.FC<
       updating: true,
       creating: true,
     });
-  };
+  }, [vm]);
 
   const handleSubmit = useCallback<React.FormEventHandler<HTMLFormElement>>(
     (e) => {
@@ -380,46 +404,6 @@ export const DiscoverySourceSetupModal: React.FC<
     ],
   );
 
-  useEffect(() => {
-    if (vm.downloadSourceUrl) {
-      setGeneratedUrl(vm.downloadSourceUrl);
-      setShowUrl(true);
-    }
-  }, [vm.downloadSourceUrl]);
-
-  useEffect(() => {
-    if (isOpen) {
-      resetForm();
-      clearErrors();
-      if (editSourceId) {
-        setIsEditingConfiguration(true);
-        const src = vm.getSourceById?.(editSourceId);
-        if (src) {
-          setEnvironmentName(src.name || "");
-          const proxyConfig = getProxyConfig(src);
-          setHttpProxy(proxyConfig.httpProxy);
-          setHttpsProxy(proxyConfig.httpsProxy);
-          setNoProxy(proxyConfig.noProxy);
-          setEnableProxy(proxyConfig.enableProxy);
-
-          const networkConfig = getNetworkConfig(src);
-          setNetworkConfigType(networkConfig.networkConfigType);
-          setIpAddress(networkConfig.ipAddress);
-          setSubnetMask(networkConfig.subnetMask);
-          setDefaultGateway(networkConfig.defaultGateway);
-          setDns(networkConfig.dns);
-          setInitialValues({
-            sshKey: "",
-            environmentName: src.name || "",
-            ...proxyConfig,
-            ...networkConfig,
-          });
-        }
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, editSourceId]);
-
   const hasFormChanges = isEditingConfiguration
     ? sshKey !== initialValues.sshKey ||
       httpProxy !== initialValues.httpProxy ||
@@ -445,6 +429,7 @@ export const DiscoverySourceSetupModal: React.FC<
       aria-labelledby="discovery-source-setup-modal-title"
       aria-describedby="modal-box-body-discovery-source-setup"
       onChange={clearErrors}
+      key={editSourceId || "create"}
     >
       <ModalHeader
         title={

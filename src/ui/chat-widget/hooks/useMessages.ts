@@ -168,7 +168,6 @@ export const useMessages = (): UseMessagesResult => {
           try {
             await reader.cancel();
           } catch {
-            // Ignore cancel errors
           }
         }
         setError(getErrorMessage(e));

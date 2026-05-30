@@ -186,7 +186,7 @@ start-dev-proxy: install
 # Start federated static server
 start-federated: install
 	@echo "🚀 Starting federated static server..."
-	@npx fec static
+	@$(BUILD_ENV) npx fec static
 	@echo "✅ Federated static server started!"
 
 # Legacy build target (federated module)

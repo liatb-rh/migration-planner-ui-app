@@ -1,0 +1,15 @@
+# Runtime-only image for Migration Planner UI
+# Requires pre-built dist/ folder
+FROM --platform=linux/amd64 registry.access.redhat.com/ubi9/nginx-126
+
+# Copy nginx configuration
+COPY deploy/dev/nginx.conf /etc/nginx/nginx.conf
+
+# Copy pre-built application
+COPY dev/dist /usr/share/nginx/html
+
+# Expose port 8080
+EXPOSE 8080
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

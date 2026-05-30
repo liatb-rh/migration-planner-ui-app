@@ -6,6 +6,7 @@ http {
     default_type application/octet-stream;
     sendfile on;
     keepalive_timeout 65;
+    client_max_body_size 100M;
 
     log_format main '$remote_addr - $remote_user [$time_local] "$request" '
                       '$status $body_bytes_sent "$http_referer" '
@@ -14,16 +15,19 @@ http {
     upstream migration_planner_api {
         server ${MIGRATION_PLANNER_API_UPSTREAM};
     }
-    
+
+    upstream oma_lightspeed {
+        server oma-lightspeed:8080;
+    }
+
     # Client connections: nginx responds with HTTP/1.1 (default for listen without ssl).
     # Upstream (proxy): default is HTTP/1.0 (see ngx_http_proxy_module proxy_http_version);
     # we set proxy_http_version 1.1 so the connection to the API uses HTTP/1.1.
     server {
-        listen 8081;
+        listen 8080;
         server_name localhost;
         root /usr/share/nginx/html;
         index index.html;
-
         # Proxy API calls to migration-planner-api service
         location ${MIGRATION_PLANNER_API_BASE_URL} {
             proxy_pass http://migration_planner_api;
@@ -36,7 +40,24 @@ http {
             proxy_send_timeout 30s;
             proxy_read_timeout 30s;
         }
-       
+        
+        # Proxy chat API calls to oma-lightspeed service (streaming support)
+        location /api/chat/ {
+            proxy_pass http://oma_lightspeed/;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header Connection '';
+            proxy_connect_timeout 300s;
+            proxy_send_timeout 300s;
+            proxy_read_timeout 300s;
+            proxy_buffering off;
+            proxy_cache off;
+            chunked_transfer_encoding on;
+        }
+
         # Serve static files and SPA
         location / {
             try_files $uri $uri/ /index.html;

@@ -7,6 +7,18 @@ assert(
   "MIGRATION_PLANNER_API_BASE_URL is required",
 );
 
+const getRoutes = () => {
+  const routes = {};
+
+  if (process.env.OMA_LIGHTSPEED_URL) {
+    routes["/api/oma-lightspeed/"] = {
+      host: process.env.OMA_LIGHTSPEED_URL,
+    };
+  }
+
+  return Object.keys(routes).length > 0 ? routes : undefined;
+};
+
 /** @type {import('@redhat-cloud-services/frontend-components-config').FecWebpackConfiguration} */
 module.exports = {
   appUrl: "/openshift/migration-advisor",
@@ -15,6 +27,7 @@ module.exports = {
   proxyVerbose: true,
   sassPrefix: ".assisted-migration-app, .assistedMigrationApp",
   interceptChromeConfig: false,
+  routes: getRoutes(),
   plugins: [
     new webpack.DefinePlugin({
       "process.env.MIGRATION_PLANNER_API_BASE_URL": JSON.stringify(
@@ -31,6 +44,12 @@ module.exports = {
       // defined as "" in dev/vite.config.ts.
       "process.env.MIGRATION_PLANNER_APP_BASENAME": JSON.stringify(
         "/openshift/migration-advisor",
+      ),
+      "process.env.OMA_LIGHTSPEED_URL": JSON.stringify(
+        process.env.OMA_LIGHTSPEED_URL || "",
+      ),
+      "process.env.CHAT_API_URL": JSON.stringify(
+        process.env.CHAT_API_URL || "",
       ),
     }),
     // Prevent EMFILE (too many open files) by excluding node_modules from
